@@ -15,7 +15,7 @@ struct Args {
 }
 
 fn main() {
-    let vsoc_name: String = String::from("RV64I");
+    let vsoc_name: String = String::from("RV64IM");
     let mut vsoc: Vsoc = Vsoc::new(&vsoc_name);
     let args = Args::parse();
     let mut file = File::open(args.binary).unwrap();

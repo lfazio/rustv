@@ -76,24 +76,37 @@ impl Instr {
         let rs1: usize = self.get_rs1();
         let rs2: usize = self.get_rs2();
 
-        match funct3 {
-            0x0 => if (funct7 & 0x20) == 0x20 {
-                op::sub(reg, rd, rs1, rs2); // sub
-            } else {
-                op::add(reg, rd, rs1, rs2); // add
+        match self.get_funct7() {
+            0x01 => match funct3 {
+                0x0 => op::mul(reg, rd, rs1, rs2),
+                0x1 => op::mulh(reg, rd, rs1, rs2),
+                0x2 => op::mulhsu(reg, rd, rs1, rs2),
+                0x3 => op::mulhu(reg, rd, rs1, rs2),
+                0x4 => op::div(reg, rd, rs1, rs2),
+                0x5 => op::divu(reg, rd, rs1, rs2),
+                0x6 => op::rem(reg, rd, rs1, rs2),
+                0x7 => op::remu(reg, rd, rs1, rs2),
+                _ => return Some(exception::RvException::InstructionIllegal),
             },
-            0x1 => op::sll(reg, rd, rs1, rs2), // sll
-            0x2 => op::slt(reg, rd, rs1, rs2), // slt
-            0x3 => op::sltu(reg, rd, rs1, rs2), // sltu
-            0x4 => op::xor(reg, rd, rs1, rs2), // xor
-            0x5 => if (funct7 & 0x20) == 0x20 {
-                op::sra(reg, rd, rs1, rs2); // sra
-            } else {
-                op::srl(reg, rd, rs1, rs2); // srl
+            _ => match funct3 {
+                0x0 => match self.get_funct7() {
+                    0x00 => op::add(reg, rd, rs1, rs2), // add
+                    0x20 => op::sub(reg, rd, rs1, rs2), // sub
+                    _ => return Some(exception::RvException::InstructionIllegal),
+                },
+                0x1 => op::sll(reg, rd, rs1, rs2), // sll
+                0x2 => op::slt(reg, rd, rs1, rs2), // slt
+                0x3 => op::sltu(reg, rd, rs1, rs2), // sltu
+                0x4 => op::xor(reg, rd, rs1, rs2), // xor
+                0x5 => if (funct7 & 0x20) == 0x20 {
+                    op::sra(reg, rd, rs1, rs2); // sra
+                } else {
+                    op::srl(reg, rd, rs1, rs2); // srl
+                },
+                0x6 => op::or(reg, rd, rs1, rs2), // or
+                0x7 => op::and(reg, rd, rs1, rs2), // and
+                _ => return Some(exception::RvException::InstructionIllegal),
             },
-            0x6 => op::or(reg, rd, rs1, rs2), // or
-            0x7 => op::and(reg, rd, rs1, rs2), // and
-            _ => return Some(exception::RvException::InstructionIllegal),
         };
 
         None
@@ -101,24 +114,33 @@ impl Instr {
 
     fn op32(&self, reg: &mut RvRegisters) -> Option<exception::RvException> {
         let funct3: usize = self.get_funct3();
-        let funct7: usize = self.get_funct7();
         let rd: usize = self.get_rd();
         let rs1: usize = self.get_rs1();
         let rs2: usize = self.get_rs2();
 
-        match funct3 {
-            0x0 => if funct7 & 0x20 == 0x20 {
-                op::subw(reg, rd, rs1, rs2); // subw
-            } else {
-                op::addw(reg, rd, rs1, rs2); // addw
+        match self.get_funct7() {
+            0x01 => match funct3 {
+                0x0 => op::mulw(reg, rd, rs1, rs2),
+                0x4 => op::divw(reg, rd, rs1, rs2),
+                0x5 => op::divuw(reg, rd, rs1, rs2),
+                0x6 => op::remw(reg, rd, rs1, rs2),
+                0x7 => op::remuw(reg, rd, rs1, rs2),
+                _ => return Some(exception::RvException::InstructionIllegal),
             },
-            0x1 => op::sllw(reg, rd, rs1, rs2), // sllw
-            0x5 => if funct7 & 0x20 == 0x20 {
-                op::sraw(reg, rd, rs1, rs2); // sraw
-            } else {
-                op::srlw(reg, rd, rs1, rs2); // srlw
+            _ => match funct3 {
+                0x0 => match self.get_funct7() {
+                    0x00 => op::addw(reg, rd, rs1, rs2), // addw
+                    0x20 => op::subw(reg, rd, rs1, rs2), // subw
+                    _ => return Some(exception::RvException::InstructionIllegal),
+                },
+                0x1 => op::sllw(reg, rd, rs1, rs2), // sllw
+                0x5 => match self.get_funct7() {
+                    0x00 => op::srlw(reg, rd, rs1, rs2), // srlw
+                    0x20 => op::sraw(reg, rd, rs1, rs2), // sraw
+                    _ => return Some(exception::RvException::InstructionIllegal),
+                },
+                _ => return Some(exception::RvException::InstructionIllegal),
             },
-            _ => return Some(exception::RvException::InstructionIllegal),
         };
 
         None
@@ -331,7 +353,7 @@ impl Instr {
         let rs1: usize = self.get_rs1();
         let rs2: usize = self.get_rs2();
         let imm: i32 = self.get_s_imm();
-        
+
         match funct3 {
             0x0 => store::sb(reg, rs1, rs2, imm, bus), // store byte
             0x1 => store::sh(reg, rs1, rs2, imm, bus), // store half
@@ -347,7 +369,7 @@ impl Instr {
         let funct3: usize = self.get_funct3();
         let rd: usize = self.get_rd();
         let rs1: usize = self.get_rs1();
-        let funct12: u16 = self.get_funct12();
+        let funct12: usize = self.get_funct12();
 
         match funct3 {
             0x0 => match rs1 {
@@ -657,12 +679,12 @@ impl Instr {
         }
     }
 
-    fn get_funct12(&self) -> u16 {
+    fn get_funct12(&self) -> usize {
         match self {
             Instr::InstrC0(_) => todo!(),
             Instr::InstrC1(_) => todo!(),
             Instr::InstrC2(_) => todo!(),
-            Instr::Instr32(i) => ((i >> 20) & 0xfff) as u16,
+            Instr::Instr32(i) => (*i as usize >> 20) & 0xfff,
             Instr::Invalid => unreachable!(),
         }
     }

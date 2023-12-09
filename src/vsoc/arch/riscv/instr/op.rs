@@ -5,26 +5,26 @@ pub fn add(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
     let rs2v: Vec<u8> = reg.get(rs2);
 
     println!("add\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
-    
+
     match reg.width() {
         32 => {
             let rs1value: i32 = i32::from_le_bytes(rs1v.try_into().unwrap());
             let rs2value: i32 = i32::from_le_bytes(rs2v.try_into().unwrap());
-            let result: i32 = rs1value + rs2value;
+            let result: i32 = rs1value.wrapping_add(rs2value);
 
             reg.set(rd, result.to_le_bytes().as_slice());
         },
         64 => {
             let rs1value: i64 = i64::from_le_bytes(rs1v.try_into().unwrap());
             let rs2value: i64 = i64::from_le_bytes(rs2v.try_into().unwrap());
-            let result: i64 = rs1value + rs2value;
+            let result: i64 = rs1value.wrapping_add(rs2value);
 
             reg.set(rd, result.to_le_bytes().as_slice());
         },
         128 => {
             let rs1value: i128 = i128::from_le_bytes(rs1v.try_into().unwrap());
             let rs2value: i128 = i128::from_le_bytes(rs2v.try_into().unwrap());
-            let result: i128 = rs1value + rs2value;
+            let result: i128 = rs1value.wrapping_add(rs2value);
 
             reg.set(rd, result.to_le_bytes().as_slice());
         },
@@ -37,19 +37,19 @@ pub fn addw(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
     let rs2v: Vec<u8> = reg.get(rs2);
 
     println!("addw\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
-    
+
     match reg.width() {
         64 => {
             let rs1value: i64 = i64::from_le_bytes(rs1v.try_into().unwrap());
             let rs2value: i64 = i64::from_le_bytes(rs2v.try_into().unwrap());
-            let result: i64 = ((rs1value + rs2value) & 0xffffffff) as i32 as i64;
+            let result: i64 = (rs1value as i32).wrapping_add(rs2value as i32) as i64;
 
             reg.set(rd, result.to_le_bytes().as_slice());
         },
         128 => {
             let rs1value: i128 = i128::from_le_bytes(rs1v.try_into().unwrap());
             let rs2value: i128 = i128::from_le_bytes(rs2v.try_into().unwrap());
-            let result: i128 = ((rs1value + rs2value) & 0xffffffff) as i32 as i128;
+            let result: i128 = (rs1value as i32).wrapping_add(rs2value as i32) as i128;
 
             reg.set(rd, result.to_le_bytes().as_slice());
         },
@@ -62,26 +62,26 @@ pub fn sub(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
     let rs2v: Vec<u8> = reg.get(rs2);
 
     println!("sub\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
-    
+
     match reg.width() {
         32 => {
             let rs1value: i32 = i32::from_le_bytes(rs1v.try_into().unwrap());
             let rs2value: i32 = i32::from_le_bytes(rs2v.try_into().unwrap());
-            let result: i32 = rs1value - rs2value;
+            let result: i32 = rs1value.wrapping_sub(rs2value);
 
             reg.set(rd, result.to_le_bytes().as_slice());
         },
         64 => {
             let rs1value: i64 = i64::from_le_bytes(rs1v.try_into().unwrap());
             let rs2value: i64 = i64::from_le_bytes(rs2v.try_into().unwrap());
-            let result: i64 = rs1value - rs2value;
+            let result: i64 = rs1value.wrapping_sub(rs2value);
 
             reg.set(rd, result.to_le_bytes().as_slice());
         },
         128 => {
             let rs1value: i128 = i128::from_le_bytes(rs1v.try_into().unwrap());
             let rs2value: i128 = i128::from_le_bytes(rs2v.try_into().unwrap());
-            let result: i128 = rs1value - rs2value;
+            let result: i128 = rs1value.wrapping_sub(rs2value);
 
             reg.set(rd, result.to_le_bytes().as_slice());
         },
@@ -94,19 +94,19 @@ pub fn subw(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
     let rs2v: Vec<u8> = reg.get(rs2);
 
     println!("subw\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
-    
+
     match reg.width() {
         64 => {
             let rs1value: i64 = i64::from_le_bytes(rs1v.try_into().unwrap());
             let rs2value: i64 = i64::from_le_bytes(rs2v.try_into().unwrap());
-            let result: i64 = ((rs1value - rs2value) & 0xffffffff) as i32 as i64;
+            let result: i64 = (rs1value as i32).wrapping_sub(rs2value as i32) as i64;
 
             reg.set(rd, result.to_le_bytes().as_slice());
         },
         128 => {
             let rs1value: i128 = i128::from_le_bytes(rs1v.try_into().unwrap());
             let rs2value: i128 = i128::from_le_bytes(rs2v.try_into().unwrap());
-            let result: i128 = ((rs1value - rs2value) & 0xffffffff) as i32 as i128;
+            let result: i128 = (rs1value as i32).wrapping_sub(rs2value as i32) as i128;
 
             reg.set(rd, result.to_le_bytes().as_slice());
         },
@@ -424,6 +424,472 @@ pub fn sraw(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
             let result: i128 = (rs1value as i32 >> shamt) as i128;
 
             reg.set(rd, result.to_le_bytes().as_slice());
+        },
+        _ => unreachable!(),
+    }
+}
+
+pub fn mul(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
+    let rs1v: Vec<u8> = reg.get(rs1);
+    let rs2v: Vec<u8> = reg.get(rs2);
+
+    println!("mul\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
+
+    match reg.width() {
+        32 => {
+            let rs1value: i32 = i32::from_le_bytes(rs1v.try_into().unwrap());
+            let rs2value: i32 = i32::from_le_bytes(rs2v.try_into().unwrap());
+            let result: i32 = rs1value.wrapping_mul(rs2value);
+
+            reg.set(rd, result.to_le_bytes().as_slice());
+        }
+        64 => {
+            let rs1value: i64 = i64::from_le_bytes(rs1v.try_into().unwrap());
+            let rs2value: i64 = i64::from_le_bytes(rs2v.try_into().unwrap());
+            let result: i64 = rs1value.wrapping_mul(rs2value);
+
+            reg.set(rd, result.to_le_bytes().as_slice());
+        },
+        128 => {
+            let rs1value: i128 = i128::from_le_bytes(rs1v.try_into().unwrap());
+            let rs2value: i128 = i128::from_le_bytes(rs2v.try_into().unwrap());
+            let result: i128 = rs1value.wrapping_mul(rs2value);
+
+            reg.set(rd, result.to_le_bytes().as_slice());
+        },
+        _ => unreachable!(),
+    }
+}
+
+pub fn mulh(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
+    let rs1v: Vec<u8> = reg.get(rs1);
+    let rs2v: Vec<u8> = reg.get(rs2);
+
+    println!("mulh\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
+
+    match reg.width() {
+        32 => {
+            let rs1value: i64 = i32::from_le_bytes(rs1v.try_into().unwrap()) as i64;
+            let rs2value: i64 = i32::from_le_bytes(rs2v.try_into().unwrap()) as i64;
+            let result: i32 = (rs1value.wrapping_mul(rs2value) >> reg.width()) as i32;
+
+            reg.set(rd, result.to_le_bytes().as_slice());
+        }
+        64 => {
+            let rs1value: i128 = i64::from_le_bytes(rs1v.try_into().unwrap()) as i128;
+            let rs2value: i128 = i64::from_le_bytes(rs2v.try_into().unwrap()) as i128;
+            let result: i64 = (rs1value.wrapping_mul(rs2value) >> reg.width()) as i64;
+
+            reg.set(rd, result.to_le_bytes().as_slice());
+        },
+        128 => {
+            todo!();
+        },
+        _ => unreachable!(),
+    }
+}
+
+pub fn mulhu(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
+    let rs1v: Vec<u8> = reg.get(rs1);
+    let rs2v: Vec<u8> = reg.get(rs2);
+
+    println!("mulhu\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
+
+    match reg.width() {
+        32 => {
+            let rs1value: u64 = u32::from_le_bytes(rs1v.try_into().unwrap()) as u64;
+            let rs2value: u64 = u32::from_le_bytes(rs2v.try_into().unwrap()) as u64;
+            let result: u32 = (rs1value.wrapping_mul(rs2value) >> reg.width()) as u32;
+
+            reg.set(rd, result.to_le_bytes().as_slice());
+        }
+        64 => {
+            let rs1value: u128 = u64::from_le_bytes(rs1v.try_into().unwrap()) as u128;
+            let rs2value: u128 = u64::from_le_bytes(rs2v.try_into().unwrap()) as u128;
+            let result: u64 = (rs1value.wrapping_mul(rs2value) >> reg.width()) as u64;
+
+            reg.set(rd, result.to_le_bytes().as_slice());
+        },
+        128 => {
+            todo!();
+        },
+        _ => unreachable!(),
+    }
+}
+
+pub fn mulhsu(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
+    let rs1v: Vec<u8> = reg.get(rs1);
+    let rs2v: Vec<u8> = reg.get(rs2);
+
+    println!("mulhsu\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
+
+    match reg.width() {
+        32 => {
+            let rs1value: i64 = i32::from_le_bytes(rs1v.try_into().unwrap()) as i64;
+            let rs2value: i64 = u32::from_le_bytes(rs2v.try_into().unwrap()) as u64 as i64;
+            let result: i32 = (rs1value.wrapping_mul(rs2value) >> reg.width()) as i32;
+
+            reg.set(rd, result.to_le_bytes().as_slice());
+        }
+        64 => {
+            let rs1value: i128 = i64::from_le_bytes(rs1v.try_into().unwrap()) as i128;
+            let rs2value: i128 = u64::from_le_bytes(rs2v.try_into().unwrap()) as u128 as i128;
+            let result: i64 = (rs1value.wrapping_mul(rs2value) >> reg.width()) as i64;
+
+            reg.set(rd, result.to_le_bytes().as_slice());
+        },
+        128 => {
+            todo!();
+        },
+        _ => unreachable!(),
+    }
+}
+
+pub fn mulw(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
+    let rs1v: Vec<u8> = reg.get(rs1);
+    let rs2v: Vec<u8> = reg.get(rs2);
+
+    println!("mulw\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
+
+    match reg.width() {
+        64 => {
+            let rs1value: i64 = i64::from_le_bytes(rs1v.try_into().unwrap());
+            let rs2value: i64 = i64::from_le_bytes(rs2v.try_into().unwrap());
+            let result: i64 = (rs1value as i32).wrapping_mul(rs2value as i32) as i64;
+
+            reg.set(rd, result.to_le_bytes().as_slice());
+        },
+        128 => {
+            let rs1value: i128 = i128::from_le_bytes(rs1v.try_into().unwrap());
+            let rs2value: i128 = i128::from_le_bytes(rs2v.try_into().unwrap());
+            let result: i128 = rs1value.wrapping_mul(rs2value);
+
+            reg.set(rd, result.to_le_bytes().as_slice());
+        },
+        _ => unreachable!(),
+    }
+}
+
+pub fn div(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
+    let rs1v: Vec<u8> = reg.get(rs1);
+    let rs2v: Vec<u8> = reg.get(rs2);
+
+    println!("div\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
+
+    match reg.width() {
+        32 => {
+            let rs1value: i32 = i32::from_le_bytes(rs1v.try_into().unwrap());
+            let rs2value: i32 = i32::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, (-1i32).to_le_bytes().as_slice());
+            } else {
+                let result: i32 = rs1value.wrapping_div(rs2value);
+
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        }
+        64 => {
+            let rs1value: i64 = i64::from_le_bytes(rs1v.try_into().unwrap());
+            let rs2value: i64 = i64::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, (-1i64).to_le_bytes().as_slice());
+            } else {
+                let result: i64 = rs1value.wrapping_div(rs2value);
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        },
+        128 => {
+            let rs1value: i128 = i128::from_le_bytes(rs1v.try_into().unwrap());
+            let rs2value: i128 = i128::from_le_bytes(rs2v.try_into().unwrap());
+            if rs2value == 0 {
+                reg.set(rd, (-1i128).to_le_bytes().as_slice());
+            } else {
+                let result: i128 = rs1value.wrapping_div(rs2value);
+
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        },
+        _ => unreachable!(),
+    }
+}
+
+pub fn divu(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
+    let rs1v: Vec<u8> = reg.get(rs1);
+    let rs2v: Vec<u8> = reg.get(rs2);
+
+    println!("divu\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
+
+    match reg.width() {
+        32 => {
+            let rs1value: u32 = u32::from_le_bytes(rs1v.try_into().unwrap());
+            let rs2value: u32 = u32::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, (0xffffffffu32).to_le_bytes().as_slice());
+            } else {
+                let result: u32 = rs1value.wrapping_div(rs2value);
+
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        }
+        64 => {
+            let rs1value: u64 = u64::from_le_bytes(rs1v.try_into().unwrap());
+            let rs2value: u64 = u64::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, (0xffffffffffffffffu64).to_le_bytes().as_slice());
+            } else {
+                let result: u64 = rs1value.wrapping_div(rs2value);
+
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        },
+        128 => {
+            let rs1value: u128 = u128::from_le_bytes(rs1v.try_into().unwrap());
+            let rs2value: u128 = u128::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, (0xffffffffffffffffffffffffffffffffu128).to_le_bytes().as_slice());
+            } else {
+                let result: u128 = rs1value.wrapping_div(rs2value);
+
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        },
+        _ => unreachable!(),
+    }
+}
+
+pub fn divw(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
+    let rs1v: Vec<u8> = reg.get(rs1);
+    let rs2v: Vec<u8> = reg.get(rs2);
+
+    println!("divw\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
+
+    match reg.width() {
+        64 => {
+            let rs1value: i64 = i64::from_le_bytes(rs1v.try_into().unwrap());
+            let rs2value: i64 = i64::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, (-1i64).to_le_bytes().as_slice());
+            } else {
+                let result: i64 = (rs1value as i32).wrapping_div(rs2value as i32) as i64;
+
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        },
+        128 => {
+            let rs1value: i128 = i128::from_le_bytes(rs1v.try_into().unwrap());
+            let rs2value: i128 = i128::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, (-1i128).to_le_bytes().as_slice());
+            } else {
+                let result: i128 = (rs1value as i32).wrapping_div(rs2value as i32) as i128;
+
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        },
+        _ => unreachable!(),
+    }
+}
+
+pub fn divuw(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
+    let rs1v: Vec<u8> = reg.get(rs1);
+    let rs2v: Vec<u8> = reg.get(rs2);
+
+    println!("divuw\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
+
+    match reg.width() {
+        64 => {
+            let rs1value: u64 = u64::from_le_bytes(rs1v.try_into().unwrap());
+            let rs2value: u64 = u64::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, (0xffffffffffffffffu64).to_le_bytes().as_slice());
+            } else {
+                let result: i64 = (rs1value as u32).wrapping_div(rs2value as u32) as i32 as i64;
+
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        },
+        128 => {
+            let rs1value: u128 = u128::from_le_bytes(rs1v.try_into().unwrap());
+            let rs2value: u128 = u128::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, (0xffffffffffffffffffffffffffffffffu128).to_le_bytes().as_slice());
+            } else {
+                let result: i128 = (rs1value as u32).wrapping_div(rs2value as u32) as i32 as i128;
+
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        },
+        _ => unreachable!(),
+    }
+}
+
+pub fn rem(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
+    let rs1v: Vec<u8> = reg.get(rs1);
+    let rs2v: Vec<u8> = reg.get(rs2);
+
+    println!("rem\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
+
+    match reg.width() {
+        32 => {
+            let rs2value: i32 = i32::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, &rs1v);
+            } else {
+                let rs1value: i32 = i32::from_le_bytes(rs1v.try_into().unwrap());
+                let result: i32 = rs1value.wrapping_rem(rs2value);
+    
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        }
+        64 => {
+            let rs2value: i64 = i64::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, &rs1v);
+            } else {
+                let rs1value: i64 = i64::from_le_bytes(rs1v.try_into().unwrap());
+                let result: i64 = rs1value.wrapping_rem(rs2value);
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        },
+        128 => {
+            let rs2value: i128 = i128::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, &rs1v);
+            } else {
+                let rs1value: i128 = i128::from_le_bytes(rs1v.try_into().unwrap());
+                let result: i128 = rs1value.wrapping_rem(rs2value);
+
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        },
+        _ => unreachable!(),
+    }
+}
+
+pub fn remu(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
+    let rs1v: Vec<u8> = reg.get(rs1);
+    let rs2v: Vec<u8> = reg.get(rs2);
+
+    println!("remu\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
+
+    match reg.width() {
+        32 => {
+            let rs2value: u32 = u32::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, &rs1v);
+            } else {
+                let rs1value: u32 = u32::from_le_bytes(rs1v.try_into().unwrap());
+                let result: u32 = rs1value.wrapping_rem(rs2value);
+
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        }
+        64 => {
+            let rs2value: u64 = u64::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, &rs1v);
+            } else {
+                let rs1value: u64 = u64::from_le_bytes(rs1v.try_into().unwrap());
+                let result: u64 = rs1value.wrapping_rem(rs2value);
+
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        },
+        128 => {
+            let rs2value: u128 = u128::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, &rs1v);
+            } else {
+                let rs1value: u128 = u128::from_le_bytes(rs1v.try_into().unwrap());
+                let result: u128 = rs1value.wrapping_rem(rs2value);
+
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        },
+        _ => unreachable!(),
+    }
+}
+
+pub fn remw(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
+    let rs1v: Vec<u8> = reg.get(rs1);
+    let rs2v: Vec<u8> = reg.get(rs2);
+
+    println!("remw\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
+
+    match reg.width() {
+        64 => {
+            let rs2value: i64 = i64::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, &rs1v);
+            } else {
+                let rs1value: i64 = i64::from_le_bytes(rs1v.try_into().unwrap());
+                let result: i64 = (rs1value as i32).wrapping_rem(rs2value as i32) as i64;
+
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        },
+        128 => {
+            let rs2value: i128 = i128::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, &rs1v);
+            } else {
+                let rs1value: i128 = i128::from_le_bytes(rs1v.try_into().unwrap());
+                let result: i128 = (rs1value as i32).wrapping_rem(rs2value as i32) as i128;
+
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        },
+        _ => unreachable!(),
+    }
+}
+
+pub fn remuw(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
+    let rs1v: Vec<u8> = reg.get(rs1);
+    let rs2v: Vec<u8> = reg.get(rs2);
+
+    println!("remuw\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
+
+    match reg.width() {
+        64 => {
+            let rs2value: u64 = u64::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, &rs1v);
+            } else {
+                let rs1value: u64 = u64::from_le_bytes(rs1v.try_into().unwrap());
+                let result: i64 = (rs1value as u32).wrapping_rem(rs2value as u32) as i32 as i64;
+
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
+        },
+        128 => {
+            let rs2value: u128 = u128::from_le_bytes(rs2v.try_into().unwrap());
+
+            if rs2value == 0 {
+                reg.set(rd, &rs1v);
+            } else {
+                let rs1value: u128 = u128::from_le_bytes(rs1v.try_into().unwrap());
+                let result: i128 = (rs1value as u32).wrapping_rem(rs2value as u32) as i32 as i128;
+
+                reg.set(rd, result.to_le_bytes().as_slice());
+            }
         },
         _ => unreachable!(),
     }

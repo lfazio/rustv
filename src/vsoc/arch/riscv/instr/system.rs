@@ -20,11 +20,11 @@ pub fn ebreak(reg: &mut RvRegisters, csr: &mut Csr) -> Option<RvException> {
     Some(RvException::Breakpoint)
 }
 
-pub fn xret(reg: &mut RvRegisters, rd: usize, rs1: usize, funct12: u16, csr: &mut Csr) -> Option<RvException> {
+pub fn xret(reg: &mut RvRegisters, rd: usize, rs1: usize, funct12: usize, csr: &mut Csr) -> Option<RvException> {
     todo!("xret");
 }
 
-pub fn csrrw(reg: &mut RvRegisters, rd: usize, rs1: usize, funct3: usize, funct12: u16, csr: &mut Csr) -> Option<RvException> {
+pub fn csrrw(reg: &mut RvRegisters, rd: usize, rs1: usize, funct3: usize, funct12: usize, csr: &mut Csr) -> Option<RvException> {
     let value: Vec<u8>;
     let dest: Vec<u8> = match csr.get(funct12 as usize) {
         Some(d) => d,
@@ -67,7 +67,7 @@ pub fn csrrw(reg: &mut RvRegisters, rd: usize, rs1: usize, funct3: usize, funct1
     None
 }
 
-pub fn csrrs(reg: &mut RvRegisters, rd: usize, rs1: usize, funct3: usize, funct12: u16, csr: &mut Csr) -> Option<RvException> {
+pub fn csrrs(reg: &mut RvRegisters, rd: usize, rs1: usize, funct3: usize, funct12: usize, csr: &mut Csr) -> Option<RvException> {
     let value: Vec<u8>;
     let dest: Vec<u8> = match csr.get(funct12 as usize) {
         Some(d) => d,
@@ -121,7 +121,7 @@ pub fn csrrs(reg: &mut RvRegisters, rd: usize, rs1: usize, funct3: usize, funct1
     None
 }
 
-pub fn csrrc(reg: &mut RvRegisters, rd: usize, rs1: usize, funct3: usize, funct12: u16, csr: &mut Csr) -> Option<RvException> {
+pub fn csrrc(reg: &mut RvRegisters, rd: usize, rs1: usize, funct3: usize, funct12: usize, csr: &mut Csr) -> Option<RvException> {
     let value: Vec<u8>;
     let dest: Vec<u8> = match csr.get(funct12 as usize) {
         Some(d) => d,
