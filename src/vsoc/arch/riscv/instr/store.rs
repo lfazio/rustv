@@ -1,7 +1,7 @@
-use crate::vsoc::bus::Bus;
+use crate::vsoc::{bus::Bus, arch::riscv::exception::RvException};
 use super::super::registers::RvRegisters;
 
-pub fn sb(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Vec<u8> {
+pub fn sb(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Result<Vec<u8>, RvException> {
     let addr: u64 = if imm < 0 {
         u64::from_le_bytes(reg.get(rs1).try_into().unwrap()) - imm.unsigned_abs() as u64
     } else {
@@ -15,13 +15,13 @@ pub fn sb(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus
     println!("sb\t{},{},{:x}", reg.name(rs2), reg.name(rs1), u8::from_le_bytes(value.clone().try_into().unwrap()));
 
     match bus.store(1, addr, &value) {
-        None => value,
-        _ => todo!(),
+        None => Ok(value),
+        Some(e) => Err(RvException::from(e)),
     }
 }
 
 
-pub fn sh(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Vec<u8> {
+pub fn sh(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Result<Vec<u8>, RvException> {
     let addr: u64  = if imm < 0 {
         u64::from_le_bytes(reg.get(rs1).try_into().unwrap()) - imm.unsigned_abs() as u64
     } else {
@@ -35,12 +35,12 @@ pub fn sh(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus
     println!("sh\t{},{},{:x}", reg.name(rs2), reg.name(rs1), u16::from_le_bytes(value.clone().try_into().unwrap()));
 
     match bus.store(2, addr, &value) {
-        None => value,
-        _ => todo!(),
+        None => Ok(value),
+        Some(e) => Err(RvException::from(e)),
     }
 }
 
-pub fn sw(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Vec<u8> {
+pub fn sw(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Result<Vec<u8>, RvException> {
     let addr: u64 = if imm < 0 {
         u64::from_le_bytes(reg.get(rs1).try_into().unwrap()) - imm.unsigned_abs() as u64
     } else {
@@ -54,12 +54,12 @@ pub fn sw(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus
     println!("sw\t{},{},{:x}", reg.name(rs2), reg.name(rs1), u32::from_le_bytes(value.clone().try_into().unwrap()));
 
     match bus.store(4, addr, &value) {
-        None => value,
-        _ => todo!(),
+        None => Ok(value),
+        Some(e) => Err(RvException::from(e)),
     }
 }
 
-pub fn sd(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Vec<u8> {
+pub fn sd(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Result<Vec<u8>, RvException>  {
     let addr: u64 = if imm < 0 {
         u64::from_le_bytes(reg.get(rs1).try_into().unwrap()) - imm.unsigned_abs() as u64
     } else {
@@ -73,7 +73,7 @@ pub fn sd(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus
     println!("sd\t{},{},{:x}", reg.name(rs2), reg.name(rs1), u64::from_le_bytes(value.clone().try_into().unwrap()));
 
     match bus.store(8, addr, &value) {
-        None => value,
-        _ => todo!(),
+        None => Ok(value),
+        Some(e) => Err(RvException::from(e)),
     }
 }

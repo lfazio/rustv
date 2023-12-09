@@ -65,7 +65,7 @@ impl<'a> Cpu<'a> {
     
     pub fn step(&mut self, bus: &mut Bus) -> Option<VsocException> {
         match &mut self.core {
-            CpuCore::CoreRv64(core) => core.step(bus).map(|e| e.convert()),
+            CpuCore::CoreRv64(core) => core.step(bus).map(|e| VsocException::from(e)),
         }
     }
     

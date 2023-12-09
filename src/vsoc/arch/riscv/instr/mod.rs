@@ -55,7 +55,7 @@ impl Instr {
         let rs1: usize = self.get_rs1();
         let imm: i32 = self.get_i_imm();
 
-        match funct3 {
+        let result = match funct3 {
             0x0 => load::lb(reg, rd, rs1, imm, bus), // load byte
             0x1 => load::lh(reg, rd, rs1, imm, bus), // load half
             0x2 => load::lw(reg, rd, rs1, imm, bus), // load word
@@ -66,7 +66,10 @@ impl Instr {
             _ => return Some(exception::RvException::InstructionIllegal),
         };
 
-        None
+        match result {
+            Ok(_) => None,
+            Err(e) => Some(e),
+        }
     }
 
     fn op(&self, reg: &mut RvRegisters) -> Option<exception::RvException> {
@@ -146,9 +149,8 @@ impl Instr {
         None
     }
 
-    fn mem(&self, reg: &mut RvRegisters) -> Option<exception::RvException> {
+    fn mem(&self) -> Option<exception::RvException> {
         let funct3: usize = self.get_funct3();
-        let funct12: usize = self.get_funct12();
         let fm: usize = self.get_imm(31, 28) as usize >> 28;
 
         match funct3 {
@@ -354,7 +356,7 @@ impl Instr {
         let rs2: usize = self.get_rs2();
         let imm: i32 = self.get_s_imm();
 
-        match funct3 {
+        let result = match funct3 {
             0x0 => store::sb(reg, rs1, rs2, imm, bus), // store byte
             0x1 => store::sh(reg, rs1, rs2, imm, bus), // store half
             0x2 => store::sw(reg, rs1, rs2, imm, bus), // store word
@@ -362,7 +364,10 @@ impl Instr {
             _ => return Some(exception::RvException::InstructionIllegal),
         };
 
-        None
+        match result {
+            Ok(_) => None,
+            Err(e) => Some(e),
+        }
     }
 
     fn system(&self, reg: &mut RvRegisters, csr: &mut Csr) -> Option<exception::RvException> {
@@ -402,7 +407,7 @@ impl Instr {
             //            0x01 => rc = self.load_fp(),
             //            0x02 => rc = self.custom_0(),
             0x03 => {
-                match self.mem(&mut hart.reg) {
+                match self.mem() {
                     None => (),
                     Some(e) => {
                         println!("<error>");

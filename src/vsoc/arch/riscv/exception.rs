@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::vsoc::VsocException;
+use crate::vsoc::{VsocException, bus::BusException};
 
 #[derive(Debug)]
 pub enum RvException {
@@ -46,22 +46,33 @@ impl fmt::Display for RvException {
     }
 }
 
-impl RvException {
-    pub fn convert(&self) -> VsocException {
-	match self {
-	    RvException::InstructionAddressMisaligned => VsocException::InstructionAddressMisaligned,
-	    RvException::InstructionAccessFault => VsocException::InstructionAccessFault,
-	    RvException::InstructionIllegal => VsocException::InstructionIllegal,
-	    RvException::Breakpoint => VsocException::Breakpoint,
-	    RvException::LoadAddressMisaligned => VsocException::LoadAddressMisaligned,
-	    RvException::LoadAccessFault => VsocException::LoadAccessFault,
-	    RvException::StoreAddressMisaligned => VsocException::StoreAddressMisaligned,
-	    RvException::StoreAccessFault => VsocException::StoreAccessFault,
-	    RvException::EnvironmentCallUMode => VsocException::EnvironmentCallUMode,
-	    RvException::EnvironmentCallSMode => VsocException::EnvironmentCallSMode,
-	    RvException::InstructionPageFault => VsocException::InstructionPageFault,
-	    RvException::LoadPageFault => VsocException::LoadPageFault,
-	    RvException::StorePageFault => VsocException::StorePageFault,
-	}
+impl From<RvException> for VsocException {
+    fn from(e: RvException) -> Self {
+        match e {
+            RvException::InstructionAddressMisaligned => VsocException::InstructionAddressMisaligned,
+            RvException::InstructionAccessFault => VsocException::InstructionAccessFault,
+            RvException::InstructionIllegal => VsocException::InstructionIllegal,
+            RvException::Breakpoint => VsocException::Breakpoint,
+            RvException::LoadAddressMisaligned => VsocException::LoadAddressMisaligned,
+            RvException::LoadAccessFault => VsocException::LoadAccessFault,
+            RvException::StoreAddressMisaligned => VsocException::StoreAddressMisaligned,
+            RvException::StoreAccessFault => VsocException::StoreAccessFault,
+            RvException::EnvironmentCallUMode => VsocException::EnvironmentCallUMode,
+            RvException::EnvironmentCallSMode => VsocException::EnvironmentCallSMode,
+            RvException::InstructionPageFault => VsocException::InstructionPageFault,
+            RvException::LoadPageFault => VsocException::LoadPageFault,
+            RvException::StorePageFault => VsocException::StorePageFault,
+        }
+    }
+}
+
+impl From<BusException> for RvException {
+    fn from(e: BusException) -> Self {
+        match e {
+            BusException::LoadAddressMisaligned => RvException::LoadAddressMisaligned,
+            BusException::LoadAccessFault => RvException::LoadAccessFault,
+            BusException::StoreAddressMisaligned => RvException::StoreAddressMisaligned,
+            BusException::StoreAccessFault => RvException::StoreAccessFault,
+        }
     }
 }
