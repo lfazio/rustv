@@ -1,9 +1,12 @@
-- handle mulh, mulhu, mulhsu for 128 bits
+# BACKLOG
+
 - handle overflow for div/rem
 - Include test suite and build for riscv-tests
 - Use Uint instead of base u32/u64/u128 types for PC
 - Implement Rv core using Uint pc and test rv32i
-- Add extensions supervisor, hypervisor, traps, MAFD, Zifencei, Znapot...
+- Add extensions supervisor, hypervisor, traps, AFD, Znapot...
+- Add clint support
+- Add peripherals: dma, trng, map real peripheral into the logical bus
 - no_std
-- Add peripherals: dma, trng
+- handle mulh, mulhu, mulhsu for 128 bits
 
