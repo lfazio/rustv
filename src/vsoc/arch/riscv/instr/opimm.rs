@@ -6,9 +6,11 @@ pub fn addi(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
     if rs1 == 0 {
         if rd == 0 && imm == 0 {
             println!("nop");
-        } else {
+        } else { 
             println!("li\t{},{}", reg.name(rd), imm);
         }
+    } else if imm == 0 {
+        println!("mv\t{},{}", reg.name(rd), reg.name(rs1));
     } else {
         println!("addi\t{},{},{}", reg.name(rd), reg.name(rs1), imm);
     }
