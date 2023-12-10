@@ -10,49 +10,115 @@ impl Uint {
         Self { value }
     }
     
-    fn value(&self) -> &Vec<u8> {
-        &self.value
-    }
-
     fn into_u8(self) -> u8 {
-        self.value[0]
+        let mut v = self.value.clone();
+        if v.len() < 1 {
+            v.resize(1, 0);
+        } else if v.len() > 1 {
+            v.truncate(1);
+        }
+
+        u8::from_le_bytes(v.try_into().unwrap())
     }
     
     fn into_u16(self) -> u16 {
-        u16::from_le_bytes(self.value.try_into().unwrap())
+        let mut v = self.value.clone();
+        if v.len() < 2 {
+            v.resize(2, 0);
+        } else if v.len() > 2 {
+            v.truncate(2);
+        }
+
+        u16::from_le_bytes(v.try_into().unwrap())
     }
     
     fn into_u32(self) -> u32 {
-        u32::from_le_bytes(self.value.try_into().unwrap())
+        let mut v = self.value.clone();
+        if v.len() < 4 {
+            v.resize(4, 0);
+        } else if v.len() > 4 {
+            v.truncate(4);
+        }
+
+        u32::from_le_bytes(v.try_into().unwrap())
     }
     
     fn into_u64(self) -> u64 {
-        u64::from_le_bytes(self.value.try_into().unwrap())
+        let mut v = self.value.clone();
+        if v.len() < 8 {
+            v.resize(8, 0);
+        } else if v.len() > 8 {
+            v.truncate(8);
+        }
+
+        u64::from_le_bytes(v.try_into().unwrap())
     }
     
     fn into_u128(self) -> u128 {
-        u128::from_le_bytes(self.value.try_into().unwrap())
+        let mut v = self.value.clone();
+        if v.len() < 16 {
+            v.resize(16, 0);
+        } else if v.len() > 16 {
+            v.truncate(16);
+        }
+
+        u128::from_le_bytes(v.try_into().unwrap())
     }
     
     fn into_i8(self) -> i8 {
-        i8::from_le_bytes(self.value.try_into().unwrap())
+        let mut v = self.value.clone();
+        if v.len() < 1 {
+            v.resize(1, 0);
+        } else if v.len() > 1 {
+            v.truncate(1);
+        }
+
+        i8::from_le_bytes(v.try_into().unwrap())
     }
     
     fn into_i16(self) -> i16 {
-        i16::from_le_bytes(self.value.try_into().unwrap())
+        let mut v = self.value.clone();
+        if v.len() < 2 {
+            v.resize(2, 0);
+        } else if v.len() > 2 {
+            v.truncate(2);
+        }
+
+        i16::from_le_bytes(v.try_into().unwrap())
     }
     
     fn into_i32(self) -> i32 {
-        i32::from_le_bytes(self.value.try_into().unwrap())
+        let mut v = self.value.clone();
+        if v.len() < 4 {
+            v.resize(4, 0);
+        } else if v.len() > 4 {
+            v.truncate(4);
+        }
+
+        i32::from_le_bytes(v.try_into().unwrap())
     }
     
     fn into_i64(self) -> i64 {
-        i64::from_le_bytes(self.value.try_into().unwrap())
+        let mut v = self.value.clone();
+        if v.len() < 8 {
+            v.resize(8, 0);
+        } else if v.len() > 8 {
+            v.truncate(8);
+        }
+
+        i64::from_le_bytes(v.try_into().unwrap())
     }
     
     fn into_i128(self) -> i128 {
-        i128::from_le_bytes(self.value.try_into().unwrap())
-    }
+        let mut v = self.value.clone();
+        if v.len() < 16 {
+            v.resize(16, 0);
+        } else if v.len() > 16 {
+            v.truncate(16);
+        }
+
+        i128::from_le_bytes(v.try_into().unwrap())
+    }   
     
     pub fn truncate(&mut self, len: usize) {
         self.value.truncate(len);
@@ -254,25 +320,25 @@ mod tests {
     
     #[test]
     fn test_uint_from_uint() {
-        let value = Uint::from(Uint::from(42u8));
+        let value = Uint::from(42u8);
         assert_eq!(u8::from(value), 42);
-        let value = Uint::from(Uint::from(42u16));
+        let value = Uint::from(42u16);
         assert_eq!(u16::from(value), 42);
-        let value = Uint::from(Uint::from(42u32));
+        let value = Uint::from(42u32);
         assert_eq!(u32::from(value), 42);
-        let value = Uint::from(Uint::from(42u64));
+        let value = Uint::from(42u64);
         assert_eq!(u64::from(value), 42);
-        let value = Uint::from(Uint::from(42u128));
+        let value = Uint::from(42u128);
         assert_eq!(u128::from(value), 42);
-        let value = Uint::from(Uint::from(42i8));
+        let value = Uint::from(42i8);
         assert_eq!(i8::from(value), 42);
-        let value = Uint::from(Uint::from(42i16));
+        let value = Uint::from(42i16);
         assert_eq!(i16::from(value), 42);
-        let value = Uint::from(Uint::from(42i32));
+        let value = Uint::from(42i32);
         assert_eq!(i32::from(value), 42);
-        let value = Uint::from(Uint::from(42i64));
+        let value = Uint::from(42i64);
         assert_eq!(i64::from(value), 42);
-        let value = Uint::from(Uint::from(42i128));
+        let value = Uint::from(42i128);
         assert_eq!(i128::from(value), 42);
     }
 

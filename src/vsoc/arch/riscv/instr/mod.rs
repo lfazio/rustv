@@ -11,7 +11,7 @@ mod todo;
 use super::csr::Csr;
 use super::exception;
 use super::registers::RvRegisters;
-use super::hart::rv64::Rv64;
+use super::hart::Rv;
 use crate::vsoc::arch::types::Uint;
 use crate::vsoc::bus::Bus;
 
@@ -246,7 +246,7 @@ impl Instr {
                 let base: i32 = i32::from(reg.get(rs1));
                 let value: i32 = i32::from(pc.clone());
 
-                v = base as u128 + 4;
+                v = (base as u128 + 4) & 0xffffffff;
                 reg.set(rd, &Uint::from(value + 4));
                 offset = (base - value) as i128 + imm as i128;
             },
@@ -254,7 +254,7 @@ impl Instr {
                 let base: i64 = i64::from(reg.get(rs1));
                 let value: i64 = i64::from(pc.clone());
 
-                v = base as u128 + 4;
+                v = (base as u128 + 4) & 0xffffffffffffffff;
                 reg.set(rd, &Uint::from(value + 4));
                 offset = (base - value) as i128 + imm as i128;
             },
@@ -262,7 +262,7 @@ impl Instr {
                 let base: i128 = i128::from(reg.get(rs1));
                 let value: i128 = i128::from(pc.clone());
 
-                v = base  as u128+ 4;
+                v = base as u128 + 4;
                 reg.set(rd, &Uint::from(value + 4));
                 offset = base - value + imm as i128;
             },
@@ -281,25 +281,27 @@ impl Instr {
 
         match reg.width() {
             32 => {
-                let value: i32 = i32::from(pc.clone());
+                let value: u32 = u32::from(pc.clone()) + 4;
 
-                v = (value + 4) as u128;
-                reg.set(rd, &Uint::from(value + 4));
+                v = value as u128;
+                reg.set(rd, &Uint::from(value));
             },
             64 => {
-                let value: i64 = i64::from(pc.clone());
+                let value: u64 = u64::from(pc.clone()) + 4;
 
-                v = (value + 4) as u128;
-                reg.set(rd, &Uint::from(value + 4));
+                v = value as u128;
+                reg.set(rd, &Uint::from(value));
+
             },
             128 => {
-                let value: i128 = i128::from(pc.clone());
+                let value: u128 = u128::from(pc.clone()) + 4;
 
-                v = (value + 4) as u128;
-                reg.set(rd, &Uint::from(value + 4));
+                v = value;
+                reg.set(rd, &Uint::from(value));
+
             },
             _ => unreachable!(),
-        }
+        };
 
         if rd == 0 {
             println!("j\t{:0x}", v);
@@ -393,7 +395,7 @@ impl Instr {
         None
     }
 
-    fn process_32(&self, hart: &mut Rv64, bus: &mut Bus) -> Result<i128, exception::RvException> {
+    fn process_32(&self, hart: &mut Rv, bus: &mut Bus) -> Result<i128, exception::RvException> {
         let mut offset: i128 = 4;
         match self.get_opcode() {
             0x00 => {
@@ -553,7 +555,7 @@ impl Instr {
         Ok(offset)
     }
 
-    pub fn process(&self, hart: &mut Rv64, bus: &mut Bus) -> Result<i128, exception::RvException> {
+    pub fn process(&self, hart: &mut Rv, bus: &mut Bus) -> Result<i128, exception::RvException> {
         print!("asm: \t{}:\t{:08x}\t\t", hart.pc, self.get_raw());
 
         match self {

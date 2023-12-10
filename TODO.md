@@ -2,7 +2,6 @@
 
 - Add overflow handling in M extension
 - Add riscv-tests
-- Add Rv generic architecture using Uint type
 - Add extensions: AFD at least, napot, bits...
 - Add user mode
 - Add full machine mode

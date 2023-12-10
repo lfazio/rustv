@@ -3,11 +3,12 @@ use std::fmt;
 use crate::vsoc::{VsocException, arch::interface::ArchInterface, bus::Bus};
 use super::state::State;
 //use super::riscv::hart::rv32::Rv32;
-use super::riscv::hart::rv64::Rv64;
+use super::riscv::hart::Rv;
+use super::types::Uint;
 
 #[derive(Debug)]
 enum CpuCore {
-    CoreRv64(Rv64),
+    CoreRv(Rv),
 }
 
 #[derive(Debug)]
@@ -36,19 +37,23 @@ impl fmt::Display for CpuCore {
         // operation succeeded or failed. Note that `write!` uses syntax which
         // is very similar to `println!`.
         match self {
-            CpuCore::CoreRv64(core) => write!(f, "{}", core),
+            CpuCore::CoreRv(core) => write!(f, "{}", core),
         }
     }
 }
 
 
 impl<'a> Cpu<'a> {
-    pub fn new(desc: &'a String, pc: u64) -> Cpu<'a> {
+    pub fn new(desc: &'a String, pc: u128) -> Cpu<'a> {
         let core: CpuCore;
         
         if desc.starts_with("RV") {
-            if desc.starts_with("RV64") {
-                core = CpuCore::CoreRv64(Rv64::new(64, desc, pc));
+            if desc.starts_with("RV32") {
+                core = CpuCore::CoreRv(Rv::new(32, desc, &Uint::from(pc as u32)));
+            } else if desc.starts_with("RV64") {
+                core = CpuCore::CoreRv(Rv::new(64, desc, &Uint::from(pc as u64)));
+            } else if desc.starts_with("RV128") {
+                core = CpuCore::CoreRv(Rv::new(128, desc, &Uint::from(pc)));
             } else {
                 panic!("Unsupported: {}", desc);
             }
@@ -65,7 +70,7 @@ impl<'a> Cpu<'a> {
     
     pub fn step(&mut self, bus: &mut Bus) -> Option<VsocException> {
         match &mut self.core {
-            CpuCore::CoreRv64(core) => core.step(bus).map(|e| VsocException::from(e)),
+            CpuCore::CoreRv(core) => core.step(bus).map(VsocException::from),
         }
     }
     

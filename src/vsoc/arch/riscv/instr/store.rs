@@ -18,7 +18,6 @@ pub fn sb(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus
     }
 }
 
-
 pub fn sh(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Result<Uint, RvException> {
     let addr: u64 = if imm < 0 {
         u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64

@@ -2,7 +2,6 @@
 
 - handle overflow for div/rem
 - Include test suite and build for riscv-tests
-- Implement Rv core using Uint pc and test rv32i
 - Add extensions supervisor, hypervisor, traps, AFD, Znapot...
 - Add clint support
 - Add peripherals: dma, trng, map real peripheral into the logical bus
