@@ -23,6 +23,16 @@ pub enum Instr {
     Instr32(u32),
 }
 
+impl From<Vec<u8>> for Instr {
+    fn from(v: Vec<u8>) -> Self {
+        if v.len() != 4 {
+            return Instr::Invalid;
+        }
+
+        Instr::Instr32(u32::from_le_bytes(v.try_into().unwrap()))
+    }
+}
+
 impl Instr {
     pub fn new(raw_instr: u32) -> Instr {
         match raw_instr & 0x3 {

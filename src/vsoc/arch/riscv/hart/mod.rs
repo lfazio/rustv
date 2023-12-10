@@ -78,8 +78,7 @@ impl ArchInterface for Rv {
         };
         match bus.fetch(4, pc as u64) {
             Ok(instr) => {
-                let raw: u32 = u32::from_le_bytes(instr.try_into().unwrap());
-                match Instr::new(raw).process(self, bus) {
+                match Instr::from(instr).process(self, bus) {
                     Ok(offset) => match self.width {
                         32 => self.pc = Uint::from(i32::from(self.pc.clone()) + offset as i32),
                         64 => self.pc = Uint::from(i64::from(self.pc.clone()) + offset as i64),
@@ -95,7 +94,7 @@ impl ArchInterface for Rv {
                             println!("(ecall @{})", self.pc);
                         },
                         _ => {
-                            println!("(invalid (instruction {:#08x}))", &raw);
+                            println!("(invalid instruction)");
                             return Some(e);
                         },
                     },
