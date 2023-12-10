@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Debug, Clone)]
 pub struct Uint {
     value: Vec<u8>,
@@ -8,6 +10,10 @@ impl Uint {
         Self { value }
     }
     
+    fn value(&self) -> &Vec<u8> {
+        &self.value
+    }
+
     fn into_u8(self) -> u8 {
         self.value[0]
     }
@@ -48,6 +54,11 @@ impl Uint {
         i128::from_le_bytes(self.value.try_into().unwrap())
     }
     
+    pub fn truncate(&mut self, len: usize) {
+        self.value.truncate(len);
+        self.value.shrink_to_fit();
+    }
+
     pub fn sextend(&mut self, width: usize, bits: usize) -> Self {
         let value = &mut self.value;
         
@@ -73,6 +84,12 @@ impl Uint {
             },
             _ => panic!("Unsupported Uint width: {}", width),
         }
+    }
+}
+
+impl From <Uint> for Vec<u8> {
+    fn from(value: Uint) -> Self {
+        value.value
     }
 }
 
@@ -193,6 +210,17 @@ impl From<Uint> for i64 {
 impl From<Uint> for i128 {
     fn from(value: Uint) -> Self {
         value.into_i128()
+    }
+}
+
+impl fmt::Display for Uint {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self.value.len() {
+        4 => write!(f, "{:#x}", u32::from(self.clone())),
+        8 => write!(f, "{:#x}", u64::from(self.clone())),
+        16 => write!(f, "{:#x}", u128::from(self.clone())),
+        _ => write!(f, "{:?}", self.value.clone())
+        }
     }
 }
 

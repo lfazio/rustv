@@ -1,6 +1,7 @@
 use std::fmt;
 
 use crate::vsoc::arch::interface::ArchInterface;
+use crate::vsoc::arch::types::Uint;
 use crate::vsoc::bus::Bus;
 use crate::vsoc::bus::BusException;
 use super::super::csr;
@@ -11,8 +12,9 @@ use super::super::registers::RvRegisters;
 
 #[derive(Debug)]
 pub struct Rv64 {
+    width: usize,
     pub reg: RvRegisters,
-    pub pc: u64,
+    pub pc: Uint,
     
     pub csr: csr::Csr,
 }
@@ -48,26 +50,23 @@ impl Rv64 {
             extensions |= ext::EXT_D | ext::EXT_F;
         }
         
-        csr = csr::Csr::new(64, arch.contains('S'), arch.contains('H'));
+        csr = csr::Csr::new(width, arch.contains('S'), arch.contains('H'));
         match width {
-            32 => match csr.set(csr::MISA, &extensions.to_le_bytes().to_vec()) {
-                Some(_) => println!("csr::MISA = {:x}", extensions),
-                None => panic!("Can't set csr::MISA"),
-            },
-            64 => match csr.set(csr::MISA, &(extensions as u64).to_le_bytes().to_vec()) {
-                Some(_) => println!("csr::MISA = {:x}", extensions),
-                None => panic!("Can't set csr::MISA"),
-            },
-            128 => match csr.set(csr::MISA, &(extensions as u128).to_le_bytes().to_vec())  {
-                Some(_) => println!("csr::MISA = {:x}", extensions),
-                None => panic!("Can't set csr::MISA"),
-            },
+            32 => csr.set(csr::MISA, &Uint::from(extensions as u32)),
+            64 => csr.set(csr::MISA, &Uint::from(extensions as u64)),
+            128 => csr.set(csr::MISA, &Uint::from(extensions as u128)),
             _ => unreachable!(),
         }
         
         Rv64 {
+            width,
             reg: RvRegisters::new(64, registers),
-            pc,
+            pc: match width {
+                32 => Uint::from(pc as u32),
+                64 => Uint::from(pc as u64),
+                128 => Uint::from(pc as u128),
+                _ => unreachable!(),
+            },
             csr,
         }
     }
@@ -76,18 +75,18 @@ impl Rv64 {
 impl ArchInterface for Rv64 {
     fn step(&mut self, bus: &mut Bus) -> Option<RvException> {
         // fetch next instruction
-        match bus.fetch(4, self.pc) {
+        match bus.fetch(4, u64::from(self.pc.clone())) {
             Ok(instr) => {
                 let raw: u32 = u32::from_le_bytes(instr.try_into().unwrap());
                 match Instr::new(raw).process(self, bus) {
-                    Ok(offset) => self.pc = (self.pc as i64 + offset as i64) as u64,
+                    Ok(offset) => self.pc = Uint::from(i64::from(self.pc.clone()) + offset as i64),
                     Err(e) => match e {
                         RvException::Breakpoint => {
-                            println!("(ebreak @{:#0x})", self.pc);
+                            println!("(ebreak @{})", self.pc);
                         },
                         RvException::EnvironmentCallSMode
                         | RvException::EnvironmentCallUMode => {
-                            println!("(ecall @{:#0x})", self.pc);
+                            println!("(ecall @{})", self.pc);
                         },
                         _ => {
                             println!("(invalid (instruction {:#08x}))", &raw);
@@ -96,7 +95,13 @@ impl ArchInterface for Rv64 {
                     },
                 }
 
-                self.reg.set(0, &[0; 8]);
+                // Reset register $zero to 0
+                match self.width {
+                    32 => self.reg.set(0, &Uint::from(0 as u32)),
+                    64 => self.reg.set(0, &Uint::from(0 as u64)),
+                    128 => self.reg.set(0, &Uint::from(0 as u128)),
+                    _ => unreachable!(),
+                }
             },
             Err(e) => {
                 println!("<invalid>");
@@ -121,6 +126,6 @@ impl fmt::Display for Rv64 {
         // stream: `f`. Returns `fmt::Result` which indicates whether the
         // operation succeeded or failed. Note that `write!` uses syntax which
         // is very similar to `println!`.
-        write!(f, "(rv64\n    (pc {:#0x})\n    {}   )\n", self.pc, self.reg)
+        write!(f, "(rv64\n    (pc {})\n    {}   )\n", self.pc, self.reg)
     }
 }

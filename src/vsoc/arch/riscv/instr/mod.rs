@@ -12,6 +12,7 @@ use super::csr::Csr;
 use super::exception;
 use super::registers::RvRegisters;
 use super::hart::rv64::Rv64;
+use crate::vsoc::arch::types::Uint;
 use crate::vsoc::bus::Bus;
 
 pub enum Instr {
@@ -215,7 +216,7 @@ impl Instr {
         None
     }
 
-    fn auipc(&self, reg: &mut RvRegisters, pc: &[u8]) -> Option<exception::RvException> {
+    fn auipc(&self, reg: &mut RvRegisters, pc: &Uint) -> Option<exception::RvException> {
         let rd: usize = self.get_rd();
         let imm: i32 = self.get_u_imm();
 
@@ -233,7 +234,7 @@ impl Instr {
         None
     }
 
-    fn jalr(&self, reg: &mut RvRegisters, pc: &[u8]) -> Result<i128, exception::RvException> {
+    fn jalr(&self, reg: &mut RvRegisters, pc: &Uint) -> Result<i128, exception::RvException> {
         let rd: usize = self.get_rd();
         let rs1: usize = self.get_rs1();
         let imm: i32 = self.get_i_imm();
@@ -242,27 +243,27 @@ impl Instr {
 
         match reg.width() {
             32 => {
-                let base: i32 = i32::from_le_bytes(reg.get(rs1).try_into().unwrap());
-                let value: i32 = i32::from_le_bytes((*pc).try_into().unwrap());
+                let base: i32 = i32::from(reg.get(rs1));
+                let value: i32 = i32::from(pc.clone());
 
                 v = base as u128 + 4;
-                reg.set(rd, &(value + 4).to_le_bytes());
+                reg.set(rd, &Uint::from(value + 4));
                 offset = (base - value) as i128 + imm as i128;
             },
             64 => {
-                let base: i64 = i64::from_le_bytes(reg.get(rs1).try_into().unwrap());
-                let value: i64 = i64::from_le_bytes((*pc).try_into().unwrap());
+                let base: i64 = i64::from(reg.get(rs1));
+                let value: i64 = i64::from(pc.clone());
 
                 v = base as u128 + 4;
-                reg.set(rd, &(value + 4).to_le_bytes());
+                reg.set(rd, &Uint::from(value + 4));
                 offset = (base - value) as i128 + imm as i128;
             },
             128 => {
-                let base: i128 = i128::from_le_bytes(reg.get(rs1).try_into().unwrap());
-                let value: i128 = i128::from_le_bytes((*pc).try_into().unwrap());
+                let base: i128 = i128::from(reg.get(rs1));
+                let value: i128 = i128::from(pc.clone());
 
                 v = base  as u128+ 4;
-                reg.set(rd, &(value + 4).to_le_bytes());
+                reg.set(rd, &Uint::from(value + 4));
                 offset = base - value + imm as i128;
             },
             _ => unreachable!(),
@@ -273,29 +274,29 @@ impl Instr {
         Ok(offset)
     }
 
-    fn jal(&self, reg: &mut RvRegisters, pc: &[u8]) -> Result<i128, exception::RvException> {
+    fn jal(&self, reg: &mut RvRegisters, pc: &Uint) -> Result<i128, exception::RvException> {
         let rd: usize = self.get_rd();
         let imm: i32 = self.get_j_imm();
         let v: u128;
 
         match reg.width() {
             32 => {
-                let value: i32 = i32::from_le_bytes((*pc).try_into().unwrap());
+                let value: i32 = i32::from(pc.clone());
 
                 v = (value + 4) as u128;
-                reg.set(rd, &(value + 4).to_le_bytes());
+                reg.set(rd, &Uint::from(value + 4));
             },
             64 => {
-                let value: i64 = i64::from_le_bytes((*pc).try_into().unwrap());
+                let value: i64 = i64::from(pc.clone());
 
                 v = (value + 4) as u128;
-                reg.set(rd, &(value + 4).to_le_bytes());
+                reg.set(rd, &Uint::from(value + 4));
             },
             128 => {
-                let value: i128 = i128::from_le_bytes((*pc).try_into().unwrap());
+                let value: i128 = i128::from(pc.clone());
 
                 v = (value + 4) as u128;
-                reg.set(rd, &(value + 4).to_le_bytes());
+                reg.set(rd, &Uint::from(value + 4));
             },
             _ => unreachable!(),
         }
@@ -309,7 +310,7 @@ impl Instr {
         Ok(imm as i128)
     }
 
-    fn branch(&self, reg: &mut RvRegisters, pc: &[u8]) -> Result<i128, exception::RvException> {
+    fn branch(&self, reg: &mut RvRegisters, pc: &Uint) -> Result<i128, exception::RvException> {
         let funct3: usize = self.get_funct3();
         let rs1: usize = self.get_rs1();
         let rs2: usize = self.get_rs2();
@@ -326,17 +327,17 @@ impl Instr {
 
         match reg.width() {
             32 => {
-                let pcvalue: i32 = i32::from_le_bytes((*pc).try_into().unwrap()) + offset;
+                let pcvalue: i32 = i32::from(pc.clone()) + offset;
 
                 println!("{:0x}", pcvalue)
             },
             64 => {
-                let pcvalue: i64 = i64::from_le_bytes((*pc).try_into().unwrap()) + offset as i64;
+                let pcvalue: i64 = i64::from(pc.clone()) + offset as i64;
 
                 println!("{:0x}", pcvalue)
             },
             128 => {
-                let pcvalue: i128 = i128::from_le_bytes((*pc).try_into().unwrap()) + offset as i128;
+                let pcvalue: i128 = i128::from(pc.clone()) + offset as i128;
 
                 println!("{:0x}", pcvalue)
             },
@@ -425,7 +426,7 @@ impl Instr {
                 }
             },
             0x05 =>  {
-                match self.auipc(&mut hart.reg, &hart.pc.to_le_bytes()) {
+                match self.auipc(&mut hart.reg, &hart.pc) {
                     None => (),
                     Some(e) => {
                         println!("<error>");
@@ -491,7 +492,7 @@ impl Instr {
             //            0x16 => rc = self.custom_2(),
             //
             0x18 =>  {
-                match self.branch(&mut hart.reg, &hart.pc.to_le_bytes()) {
+                match self.branch(&mut hart.reg, &hart.pc) {
                     Ok(o) => {
                         match hart.reg.width() {
                             32 | 64 | 128 => offset = o,
@@ -505,7 +506,7 @@ impl Instr {
                 }
             },
             0x19 =>  {
-                match self.jalr(&mut hart.reg, &hart.pc.to_le_bytes()) {
+                match self.jalr(&mut hart.reg, &hart.pc) {
                     Ok(o) => {
                         match hart.reg.width() {
                             32 | 64 | 128 => offset = o,
@@ -519,7 +520,7 @@ impl Instr {
                 }
             },
             0x1b =>  {
-                match self.jal(&mut hart.reg, &hart.pc.to_le_bytes()) {
+                match self.jal(&mut hart.reg, &hart.pc) {
                     Ok(o) => {
                         match hart.reg.width() {
                             32 | 64 | 128 => offset = o,
@@ -553,7 +554,7 @@ impl Instr {
     }
 
     pub fn process(&self, hart: &mut Rv64, bus: &mut Bus) -> Result<i128, exception::RvException> {
-        print!("asm: \t{:x}:\t{:08x}\t\t", hart.pc, self.get_raw());
+        print!("asm: \t{}:\t{:08x}\t\t", hart.pc, self.get_raw());
 
         match self {
             Instr::Instr32(_) => match self.process_32(hart, bus) {

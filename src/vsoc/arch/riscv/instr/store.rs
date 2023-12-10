@@ -1,78 +1,70 @@
-use crate::vsoc::{bus::Bus, arch::riscv::exception::RvException};
+use crate::vsoc::{bus::Bus, arch::{riscv::exception::RvException, types::Uint}};
 use super::super::registers::RvRegisters;
 
-pub fn sb(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Result<Vec<u8>, RvException> {
+pub fn sb(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Result<Uint, RvException> {
     let addr: u64 = if imm < 0 {
-        u64::from_le_bytes(reg.get(rs1).try_into().unwrap()) - imm.unsigned_abs() as u64
+        u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64
     } else {
-        u64::from_le_bytes(reg.get(rs1).try_into().unwrap()) + imm as u64
+        u64::from(reg.get(rs1)) + imm as u64
     };
-    let mut value: Vec<u8> = reg.get(rs2);
+    let mut value: Uint = reg.get(rs2);
 
     value.truncate(1);
-    value.shrink_to_fit();
+    println!("sb\t{},{},{:x}", reg.name(rs2), reg.name(rs1), u8::from(value.clone()));
 
-    println!("sb\t{},{},{:x}", reg.name(rs2), reg.name(rs1), u8::from_le_bytes(value.clone().try_into().unwrap()));
-
-    match bus.store(1, addr, &value) {
+    match bus.store(1, addr, &Vec::<u8>::from(value.clone())) {
         None => Ok(value),
         Some(e) => Err(RvException::from(e)),
     }
 }
 
 
-pub fn sh(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Result<Vec<u8>, RvException> {
-    let addr: u64  = if imm < 0 {
-        u64::from_le_bytes(reg.get(rs1).try_into().unwrap()) - imm.unsigned_abs() as u64
+pub fn sh(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Result<Uint, RvException> {
+    let addr: u64 = if imm < 0 {
+        u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64
     } else {
-        u64::from_le_bytes(reg.get(rs1).try_into().unwrap()) + imm as u64
+        u64::from(reg.get(rs1)) + imm as u64
     };
-    let mut value: Vec<u8> = reg.get(rs2);
+    let mut value: Uint = reg.get(rs2);
 
     value.truncate(2);
-    value.shrink_to_fit();
+    println!("sh\t{},{},{:x}", reg.name(rs2), reg.name(rs1), u8::from(value.clone()));
 
-    println!("sh\t{},{},{:x}", reg.name(rs2), reg.name(rs1), u16::from_le_bytes(value.clone().try_into().unwrap()));
-
-    match bus.store(2, addr, &value) {
+    match bus.store(2, addr, &Vec::<u8>::from(value.clone())) {
         None => Ok(value),
         Some(e) => Err(RvException::from(e)),
     }
 }
 
-pub fn sw(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Result<Vec<u8>, RvException> {
+pub fn sw(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Result<Uint, RvException> {
     let addr: u64 = if imm < 0 {
-        u64::from_le_bytes(reg.get(rs1).try_into().unwrap()) - imm.unsigned_abs() as u64
+        u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64
     } else {
-        u64::from_le_bytes(reg.get(rs1).try_into().unwrap()) + imm as u64
+        u64::from(reg.get(rs1)) + imm as u64
     };
-    let mut value: Vec<u8> = reg.get(rs2);
+    let mut value: Uint = reg.get(rs2);
 
     value.truncate(4);
-    value.shrink_to_fit();
+    println!("sw\t{},{},{:x}", reg.name(rs2), reg.name(rs1), u32::from(value.clone()));
 
-    println!("sw\t{},{},{:x}", reg.name(rs2), reg.name(rs1), u32::from_le_bytes(value.clone().try_into().unwrap()));
-
-    match bus.store(4, addr, &value) {
+    match bus.store(4, addr, &Vec::<u8>::from(value.clone())) {
         None => Ok(value),
         Some(e) => Err(RvException::from(e)),
     }
 }
 
-pub fn sd(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Result<Vec<u8>, RvException>  {
+pub fn sd(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Result<Uint, RvException>  {
     let addr: u64 = if imm < 0 {
-        u64::from_le_bytes(reg.get(rs1).try_into().unwrap()) - imm.unsigned_abs() as u64
+        u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64
     } else {
-        u64::from_le_bytes(reg.get(rs1).try_into().unwrap()) + imm as u64
+        u64::from(reg.get(rs1)) + imm as u64
     };
-    let mut value: Vec<u8> = reg.get(rs2);
+    let mut value: Uint = reg.get(rs2);
 
     value.truncate(8);
-    value.shrink_to_fit();
+    println!("sd\t{},{},{:x}", reg.name(rs2), reg.name(rs1), u64::from(value.clone()));
 
-    println!("sd\t{},{},{:x}", reg.name(rs2), reg.name(rs1), u64::from_le_bytes(value.clone().try_into().unwrap()));
-
-    match bus.store(8, addr, &value) {
+    match bus.store(8, addr, &Vec::<u8>::from(value.clone())) {
         None => Ok(value),
         Some(e) => Err(RvException::from(e)),
     }

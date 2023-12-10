@@ -12,24 +12,24 @@ pub fn beq(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
 
     match reg.width() {
         32 => {
-            let rs1value: i32 = i32::from_le_bytes(rs1v.try_into().unwrap());
-            let rs2value: i32 = i32::from_le_bytes(rs2v.try_into().unwrap());
+            let rs1value: i32 = i32::from(rs1v);
+            let rs2value: i32 = i32::from(rs2v);
 
             if rs1value == rs2value {
                 return Ok(true);
             }
         },
         64 => {
-            let rs1value: i64 = i64::from_le_bytes(rs1v.try_into().unwrap());
-            let rs2value: i64 = i64::from_le_bytes(rs2v.try_into().unwrap());
+            let rs1value: i64 = i64::from(rs1v);
+            let rs2value: i64 = i64::from(rs2v);
 
             if rs1value == rs2value {
                 return Ok(true);
             }
         },
         128 => {
-            let rs1value: i128 = i128::from_le_bytes(rs1v.try_into().unwrap());
-            let rs2value: i128 = i128::from_le_bytes(rs2v.try_into().unwrap());
+            let rs1value: i128 = i128::from(rs1v);
+            let rs2value: i128 = i128::from(rs2v);
 
             if rs1value == rs2value {
                 return Ok(true);
@@ -53,24 +53,24 @@ pub fn bne(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
 
     match reg.width() {
         32 => {
-            let rs1value: i32 = i32::from_le_bytes(rs1v.try_into().unwrap());
-            let rs2value: i32 = i32::from_le_bytes(rs2v.try_into().unwrap());
+            let rs1value: i32 = i32::from(rs1v);
+            let rs2value: i32 = i32::from(rs2v);
 
             if rs1value != rs2value {
                 return Ok(true);
             }
         },
         64 => {
-            let rs1value: i64 = i64::from_le_bytes(rs1v.try_into().unwrap());
-            let rs2value: i64 = i64::from_le_bytes(rs2v.try_into().unwrap());
+            let rs1value: i64 = i64::from(rs1v);
+            let rs2value: i64 = i64::from(rs2v);
 
             if rs1value != rs2value {
                 return Ok(true);
             }
         },
         128 => {
-            let rs1value: i128 = i128::from_le_bytes(rs1v.try_into().unwrap());
-            let rs2value: i128 = i128::from_le_bytes(rs2v.try_into().unwrap());
+            let rs1value: i128 = i128::from(rs1v);
+            let rs2value: i128 = i128::from(rs2v);
 
             if rs1value != rs2value {
                 return Ok(true);
@@ -94,24 +94,24 @@ pub fn blt(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
 
     match reg.width() {
         32 => {
-            let rs1value: i32 = i32::from_le_bytes(rs1v.try_into().unwrap());
-            let rs2value: i32 = i32::from_le_bytes(rs2v.try_into().unwrap());
+            let rs1value: i32 = i32::from(rs1v);
+            let rs2value: i32 = i32::from(rs2v);
 
             if rs1value < rs2value {
                 return Ok(true);
             }
         },
         64 => {
-            let rs1value: i64 = i64::from_le_bytes(rs1v.try_into().unwrap());
-            let rs2value: i64 = i64::from_le_bytes(rs2v.try_into().unwrap());
+            let rs1value: i64 = i64::from(rs1v);
+            let rs2value: i64 = i64::from(rs2v);
 
             if rs1value < rs2value {
                 return Ok(true);
             }
         },
         128 => {
-            let rs1value: i128 = i128::from_le_bytes(rs1v.try_into().unwrap());
-            let rs2value: i128 = i128::from_le_bytes(rs2v.try_into().unwrap());
+            let rs1value: i128 = i128::from(rs1v);
+            let rs2value: i128 = i128::from(rs2v);
 
             if rs1value < rs2value {
                 return Ok(true);
@@ -135,24 +135,24 @@ pub fn bge(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
 
     match reg.width() {
         32 => {
-            let rs1value: i32 = i32::from_le_bytes(rs1v.try_into().unwrap());
-            let rs2value: i32 = i32::from_le_bytes(rs2v.try_into().unwrap());
+            let rs1value: i32 = i32::from(rs1v);
+            let rs2value: i32 = i32::from(rs2v);
 
             if rs1value >= rs2value {
                 return Ok(true);
             }
         },
         64 => {
-            let rs1value: i64 = i64::from_le_bytes(rs1v.try_into().unwrap());
-            let rs2value: i64 = i64::from_le_bytes(rs2v.try_into().unwrap());
+            let rs1value: i64 = i64::from(rs1v);
+            let rs2value: i64 = i64::from(rs2v);
 
             if rs1value >= rs2value {
                 return Ok(true);
             }
         },
         128 => {
-            let rs1value: i128 = i128::from_le_bytes(rs1v.try_into().unwrap());
-            let rs2value: i128 = i128::from_le_bytes(rs2v.try_into().unwrap());
+            let rs1value: i128 = i128::from(rs1v);
+            let rs2value: i128 = i128::from(rs2v);
 
             if rs1value >= rs2value {
                 return Ok(true);
@@ -176,24 +176,24 @@ pub fn bltu(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExc
 
     match reg.width() {
         32 => {
-            let rs1value: u32 = u32::from_le_bytes(rs1v.try_into().unwrap());
-            let rs2value: u32 = u32::from_le_bytes(rs2v.try_into().unwrap());
+            let rs1value: u32 = u32::from(rs1v);
+            let rs2value: u32 = u32::from(rs2v);
 
             if rs1value < rs2value {
                 return Ok(true);
             }
         },
         64 => {
-            let rs1value: u64 = u64::from_le_bytes(rs1v.try_into().unwrap());
-            let rs2value: u64 = u64::from_le_bytes(rs2v.try_into().unwrap());
+            let rs1value: u64 = u64::from(rs1v);
+            let rs2value: u64 = u64::from(rs2v);
 
             if rs1value < rs2value {
                 return Ok(true);
             }
         },
         128 => {
-            let rs1value: u128 = u128::from_le_bytes(rs1v.try_into().unwrap());
-            let rs2value: u128 = u128::from_le_bytes(rs2v.try_into().unwrap());
+            let rs1value: u128 = u128::from(rs1v);
+            let rs2value: u128 = u128::from(rs2v);
 
             if rs1value < rs2value {
                 return Ok(true);
@@ -217,24 +217,24 @@ pub fn bgeu(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExc
 
     match reg.width() {
         32 => {
-            let rs1value: u32 = u32::from_le_bytes(rs1v.try_into().unwrap());
-            let rs2value: u32 = u32::from_le_bytes(rs2v.try_into().unwrap());
+            let rs1value: u32 = u32::from(rs1v);
+            let rs2value: u32 = u32::from(rs2v);
 
             if rs1value >= rs2value {
                 return Ok(true);
             }
         },
         64 => {
-            let rs1value: u64 = u64::from_le_bytes(rs1v.try_into().unwrap());
-            let rs2value: u64 = u64::from_le_bytes(rs2v.try_into().unwrap());
+            let rs1value: u64 = u64::from(rs1v);
+            let rs2value: u64 = u64::from(rs2v);
 
             if rs1value >= rs2value {
                 return Ok(true);
             }
         },
         128 => {
-            let rs1value: u128 = u128::from_le_bytes(rs1v.try_into().unwrap());
-            let rs2value: u128 = u128::from_le_bytes(rs2v.try_into().unwrap());
+            let rs1value: u128 = u128::from(rs1v);
+            let rs2value: u128 = u128::from(rs2v);
 
             if rs1value >= rs2value {
                 return Ok(true);
