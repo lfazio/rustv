@@ -1,6 +1,5 @@
 # Backlog
 
-- Add overflow handling in M extension
 - Add riscv-tests
 - Add extensions: AFD at least, napot, bits...
 - Add user mode
