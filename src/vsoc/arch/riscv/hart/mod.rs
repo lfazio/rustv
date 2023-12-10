@@ -44,10 +44,11 @@ impl Rv {
         if arch.contains('F') {
             println!("Extension: F");
             extensions |= ext::EXT_F;
-        }
-        if arch.contains('D') {
-            println!("Extension: D");
-            extensions |= ext::EXT_D | ext::EXT_F;
+            
+            if arch.contains('D') {
+                println!("Extension: D");
+                extensions |= ext::EXT_D;
+            }
         }
         
         csr = csr::Csr::new(width, arch.contains('S'), arch.contains('H'));
