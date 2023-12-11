@@ -25,7 +25,7 @@ impl ArchRegister {
     pub fn set(&mut self, value: &Uint) {
         self.value = value.clone();
     }
-    
+
     pub fn get(&self) -> Uint {
         self.value.clone()
     }

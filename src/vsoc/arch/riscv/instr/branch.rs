@@ -1,4 +1,4 @@
-use crate::vsoc::arch::riscv::{registers::RvRegisters, exception::RvException};
+use crate::vsoc::arch::riscv::{exception::RvException, registers::RvRegisters};
 
 pub fn beq(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvException> {
     let rs1v = reg.get(rs1);
@@ -18,7 +18,7 @@ pub fn beq(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
             if rs1value == rs2value {
                 return Ok(true);
             }
-        },
+        }
         64 => {
             let rs1value: i64 = i64::from(rs1v);
             let rs2value: i64 = i64::from(rs2v);
@@ -26,7 +26,7 @@ pub fn beq(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
             if rs1value == rs2value {
                 return Ok(true);
             }
-        },
+        }
         128 => {
             let rs1value: i128 = i128::from(rs1v);
             let rs2value: i128 = i128::from(rs2v);
@@ -34,7 +34,7 @@ pub fn beq(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
             if rs1value == rs2value {
                 return Ok(true);
             }
-        },
+        }
         _ => return Err(RvException::InstructionIllegal),
     }
 
@@ -59,7 +59,7 @@ pub fn bne(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
             if rs1value != rs2value {
                 return Ok(true);
             }
-        },
+        }
         64 => {
             let rs1value: i64 = i64::from(rs1v);
             let rs2value: i64 = i64::from(rs2v);
@@ -67,7 +67,7 @@ pub fn bne(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
             if rs1value != rs2value {
                 return Ok(true);
             }
-        },
+        }
         128 => {
             let rs1value: i128 = i128::from(rs1v);
             let rs2value: i128 = i128::from(rs2v);
@@ -75,7 +75,7 @@ pub fn bne(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
             if rs1value != rs2value {
                 return Ok(true);
             }
-        },
+        }
         _ => return Err(RvException::InstructionIllegal),
     }
 
@@ -100,7 +100,7 @@ pub fn blt(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
             if rs1value < rs2value {
                 return Ok(true);
             }
-        },
+        }
         64 => {
             let rs1value: i64 = i64::from(rs1v);
             let rs2value: i64 = i64::from(rs2v);
@@ -108,7 +108,7 @@ pub fn blt(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
             if rs1value < rs2value {
                 return Ok(true);
             }
-        },
+        }
         128 => {
             let rs1value: i128 = i128::from(rs1v);
             let rs2value: i128 = i128::from(rs2v);
@@ -116,7 +116,7 @@ pub fn blt(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
             if rs1value < rs2value {
                 return Ok(true);
             }
-        },
+        }
         _ => return Err(RvException::InstructionIllegal),
     }
 
@@ -141,7 +141,7 @@ pub fn bge(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
             if rs1value >= rs2value {
                 return Ok(true);
             }
-        },
+        }
         64 => {
             let rs1value: i64 = i64::from(rs1v);
             let rs2value: i64 = i64::from(rs2v);
@@ -149,7 +149,7 @@ pub fn bge(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
             if rs1value >= rs2value {
                 return Ok(true);
             }
-        },
+        }
         128 => {
             let rs1value: i128 = i128::from(rs1v);
             let rs2value: i128 = i128::from(rs2v);
@@ -157,7 +157,7 @@ pub fn bge(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
             if rs1value >= rs2value {
                 return Ok(true);
             }
-        },
+        }
         _ => return Err(RvException::InstructionIllegal),
     }
 
@@ -182,7 +182,7 @@ pub fn bltu(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExc
             if rs1value < rs2value {
                 return Ok(true);
             }
-        },
+        }
         64 => {
             let rs1value: u64 = u64::from(rs1v);
             let rs2value: u64 = u64::from(rs2v);
@@ -190,7 +190,7 @@ pub fn bltu(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExc
             if rs1value < rs2value {
                 return Ok(true);
             }
-        },
+        }
         128 => {
             let rs1value: u128 = u128::from(rs1v);
             let rs2value: u128 = u128::from(rs2v);
@@ -198,7 +198,7 @@ pub fn bltu(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExc
             if rs1value < rs2value {
                 return Ok(true);
             }
-        },
+        }
         _ => return Err(RvException::InstructionIllegal),
     }
 
@@ -223,7 +223,7 @@ pub fn bgeu(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExc
             if rs1value >= rs2value {
                 return Ok(true);
             }
-        },
+        }
         64 => {
             let rs1value: u64 = u64::from(rs1v);
             let rs2value: u64 = u64::from(rs2v);
@@ -231,7 +231,7 @@ pub fn bgeu(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExc
             if rs1value >= rs2value {
                 return Ok(true);
             }
-        },
+        }
         128 => {
             let rs1value: u128 = u128::from(rs1v);
             let rs2value: u128 = u128::from(rs2v);
@@ -239,7 +239,7 @@ pub fn bgeu(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExc
             if rs1value >= rs2value {
                 return Ok(true);
             }
-        },
+        }
         _ => return Err(RvException::InstructionIllegal),
     }
 

@@ -37,7 +37,7 @@ impl Bus {
                 } else {
                     let base: u64 = addr - *origin;
                     let mut value: Vec<u8> = Vec::new();
-                    
+
                     for i in 0..width {
                         value.push(p.fetch(1, base as usize + i).unwrap()[0]);
                     }
@@ -83,7 +83,13 @@ impl fmt::Display for Bus {
         }
 
         for (origin, p) in self.map.iter() {
-            match writeln!(f, "  ({:#0x}\t{:#0x}\t{})", origin, origin + p.size as u64, p.name) {
+            match writeln!(
+                f,
+                "  ({:#0x}\t{:#0x}\t{})",
+                origin,
+                origin + p.size as u64,
+                p.name
+            ) {
                 Ok(_) => (),
                 Err(e) => return Err(e),
             }
@@ -128,7 +134,10 @@ mod tests {
         b.attach(0x8000_0000, Box::new(p));
 
         assert!(b.fetch(1, 0x8000_0000 - 1).is_err());
-        assert_eq!(u8::from_le_bytes(b.fetch(1, 0x8000_0000).unwrap().try_into().unwrap()), 0x01);
+        assert_eq!(
+            u8::from_le_bytes(b.fetch(1, 0x8000_0000).unwrap().try_into().unwrap()),
+            0x01
+        );
         assert!(b.fetch(1, 0x8000_1000).is_err());
     }
 

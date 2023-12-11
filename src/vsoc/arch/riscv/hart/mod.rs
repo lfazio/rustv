@@ -1,21 +1,21 @@
 use std::fmt;
 
-use crate::vsoc::arch::interface::ArchInterface;
-use crate::vsoc::arch::types::Uint;
-use crate::vsoc::bus::Bus;
-use crate::vsoc::bus::BusException;
-use crate::vsoc::arch::riscv::csr;
-use crate::vsoc::arch::riscv::ext;
 use super::exception::RvException;
 use super::instr::Instr;
 use super::registers::RvRegisters;
+use crate::vsoc::arch::interface::ArchInterface;
+use crate::vsoc::arch::riscv::csr;
+use crate::vsoc::arch::riscv::ext;
+use crate::vsoc::arch::types::Uint;
+use crate::vsoc::bus::Bus;
+use crate::vsoc::bus::BusException;
 
 #[derive(Debug)]
 pub struct Rv {
     width: usize,
     pub reg: RvRegisters,
     pub pc: Uint,
-    
+
     pub csr: csr::Csr,
 }
 
@@ -24,7 +24,7 @@ impl Rv {
         let mut extensions: u32 = 0;
         let mut csr: csr::Csr;
         let mut registers: usize = 32;
-        
+
         if arch.contains('I') {
             println!("Extension: I");
             extensions |= ext::EXT_I;
@@ -44,13 +44,13 @@ impl Rv {
         if arch.contains('F') {
             println!("Extension: F");
             extensions |= ext::EXT_F;
-            
+
             if arch.contains('D') {
                 println!("Extension: D");
                 extensions |= ext::EXT_D;
             }
         }
-        
+
         csr = csr::Csr::new(width, arch.contains('S'), arch.contains('H'));
         match width {
             32 => csr.set(csr::MISA, &Uint::from(extensions)),
@@ -58,7 +58,7 @@ impl Rv {
             128 => csr.set(csr::MISA, &Uint::from(extensions as u128)),
             _ => unreachable!(),
         }
-        
+
         Rv {
             width,
             reg: RvRegisters::new(width, registers),
@@ -88,18 +88,17 @@ impl ArchInterface for Rv {
                     Err(e) => match e {
                         RvException::Breakpoint => {
                             println!("(ebreak @{})", self.pc);
-                        },
-                        RvException::EnvironmentCallSMode
-                        | RvException::EnvironmentCallUMode => {
+                        }
+                        RvException::EnvironmentCallSMode | RvException::EnvironmentCallUMode => {
                             println!("(ecall @{})", self.pc);
-                        },
+                        }
                         _ => {
                             println!("(invalid instruction)");
                             return Some(e);
-                        },
+                        }
                     },
                 }
-                
+
                 // Reset register $zero to 0
                 match self.width {
                     32 => self.reg.set(0, &Uint::from(0u32)),
@@ -107,19 +106,21 @@ impl ArchInterface for Rv {
                     128 => self.reg.set(0, &Uint::from(0u128)),
                     _ => unreachable!(),
                 }
-            },
+            }
             Err(e) => {
                 println!("<invalid>");
                 match e {
-                    BusException::LoadAccessFault =>
-                    return Some(RvException::InstructionAccessFault),
-                    BusException::LoadAddressMisaligned =>
-                    return Some(RvException::InstructionAddressMisaligned),
+                    BusException::LoadAccessFault => {
+                        return Some(RvException::InstructionAccessFault)
+                    }
+                    BusException::LoadAddressMisaligned => {
+                        return Some(RvException::InstructionAddressMisaligned)
+                    }
                     _ => unreachable!(),
                 }
-            },
+            }
         }
-        
+
         None
     }
 }

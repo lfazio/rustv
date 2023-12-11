@@ -53,7 +53,7 @@ impl PeripheralInterface for Uart16550 {
             REG_RBR => {
                 self.set(REG_LSR, self.lsr & !LSR_DR);
                 Ok(u32::to_le_bytes(self.rbr).to_vec())
-            },
+            }
             REG_LSR => Ok(u32::to_le_bytes(self.rbr).to_vec()),
             _ => Ok(vec![0u8, 0u8, 0u8, 0u8]),
         }
@@ -67,14 +67,14 @@ impl PeripheralInterface for Uart16550 {
 
         match addr {
             REG_THR => {
-                if self.lsr & LSR_THRE  == LSR_THRE {
+                if self.lsr & LSR_THRE == LSR_THRE {
                     self.lsr = self.lsr & !LSR_TEMT;
                     self.thr = u32::from_le_bytes((*value.clone()).try_into().unwrap());
                     self.lsr = self.lsr & !LSR_THRE;
                     print!("{}", (self.thr as u8) as char);
                     self.lsr = self.lsr | (LSR_THRE | LSR_TEMT);
                 }
-            },
+            }
             REG_LSR => self.lsr = (self.lsr & 0xff) as u32,
             _ => return None,
         }

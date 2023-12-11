@@ -66,11 +66,7 @@ impl RvRegisters {
             reg[0x1f] = ArchRegister::new(width, String::from("t6"), 0x1f, zero.clone());
         }
 
-        RvRegisters {
-            width,
-            count,
-            reg,
-        }
+        RvRegisters { width, count, reg }
     }
 
     pub fn width(&self) -> usize {

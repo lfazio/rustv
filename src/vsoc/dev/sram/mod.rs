@@ -88,7 +88,7 @@ impl PeripheralInterface for Sram {
             align = 4;
         }
 
-        if  addr + width > self.length {
+        if addr + width > self.length {
             return Err(BusException::LoadAccessFault);
         }
 
@@ -113,7 +113,7 @@ impl PeripheralInterface for Sram {
         }
 
         if addr + width > self.length {
-                return Some(BusException::StoreAccessFault);
+            return Some(BusException::StoreAccessFault);
         }
 
         if align > 1 && ((addr % align) > 0 || (addr + width) % align > 0) {
@@ -121,10 +121,22 @@ impl PeripheralInterface for Sram {
         }
 
         match width {
-            1 => self.store8(addr, u8::from_le_bytes((*value.clone()).try_into().unwrap())),
-            2 => self.store16(addr, u16::from_le_bytes((*value.clone()).try_into().unwrap())),
-            4 => self.store32(addr, u32::from_le_bytes((*value.clone()).try_into().unwrap())),
-            8 => self.store64(addr, u64::from_le_bytes((*value.clone()).try_into().unwrap())),
+            1 => self.store8(
+                addr,
+                u8::from_le_bytes((*value.clone()).try_into().unwrap()),
+            ),
+            2 => self.store16(
+                addr,
+                u16::from_le_bytes((*value.clone()).try_into().unwrap()),
+            ),
+            4 => self.store32(
+                addr,
+                u32::from_le_bytes((*value.clone()).try_into().unwrap()),
+            ),
+            8 => self.store64(
+                addr,
+                u64::from_le_bytes((*value.clone()).try_into().unwrap()),
+            ),
             _ => return Some(BusException::StoreAccessFault),
         }
 
@@ -135,8 +147,8 @@ impl PeripheralInterface for Sram {
 #[cfg(test)]
 mod tests {
     use crate::vsoc::bus::BusException;
-    use crate::vsoc::peripheral::PeripheralInterface;
     use crate::vsoc::dev::sram::Sram;
+    use crate::vsoc::peripheral::PeripheralInterface;
 
     #[test]
     fn getters() {
@@ -165,24 +177,41 @@ mod tests {
         let mut sram: Sram = Sram::new(16);
 
         assert!(sram.store(1, 0x0, &[0x78; 1].to_vec()).is_none());
-        assert_eq!(u8::from_le_bytes(sram.fetch(1, 0x0).unwrap().try_into().unwrap()), 0x78);
+        assert_eq!(
+            u8::from_le_bytes(sram.fetch(1, 0x0).unwrap().try_into().unwrap()),
+            0x78
+        );
 
         assert!(sram.store(1, 0x1, &[0x78; 1].to_vec()).is_none());
-        assert_eq!(u8::from_le_bytes(sram.fetch(1, 0x1).unwrap().try_into().unwrap()), 0x78);
+        assert_eq!(
+            u8::from_le_bytes(sram.fetch(1, 0x1).unwrap().try_into().unwrap()),
+            0x78
+        );
 
         assert!(sram.store(1, 0x2, &[0x78; 1].to_vec()).is_none());
-        assert_eq!(u8::from_le_bytes(sram.fetch(1, 0x2).unwrap().try_into().unwrap()), 0x78);
+        assert_eq!(
+            u8::from_le_bytes(sram.fetch(1, 0x2).unwrap().try_into().unwrap()),
+            0x78
+        );
 
         assert!(sram.store(1, 0x3, &[0x78; 1].to_vec()).is_none());
-        assert_eq!(u8::from_le_bytes(sram.fetch(1, 0x3).unwrap().try_into().unwrap()), 0x78);
+        assert_eq!(
+            u8::from_le_bytes(sram.fetch(1, 0x3).unwrap().try_into().unwrap()),
+            0x78
+        );
     }
 
     #[test]
     fn store_fetch_width2() {
         let mut sram: Sram = Sram::new(16);
 
-        assert!(sram.store(2, 0x0, &u16::to_le_bytes(0x5678).to_vec()).is_none());
-        assert_eq!(u16::from_le_bytes(sram.fetch(2, 0x0).unwrap().try_into().unwrap()), 0x5678);
+        assert!(sram
+            .store(2, 0x0, &u16::to_le_bytes(0x5678).to_vec())
+            .is_none());
+        assert_eq!(
+            u16::from_le_bytes(sram.fetch(2, 0x0).unwrap().try_into().unwrap()),
+            0x5678
+        );
 
         /* Unaligned access */
         match sram.store(2, 0x1, &u16::to_le_bytes(0x5678).to_vec()) {
@@ -191,8 +220,13 @@ mod tests {
         }
         assert!(sram.fetch(2, 0x1).is_err());
 
-        assert!(sram.store(2, 0x2, &u16::to_le_bytes(0x5678).to_vec()).is_none());
-        assert_eq!(u16::from_le_bytes(sram.fetch(2, 0x2).unwrap().try_into().unwrap()), 0x5678);
+        assert!(sram
+            .store(2, 0x2, &u16::to_le_bytes(0x5678).to_vec())
+            .is_none());
+        assert_eq!(
+            u16::from_le_bytes(sram.fetch(2, 0x2).unwrap().try_into().unwrap()),
+            0x5678
+        );
 
         /* Unaligned access */
         match sram.store(2, 0x3, &u16::to_le_bytes(0x5678).to_vec()) {
@@ -201,16 +235,26 @@ mod tests {
         }
         assert!(sram.fetch(2, 0x3).is_err());
 
-        assert!(sram.store(2, 0x4, &u16::to_le_bytes(0x5678).to_vec()).is_none());
-        assert_eq!(u16::from_le_bytes(sram.fetch(2, 0x4).unwrap().try_into().unwrap()), 0x5678);
+        assert!(sram
+            .store(2, 0x4, &u16::to_le_bytes(0x5678).to_vec())
+            .is_none());
+        assert_eq!(
+            u16::from_le_bytes(sram.fetch(2, 0x4).unwrap().try_into().unwrap()),
+            0x5678
+        );
     }
 
     #[test]
     fn store_fetch_width4() {
         let mut sram: Sram = Sram::new(16);
 
-        assert!(sram.store(4, 0x0, &u32::to_le_bytes(0x12345678).to_vec()).is_none());
-        assert_eq!(u32::from_le_bytes(sram.fetch(4, 0x0).unwrap().try_into().unwrap()), 0x12345678);
+        assert!(sram
+            .store(4, 0x0, &u32::to_le_bytes(0x12345678).to_vec())
+            .is_none());
+        assert_eq!(
+            u32::from_le_bytes(sram.fetch(4, 0x0).unwrap().try_into().unwrap()),
+            0x12345678
+        );
 
         /* Unaligned access */
         match sram.store(4, 0x1, &u32::to_le_bytes(0x12345678).to_vec()) {
@@ -233,16 +277,26 @@ mod tests {
         }
         assert!(sram.fetch(4, 0x3).is_err());
 
-        assert!(sram.store(4, 0x4, &u32::to_le_bytes(0x12345678).to_vec()).is_none());
-        assert_eq!(u32::from_le_bytes(sram.fetch(4, 0x4).unwrap().try_into().unwrap()), 0x12345678);
+        assert!(sram
+            .store(4, 0x4, &u32::to_le_bytes(0x12345678).to_vec())
+            .is_none());
+        assert_eq!(
+            u32::from_le_bytes(sram.fetch(4, 0x4).unwrap().try_into().unwrap()),
+            0x12345678
+        );
     }
 
     #[test]
     fn store_fetch_width8() {
         let mut sram: Sram = Sram::new(16);
 
-        assert!(sram.store(8, 0x0, &u64::to_le_bytes(0x1234567812345678).to_vec()).is_none());
-        assert_eq!(u64::from_le_bytes(sram.fetch(8, 0x0).unwrap().try_into().unwrap()), 0x1234567812345678);
+        assert!(sram
+            .store(8, 0x0, &u64::to_le_bytes(0x1234567812345678).to_vec())
+            .is_none());
+        assert_eq!(
+            u64::from_le_bytes(sram.fetch(8, 0x0).unwrap().try_into().unwrap()),
+            0x1234567812345678
+        );
 
         /* Unaligned access */
         match sram.store(8, 0x1, &u64::to_le_bytes(0x1234567812345678).to_vec()) {
@@ -265,8 +319,13 @@ mod tests {
         }
         assert!(sram.fetch(8, 0x3).is_err());
 
-        assert!(sram.store(8, 0x4, &u64::to_le_bytes(0x1234567812345678).to_vec()).is_none());
-        assert_eq!(u64::from_le_bytes(sram.fetch(8, 0x4).unwrap().try_into().unwrap()), 0x1234567812345678);
+        assert!(sram
+            .store(8, 0x4, &u64::to_le_bytes(0x1234567812345678).to_vec())
+            .is_none());
+        assert_eq!(
+            u64::from_le_bytes(sram.fetch(8, 0x4).unwrap().try_into().unwrap()),
+            0x1234567812345678
+        );
 
         /* Unaligned access */
         match sram.store(8, 0x5, &u64::to_le_bytes(0x1234567812345678).to_vec()) {
@@ -289,18 +348,28 @@ mod tests {
         }
         assert!(sram.fetch(8, 0x7).is_err());
 
-        assert!(sram.store(8, 0x8, &u64::to_le_bytes(0x1234567812345678).to_vec()).is_none());
-        assert_eq!(u64::from_le_bytes(sram.fetch(8, 0x8).unwrap().try_into().unwrap()), 0x1234567812345678);
+        assert!(sram
+            .store(8, 0x8, &u64::to_le_bytes(0x1234567812345678).to_vec())
+            .is_none());
+        assert_eq!(
+            u64::from_le_bytes(sram.fetch(8, 0x8).unwrap().try_into().unwrap()),
+            0x1234567812345678
+        );
     }
-
 
     #[test]
     fn store_fetch_width_illegal() {
         let mut sram: Sram = Sram::new(16);
 
-        assert!(sram.store(0x0, 0x0, &u64::to_le_bytes(0x1234567812345678).to_vec()).is_some());
-        assert!(sram.store(3, 0x0, &u64::to_le_bytes(0x1234567812345678).to_vec()).is_some());
-        assert!(sram.store(7, 0x0, &u64::to_le_bytes(0x1234567812345678).to_vec()).is_some());
+        assert!(sram
+            .store(0x0, 0x0, &u64::to_le_bytes(0x1234567812345678).to_vec())
+            .is_some());
+        assert!(sram
+            .store(3, 0x0, &u64::to_le_bytes(0x1234567812345678).to_vec())
+            .is_some());
+        assert!(sram
+            .store(7, 0x0, &u64::to_le_bytes(0x1234567812345678).to_vec())
+            .is_some());
         assert!(sram.fetch(0x0, 0x0).is_err());
         assert!(sram.fetch(3, 0x0).is_err());
         assert!(sram.fetch(7, 0x0).is_err());

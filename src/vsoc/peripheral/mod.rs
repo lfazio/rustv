@@ -15,16 +15,16 @@ pub trait PeripheralInterface: Debug {
 }
 
 impl Peripheral {
-     pub fn new(name: String, size: usize, peripheral: Box<dyn PeripheralInterface>) -> Peripheral {
+    pub fn new(name: String, size: usize, peripheral: Box<dyn PeripheralInterface>) -> Peripheral {
         Peripheral {
-	    name,
+            name,
             size,
             io: peripheral,
         }
     }
 
     pub fn size(&self) -> usize {
-	self.size
+        self.size
     }
 }
 
@@ -65,7 +65,6 @@ impl fmt::Display for Peripheral {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::{Peripheral, PeripheralInterface};
@@ -95,8 +94,7 @@ mod tests {
     #[test]
     fn test_store_peripheral() {
         let mut io = PeripheralLikeStruct;
-        let mut p: Peripheral =
-            Peripheral::new(String::from("test"), 0x1000, Box::new(io));
+        let mut p: Peripheral = Peripheral::new(String::from("test"), 0x1000, Box::new(io));
 
         assert!(p.store(1, 0x0, &[0u8; 1].to_vec()).is_none());
         assert!(p.store(1, 0x1000, &[0u8; 1].to_vec()).is_some());
@@ -107,7 +105,10 @@ mod tests {
         let mut io = PeripheralLikeStruct;
         let mut p: Peripheral = Peripheral::new(String::from("test"), 0x1000, Box::new(io));
 
-        assert_eq!(u64::from_le_bytes(p.fetch(8, 0x0).unwrap().try_into().unwrap()), 0xfee1c001fee1c001);
+        assert_eq!(
+            u64::from_le_bytes(p.fetch(8, 0x0).unwrap().try_into().unwrap()),
+            0xfee1c001fee1c001
+        );
         assert!(p.fetch(8, 0x1000).is_err());
     }
 }

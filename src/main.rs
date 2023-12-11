@@ -15,7 +15,6 @@ struct Args {
     /// Vsoc description
     #[arg(short, long)]
     arch: String,
-
 }
 
 fn main() {

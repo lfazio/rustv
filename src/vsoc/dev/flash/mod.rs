@@ -88,7 +88,7 @@ impl PeripheralInterface for Flash {
             align = 4;
         }
 
-        if  addr + width > self.length {
+        if addr + width > self.length {
             return Err(BusException::LoadAccessFault);
         }
 
@@ -114,7 +114,7 @@ impl PeripheralInterface for Flash {
         }
 
         if addr + width > self.length {
-                return Some(BusException::StoreAccessFault);
+            return Some(BusException::StoreAccessFault);
         }
 
         if align > 1 && ((addr % align) > 0 || (addr + width) % align > 0) {
@@ -138,8 +138,8 @@ impl PeripheralInterface for Flash {
 #[cfg(test)]
 mod tests {
     use crate::vsoc::bus::BusException;
-    use crate::vsoc::peripheral::PeripheralInterface;
     use crate::vsoc::dev::flash::Flash;
+    use crate::vsoc::peripheral::PeripheralInterface;
 
     #[test]
     fn getters() {
@@ -168,24 +168,41 @@ mod tests {
         let mut flash: Flash = Flash::new(16);
 
         assert!(flash.store(1, 0x0, &[0x78; 1].to_vec()).is_none());
-        assert_eq!(u8::from_le_bytes(flash.fetch(1, 0x0).unwrap().try_into().unwrap()), 0x78);
+        assert_eq!(
+            u8::from_le_bytes(flash.fetch(1, 0x0).unwrap().try_into().unwrap()),
+            0x78
+        );
 
         assert!(flash.store(1, 0x1, &[0x78; 1].to_vec()).is_none());
-        assert_eq!(u8::from_le_bytes(flash.fetch(1, 0x1).unwrap().try_into().unwrap()), 0x78);
+        assert_eq!(
+            u8::from_le_bytes(flash.fetch(1, 0x1).unwrap().try_into().unwrap()),
+            0x78
+        );
 
         assert!(flash.store(1, 0x2, &[0x78; 1].to_vec()).is_none());
-        assert_eq!(u8::from_le_bytes(flash.fetch(1, 0x2).unwrap().try_into().unwrap()), 0x78);
+        assert_eq!(
+            u8::from_le_bytes(flash.fetch(1, 0x2).unwrap().try_into().unwrap()),
+            0x78
+        );
 
         assert!(flash.store(1, 0x3, &[0x78; 1].to_vec()).is_none());
-        assert_eq!(u8::from_le_bytes(flash.fetch(1, 0x3).unwrap().try_into().unwrap()), 0x78);
+        assert_eq!(
+            u8::from_le_bytes(flash.fetch(1, 0x3).unwrap().try_into().unwrap()),
+            0x78
+        );
     }
 
     #[test]
     fn store_fetch_width2() {
         let mut flash: Flash = Flash::new(16);
 
-        assert!(flash.store(2, 0x0, &u16::to_le_bytes(0x5678).to_vec()).is_none());
-        assert_eq!(u16::from_le_bytes(flash.fetch(2, 0x0).unwrap().try_into().unwrap()), 0x5678);
+        assert!(flash
+            .store(2, 0x0, &u16::to_le_bytes(0x5678).to_vec())
+            .is_none());
+        assert_eq!(
+            u16::from_le_bytes(flash.fetch(2, 0x0).unwrap().try_into().unwrap()),
+            0x5678
+        );
 
         /* Unaligned access */
         match flash.store(2, 0x1, &u16::to_le_bytes(0x5678).to_vec()) {
@@ -194,8 +211,13 @@ mod tests {
         }
         assert!(flash.fetch(2, 0x1).is_err());
 
-        assert!(flash.store(2, 0x2, &u16::to_le_bytes(0x5678).to_vec()).is_none());
-        assert_eq!(u16::from_le_bytes(flash.fetch(2, 0x2).unwrap().try_into().unwrap()), 0x5678);
+        assert!(flash
+            .store(2, 0x2, &u16::to_le_bytes(0x5678).to_vec())
+            .is_none());
+        assert_eq!(
+            u16::from_le_bytes(flash.fetch(2, 0x2).unwrap().try_into().unwrap()),
+            0x5678
+        );
 
         /* Unaligned access */
         match flash.store(2, 0x3, &u16::to_le_bytes(0x5678).to_vec()) {
@@ -204,16 +226,26 @@ mod tests {
         }
         assert!(flash.fetch(2, 0x3).is_err());
 
-        assert!(flash.store(2, 0x4, &u16::to_le_bytes(0x5678).to_vec()).is_none());
-        assert_eq!(u16::from_le_bytes(flash.fetch(2, 0x4).unwrap().try_into().unwrap()), 0x5678);
+        assert!(flash
+            .store(2, 0x4, &u16::to_le_bytes(0x5678).to_vec())
+            .is_none());
+        assert_eq!(
+            u16::from_le_bytes(flash.fetch(2, 0x4).unwrap().try_into().unwrap()),
+            0x5678
+        );
     }
 
     #[test]
     fn store_fetch_width4() {
         let mut flash: Flash = Flash::new(16);
 
-        assert!(flash.store(4, 0x0, &u32::to_le_bytes(0x12345678).to_vec()).is_none());
-        assert_eq!(u32::from_le_bytes(flash.fetch(4, 0x0).unwrap().try_into().unwrap()), 0x12345678);
+        assert!(flash
+            .store(4, 0x0, &u32::to_le_bytes(0x12345678).to_vec())
+            .is_none());
+        assert_eq!(
+            u32::from_le_bytes(flash.fetch(4, 0x0).unwrap().try_into().unwrap()),
+            0x12345678
+        );
 
         /* Unaligned access */
         match flash.store(4, 0x1, &u32::to_le_bytes(0x12345678).to_vec()) {
@@ -236,16 +268,26 @@ mod tests {
         }
         assert!(flash.fetch(4, 0x3).is_err());
 
-        assert!(flash.store(4, 0x4, &u32::to_le_bytes(0x12345678).to_vec()).is_none());
-        assert_eq!(u32::from_le_bytes(flash.fetch(4, 0x4).unwrap().try_into().unwrap()), 0x12345678);
+        assert!(flash
+            .store(4, 0x4, &u32::to_le_bytes(0x12345678).to_vec())
+            .is_none());
+        assert_eq!(
+            u32::from_le_bytes(flash.fetch(4, 0x4).unwrap().try_into().unwrap()),
+            0x12345678
+        );
     }
 
     #[test]
     fn store_fetch_width8() {
         let mut flash: Flash = Flash::new(16);
 
-        assert!(flash.store(8, 0x0, &u64::to_le_bytes(0x1234567812345678).to_vec()).is_none());
-        assert_eq!(u64::from_le_bytes(flash.fetch(8, 0x0).unwrap().try_into().unwrap()), 0x1234567812345678);
+        assert!(flash
+            .store(8, 0x0, &u64::to_le_bytes(0x1234567812345678).to_vec())
+            .is_none());
+        assert_eq!(
+            u64::from_le_bytes(flash.fetch(8, 0x0).unwrap().try_into().unwrap()),
+            0x1234567812345678
+        );
 
         /* Unaligned access */
         match flash.store(8, 0x1, &u64::to_le_bytes(0x1234567812345678).to_vec()) {
@@ -268,8 +310,13 @@ mod tests {
         }
         assert!(flash.fetch(8, 0x3).is_err());
 
-        assert!(flash.store(8, 0x4, &u64::to_le_bytes(0x1234567812345678).to_vec()).is_none());
-        assert_eq!(u64::from_le_bytes(flash.fetch(8, 0x4).unwrap().try_into().unwrap()), 0x1234567812345678);
+        assert!(flash
+            .store(8, 0x4, &u64::to_le_bytes(0x1234567812345678).to_vec())
+            .is_none());
+        assert_eq!(
+            u64::from_le_bytes(flash.fetch(8, 0x4).unwrap().try_into().unwrap()),
+            0x1234567812345678
+        );
 
         /* Unaligned access */
         match flash.store(8, 0x5, &u64::to_le_bytes(0x1234567812345678).to_vec()) {
@@ -292,18 +339,28 @@ mod tests {
         }
         assert!(flash.fetch(8, 0x7).is_err());
 
-        assert!(flash.store(8, 0x8, &u64::to_le_bytes(0x1234567812345678).to_vec()).is_none());
-        assert_eq!(u64::from_le_bytes(flash.fetch(8, 0x8).unwrap().try_into().unwrap()), 0x1234567812345678);
+        assert!(flash
+            .store(8, 0x8, &u64::to_le_bytes(0x1234567812345678).to_vec())
+            .is_none());
+        assert_eq!(
+            u64::from_le_bytes(flash.fetch(8, 0x8).unwrap().try_into().unwrap()),
+            0x1234567812345678
+        );
     }
-
 
     #[test]
     fn store_fetch_width_illegal() {
         let mut flash: Flash = Flash::new(16);
 
-        assert!(flash.store(0x0, 0x0, &u64::to_le_bytes(0x1234567812345678).to_vec()).is_some());
-        assert!(flash.store(3, 0x0, &u64::to_le_bytes(0x1234567812345678).to_vec()).is_some());
-        assert!(flash.store(7, 0x0, &u64::to_le_bytes(0x1234567812345678).to_vec()).is_some());
+        assert!(flash
+            .store(0x0, 0x0, &u64::to_le_bytes(0x1234567812345678).to_vec())
+            .is_some());
+        assert!(flash
+            .store(3, 0x0, &u64::to_le_bytes(0x1234567812345678).to_vec())
+            .is_some());
+        assert!(flash
+            .store(7, 0x0, &u64::to_le_bytes(0x1234567812345678).to_vec())
+            .is_some());
         assert!(flash.fetch(0x0, 0x0).is_err());
         assert!(flash.fetch(3, 0x0).is_err());
         assert!(flash.fetch(7, 0x0).is_err());

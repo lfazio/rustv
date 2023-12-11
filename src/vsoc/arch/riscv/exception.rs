@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::vsoc::{VsocException, bus::BusException};
+use crate::vsoc::{bus::BusException, VsocException};
 
 #[derive(Debug)]
 pub enum RvException {
@@ -49,7 +49,9 @@ impl fmt::Display for RvException {
 impl From<RvException> for VsocException {
     fn from(e: RvException) -> Self {
         match e {
-            RvException::InstructionAddressMisaligned => VsocException::InstructionAddressMisaligned,
+            RvException::InstructionAddressMisaligned => {
+                VsocException::InstructionAddressMisaligned
+            }
             RvException::InstructionAccessFault => VsocException::InstructionAccessFault,
             RvException::InstructionIllegal => VsocException::InstructionIllegal,
             RvException::Breakpoint => VsocException::Breakpoint,

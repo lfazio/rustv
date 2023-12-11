@@ -1,7 +1,16 @@
-use crate::vsoc::{bus::Bus, arch::{riscv::exception::RvException, types::Uint}};
 use super::super::registers::RvRegisters;
+use crate::vsoc::{
+    arch::{riscv::exception::RvException, types::Uint},
+    bus::Bus,
+};
 
-pub fn lb(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32, bus: &mut Bus) -> Result<Uint, RvException> {
+pub fn lb(
+    reg: &mut RvRegisters,
+    rd: usize,
+    rs1: usize,
+    imm: i32,
+    bus: &mut Bus,
+) -> Result<Uint, RvException> {
     let mut value: Uint = if imm < 0 {
         let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
 
@@ -32,7 +41,13 @@ pub fn lb(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32, bus: &mut Bus)
     Ok(value)
 }
 
-pub fn lh(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32, bus: &mut Bus) -> Result<Uint, RvException> {
+pub fn lh(
+    reg: &mut RvRegisters,
+    rd: usize,
+    rs1: usize,
+    imm: i32,
+    bus: &mut Bus,
+) -> Result<Uint, RvException> {
     let mut value: Uint = if imm < 0 {
         let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
 
@@ -63,7 +78,13 @@ pub fn lh(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32, bus: &mut Bus)
     Ok(value)
 }
 
-pub fn lw(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32, bus: &mut Bus) -> Result<Uint, RvException> {
+pub fn lw(
+    reg: &mut RvRegisters,
+    rd: usize,
+    rs1: usize,
+    imm: i32,
+    bus: &mut Bus,
+) -> Result<Uint, RvException> {
     let mut value: Uint = if imm < 0 {
         let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
 
@@ -94,7 +115,13 @@ pub fn lw(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32, bus: &mut Bus)
     Ok(value)
 }
 
-pub fn ld(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32, bus: &mut Bus) -> Result<Uint, RvException> {
+pub fn ld(
+    reg: &mut RvRegisters,
+    rd: usize,
+    rs1: usize,
+    imm: i32,
+    bus: &mut Bus,
+) -> Result<Uint, RvException> {
     let mut value: Uint = if imm < 0 {
         let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
 
@@ -124,7 +151,13 @@ pub fn ld(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32, bus: &mut Bus)
     Ok(value)
 }
 
-pub fn lbu(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32, bus: &mut Bus) -> Result<Uint, RvException> {
+pub fn lbu(
+    reg: &mut RvRegisters,
+    rd: usize,
+    rs1: usize,
+    imm: i32,
+    bus: &mut Bus,
+) -> Result<Uint, RvException> {
     let mut value: Uint = if imm < 0 {
         let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
 
@@ -155,7 +188,13 @@ pub fn lbu(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32, bus: &mut Bus
     Ok(value)
 }
 
-pub fn lhu(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32, bus: &mut Bus) -> Result<Uint, RvException> {
+pub fn lhu(
+    reg: &mut RvRegisters,
+    rd: usize,
+    rs1: usize,
+    imm: i32,
+    bus: &mut Bus,
+) -> Result<Uint, RvException> {
     let mut value: Uint = if imm < 0 {
         let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
 
@@ -186,7 +225,13 @@ pub fn lhu(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32, bus: &mut Bus
     Ok(value)
 }
 
-pub fn lwu(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32, bus: &mut Bus) -> Result<Uint, RvException> {
+pub fn lwu(
+    reg: &mut RvRegisters,
+    rd: usize,
+    rs1: usize,
+    imm: i32,
+    bus: &mut Bus,
+) -> Result<Uint, RvException> {
     let mut value: Uint = if imm < 0 {
         let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
 

@@ -1,6 +1,6 @@
-mod riscv;
-mod registers;
-mod interface;
 pub mod cpu;
+mod interface;
+mod registers;
+mod riscv;
 pub mod state;
 pub mod types;

@@ -3,9 +3,9 @@ mod bus;
 mod dev;
 mod peripheral;
 
-use std::fmt;
 use bus::Bus;
 use dev::{flash, sram, uart};
+use std::fmt;
 
 pub enum VsocException {
     InstructionAddressMisaligned,
@@ -50,7 +50,6 @@ impl fmt::Display for VsocException {
     }
 }
 
-
 #[derive(Debug)]
 pub struct Vsoc<'a> {
     cpu: arch::cpu::Cpu<'a>,
@@ -62,11 +61,24 @@ impl<'a> Vsoc<'a> {
         let mut bus: Bus = Bus::new();
         let flash: Box<flash::Flash> = Box::new(flash::Flash::new(128 * 1024));
         let sram: Box<sram::Sram> = Box::new(sram::Sram::new(128 * 1024));
-        let uart: Box<uart::uart16550::Uart16550> = Box::new(uart::uart16550::Uart16550::new(0x2000));
-        let p_flash = Box::new(peripheral::Peripheral::new(String::from("flash"), flash.size() , flash));
-        let p_sram = Box::new(peripheral::Peripheral::new(String::from("sram"), sram.size(), sram));
-        let p_uart = Box::new(peripheral::Peripheral::new(String::from("uart"), uart.size(), uart));
-        
+        let uart: Box<uart::uart16550::Uart16550> =
+            Box::new(uart::uart16550::Uart16550::new(0x2000));
+        let p_flash = Box::new(peripheral::Peripheral::new(
+            String::from("flash"),
+            flash.size(),
+            flash,
+        ));
+        let p_sram = Box::new(peripheral::Peripheral::new(
+            String::from("sram"),
+            sram.size(),
+            sram,
+        ));
+        let p_uart = Box::new(peripheral::Peripheral::new(
+            String::from("uart"),
+            uart.size(),
+            uart,
+        ));
+
         bus.attach(0x8000_0000, p_flash);
         bus.attach(0x2000_0000, p_sram);
         bus.attach(0x4001_3c00, p_uart);
@@ -75,13 +87,14 @@ impl<'a> Vsoc<'a> {
             bus,
         }
     }
-    
+
     pub fn load(&mut self, binary: &Vec<u8>) {
         for i in 0..binary.len() {
-            self.bus.store(1,0x8000_0000 + i as u64, &[binary[i]].to_vec());
+            self.bus
+                .store(1, 0x8000_0000 + i as u64, &[binary[i]].to_vec());
         }
     }
-    
+
     pub fn step(&mut self) -> Option<VsocException> {
         self.cpu.step(&mut self.bus)
     }

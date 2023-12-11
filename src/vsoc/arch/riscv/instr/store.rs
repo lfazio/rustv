@@ -1,7 +1,16 @@
-use crate::vsoc::{bus::Bus, arch::{riscv::exception::RvException, types::Uint}};
 use super::super::registers::RvRegisters;
+use crate::vsoc::{
+    arch::{riscv::exception::RvException, types::Uint},
+    bus::Bus,
+};
 
-pub fn sb(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Result<Uint, RvException> {
+pub fn sb(
+    reg: &mut RvRegisters,
+    rs1: usize,
+    rs2: usize,
+    imm: i32,
+    bus: &mut Bus,
+) -> Result<Uint, RvException> {
     let addr: u64 = if imm < 0 {
         u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64
     } else {
@@ -10,7 +19,12 @@ pub fn sb(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus
     let mut value: Uint = reg.get(rs2);
 
     value.truncate(1);
-    println!("sb\t{},{},{:x}", reg.name(rs2), reg.name(rs1), u8::from(value.clone()));
+    println!(
+        "sb\t{},{},{:x}",
+        reg.name(rs2),
+        reg.name(rs1),
+        u8::from(value.clone())
+    );
 
     match bus.store(1, addr, &Vec::<u8>::from(value.clone())) {
         None => Ok(value),
@@ -18,7 +32,13 @@ pub fn sb(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus
     }
 }
 
-pub fn sh(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Result<Uint, RvException> {
+pub fn sh(
+    reg: &mut RvRegisters,
+    rs1: usize,
+    rs2: usize,
+    imm: i32,
+    bus: &mut Bus,
+) -> Result<Uint, RvException> {
     let addr: u64 = if imm < 0 {
         u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64
     } else {
@@ -27,7 +47,12 @@ pub fn sh(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus
     let mut value: Uint = reg.get(rs2);
 
     value.truncate(2);
-    println!("sh\t{},{},{:x}", reg.name(rs2), reg.name(rs1), u8::from(value.clone()));
+    println!(
+        "sh\t{},{},{:x}",
+        reg.name(rs2),
+        reg.name(rs1),
+        u8::from(value.clone())
+    );
 
     match bus.store(2, addr, &Vec::<u8>::from(value.clone())) {
         None => Ok(value),
@@ -35,7 +60,13 @@ pub fn sh(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus
     }
 }
 
-pub fn sw(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Result<Uint, RvException> {
+pub fn sw(
+    reg: &mut RvRegisters,
+    rs1: usize,
+    rs2: usize,
+    imm: i32,
+    bus: &mut Bus,
+) -> Result<Uint, RvException> {
     let addr: u64 = if imm < 0 {
         u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64
     } else {
@@ -44,7 +75,12 @@ pub fn sw(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus
     let mut value: Uint = reg.get(rs2);
 
     value.truncate(4);
-    println!("sw\t{},{},{:x}", reg.name(rs2), reg.name(rs1), u32::from(value.clone()));
+    println!(
+        "sw\t{},{},{:x}",
+        reg.name(rs2),
+        reg.name(rs1),
+        u32::from(value.clone())
+    );
 
     match bus.store(4, addr, &Vec::<u8>::from(value.clone())) {
         None => Ok(value),
@@ -52,7 +88,13 @@ pub fn sw(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus
     }
 }
 
-pub fn sd(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus) -> Result<Uint, RvException>  {
+pub fn sd(
+    reg: &mut RvRegisters,
+    rs1: usize,
+    rs2: usize,
+    imm: i32,
+    bus: &mut Bus,
+) -> Result<Uint, RvException> {
     let addr: u64 = if imm < 0 {
         u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64
     } else {
@@ -61,7 +103,12 @@ pub fn sd(reg: &mut RvRegisters, rs1: usize, rs2: usize, imm: i32, bus: &mut Bus
     let mut value: Uint = reg.get(rs2);
 
     value.truncate(8);
-    println!("sd\t{},{},{:x}", reg.name(rs2), reg.name(rs1), u64::from(value.clone()));
+    println!(
+        "sd\t{},{},{:x}",
+        reg.name(rs2),
+        reg.name(rs1),
+        u64::from(value.clone())
+    );
 
     match bus.store(8, addr, &Vec::<u8>::from(value.clone())) {
         None => Ok(value),
