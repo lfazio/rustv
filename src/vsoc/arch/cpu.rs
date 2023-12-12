@@ -1,10 +1,8 @@
 use std::fmt;
 
+use super::riscv::hart::Rv;
 use super::state::State;
 use crate::vsoc::{arch::interface::ArchInterface, bus::Bus, VsocException};
-//use super::riscv::hart::rv32::Rv32;
-use super::riscv::hart::Rv;
-use super::types::Uint;
 
 #[derive(Debug)]
 enum CpuCore {
@@ -48,26 +46,10 @@ impl fmt::Display for CpuCore {
 
 impl<'a> Cpu<'a> {
     pub fn new(desc: &'a String, pc: u128) -> Cpu<'a> {
-        let core: CpuCore;
-
-        if desc.starts_with("RV") {
-            if desc.starts_with("RV32") {
-                core = CpuCore::CoreRv(Rv::new(32, desc, &Uint::from(pc as u32)));
-            } else if desc.starts_with("RV64") {
-                core = CpuCore::CoreRv(Rv::new(64, desc, &Uint::from(pc as u64)));
-            } else if desc.starts_with("RV128") {
-                core = CpuCore::CoreRv(Rv::new(128, desc, &Uint::from(pc)));
-            } else {
-                panic!("Unsupported: {}", desc);
-            }
-        } else {
-            panic!("Unsupported: {}", desc);
-        }
-
         Cpu {
             desc,
             state: State::Initialised,
-            core,
+            core: CpuCore::CoreRv(Rv::new(desc, pc)),
         }
     }
 

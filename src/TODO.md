@@ -1,8 +1,9 @@
 # BACKLOG
 
-- handle overflow for div/rem
-- Include test suite and build for riscv-tests
-- Add extensions supervisor, hypervisor, traps, AFD, Znapot...
+- Build riscv-tests automatically
+- Add F and D extensions
+- Add A extension
+- Add extensions supervisor, hypervisor, traps, Znapot...
 - Add clint support
 - Add peripherals: dma, trng, map real peripheral into the logical bus
 - no_std

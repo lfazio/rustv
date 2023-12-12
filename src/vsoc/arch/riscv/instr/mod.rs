@@ -83,7 +83,7 @@ impl Instr {
         }
     }
 
-    fn op(&self, reg: &mut RvRegisters) -> Option<exception::RvException> {
+    fn op(&self, zmmul: bool, reg: &mut RvRegisters) -> Option<exception::RvException> {
         let funct3: usize = self.get_funct3();
         let funct7: usize = self.get_funct7();
         let rd: usize = self.get_rd();
@@ -96,10 +96,26 @@ impl Instr {
                 0x1 => op::mulh(reg, rd, rs1, rs2),
                 0x2 => op::mulhsu(reg, rd, rs1, rs2),
                 0x3 => op::mulhu(reg, rd, rs1, rs2),
-                0x4 => op::div(reg, rd, rs1, rs2),
-                0x5 => op::divu(reg, rd, rs1, rs2),
-                0x6 => op::rem(reg, rd, rs1, rs2),
-                0x7 => op::remu(reg, rd, rs1, rs2),
+                0x4 => if !zmmul {
+                    op::div(reg, rd, rs1, rs2);
+                } else {
+                    return Some(exception::RvException::InstructionIllegal);
+                },
+                0x5 => if !zmmul {
+                    op::divu(reg, rd, rs1, rs2);
+                } else {
+                    return Some(exception::RvException::InstructionIllegal);
+                },
+                0x6 => if !zmmul {
+                    op::rem(reg, rd, rs1, rs2);
+                } else {
+                    return Some(exception::RvException::InstructionIllegal);
+                },
+                0x7 => if !zmmul {
+                    op::remu(reg, rd, rs1, rs2);
+                } else {
+                    return Some(exception::RvException::InstructionIllegal);
+                },
                 _ => return Some(exception::RvException::InstructionIllegal),
             },
             _ => match funct3 {
@@ -134,6 +150,10 @@ impl Instr {
         let rs1: usize = self.get_rs1();
         let rs2: usize = self.get_rs2();
 
+        if reg.width() == 32 {
+            return Some(exception::RvException::InstructionIllegal);
+        }
+
         match self.get_funct7() {
             0x01 => match funct3 {
                 0x0 => op::mulw(reg, rd, rs1, rs2),
@@ -162,7 +182,7 @@ impl Instr {
         None
     }
 
-    fn mem(&self) -> Option<exception::RvException> {
+    fn mem(&self, zifencei: bool) -> Option<exception::RvException> {
         let funct3: usize = self.get_funct3();
         let fm: usize = self.get_imm(31, 28) as usize >> 28;
 
@@ -172,7 +192,11 @@ impl Instr {
                 0x8 => println!("fence.tso"),
                 _ => return Some(exception::RvException::InstructionIllegal),
             },
-            0x1 => println!("fence.i"),
+            0x1 => if zifencei {
+                println!("fence.i");
+            } else {
+                return Some(exception::RvException::InstructionIllegal)
+            },
             _ => return Some(exception::RvException::InstructionIllegal),
         };
 
@@ -215,6 +239,10 @@ impl Instr {
         let rs1: usize = self.get_rs1();
         let rs2: usize = self.get_rs2();
         let imm: i32 = self.get_i_imm();
+
+        if reg.width() == 32 {
+            return Some(exception::RvException::InstructionIllegal);
+        }
 
         match funct3 {
             0x0 => opimm::addiw(reg, rd, rs1, imm), // addiw
@@ -387,7 +415,7 @@ impl Instr {
         }
     }
 
-    fn system(&self, reg: &mut RvRegisters, csr: &mut Csr) -> Option<exception::RvException> {
+    fn system(&self, reg: &mut RvRegisters, csr: &mut Option<Csr>) -> Option<exception::RvException> {
         let funct3: usize = self.get_funct3();
         let rd: usize = self.get_rd();
         let rs1: usize = self.get_rs1();
@@ -395,18 +423,32 @@ impl Instr {
 
         match funct3 {
             0x0 => match rs1 {
-                0x0 => system::ecall(reg, csr),                  // ecall
-                0x1 => system::ebreak(reg, csr),                 // ebreak
-                0x2 => system::xret(reg, rd, rs1, funct12, csr), // xret: sret, mret, mnret
-                _ => return Some(exception::RvException::InstructionIllegal),
+                0x0 => system::ecall(reg),                  // ecall
+                0x1 => system::ebreak(reg),                 // ebreak
+                0x2 => if let Some(c) = csr {
+                        system::xret(reg, rd, rs1, funct12, c) // xret: sret, mret, mnret
+                    } else {
+                        Some(exception::RvException::InstructionIllegal)
+                    },
+                _ => Some(exception::RvException::InstructionIllegal),
             },
-            0x1 | 0x5 => system::csrrw(reg, rd, rs1, funct3, funct12, csr), // csrrw, csrrwi
-            0x2 | 0x6 => system::csrrs(reg, rd, rs1, funct3, funct12, csr), // csrrs, csrrsi
-            0x3 | 0x7 => system::csrrc(reg, rd, rs1, funct3, funct12, csr), // csrrc, csrrci
-            _ => return Some(exception::RvException::InstructionIllegal),
-        };
-
-        None
+            0x1 | 0x5 => if let Some(c) = csr {
+                system::csrrw(reg, rd, rs1, funct3, funct12, c) // csrrw, csrrwi
+            } else {
+                Some(exception::RvException::InstructionIllegal)
+            },
+            0x2 | 0x6 => if let Some(c) = csr {
+                system::csrrs(reg, rd, rs1, funct3, funct12, c) // csrrs, csrrsi
+            } else {
+                Some(exception::RvException::InstructionIllegal)
+            },
+            0x3 | 0x7 => if let Some(c) = csr {
+                system::csrrc(reg, rd, rs1, funct3, funct12, c) // csrrc, csrrci
+            } else {
+                Some(exception::RvException::InstructionIllegal)
+            }
+            _ => Some(exception::RvException::InstructionIllegal),
+        }
     }
 
     fn process_32(&self, hart: &mut Rv, bus: &mut Bus) -> Result<i128, exception::RvException> {
@@ -421,7 +463,7 @@ impl Instr {
             },
             //            0x01 => rc = self.load_fp(),
             //            0x02 => rc = self.custom_0(),
-            0x03 => match self.mem() {
+            0x03 => match self.mem(hart.extensions.zifencei) {
                 None => (),
                 Some(e) => {
                     println!("<error>");
@@ -460,7 +502,7 @@ impl Instr {
             //            0x09 => rc = self.store_fp(),
             //            0x0a => rc = self.custom_1(),
             //            0x0b => rc = self.amo(),
-            0x0c => match self.op(&mut hart.reg) {
+            0x0c => match self.op(hart.extensions.zmmul, &mut hart.reg) {
                 None => (),
                 Some(e) => {
                     println!("<error>");
@@ -695,8 +737,8 @@ impl Instr {
             Instr::InstrC1(_) => todo!(),
             Instr::InstrC2(_) => todo!(),
             Instr::Instr32(i) => ((*i as u64 >> first) & (((1u64 << (last + 1)) - 1) >> first))
-                .try_into()
-                .unwrap(),
+            .try_into()
+            .unwrap(),
             Instr::Invalid => unreachable!(),
         }
     }
@@ -730,11 +772,11 @@ impl Instr {
             Instr::InstrC2(_) => todo!(),
             Instr::Instr32(_) => {
                 ((((self.get_imm(31, 31) << 12)
-                    | (self.get_imm(7, 7) << 11)
-                    | (self.get_imm(30, 25) << 5)
-                    | (self.get_imm(11, 8) << 1))
-                    << 19) as i32)
-                    >> 19
+                | (self.get_imm(7, 7) << 11)
+                | (self.get_imm(30, 25) << 5)
+                | (self.get_imm(11, 8) << 1))
+                << 19) as i32)
+                >> 19
             }
             Instr::Invalid => unreachable!(),
         }
@@ -757,11 +799,11 @@ impl Instr {
             Instr::InstrC2(_) => todo!(),
             Instr::Instr32(_) => {
                 ((((self.get_imm(31, 31) << 20)
-                    | (self.get_imm(19, 12) << 12)
-                    | (self.get_imm(20, 20) << 11)
-                    | (self.get_imm(30, 21) << 1))
-                    << 12) as i32)
-                    >> 12
+                | (self.get_imm(19, 12) << 12)
+                | (self.get_imm(20, 20) << 11)
+                | (self.get_imm(30, 21) << 1))
+                << 12) as i32)
+                >> 12
             }
             Instr::Invalid => unreachable!(),
         }

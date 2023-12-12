@@ -16,54 +16,129 @@ pub struct Rv {
     pub reg: RvRegisters,
     pub pc: Uint,
 
-    pub csr: csr::Csr,
+    pub csr: Option<csr::Csr>,
+
+    pub extensions: ext::RvExtensions,
 }
 
 impl Rv {
-    pub fn new(width: usize, arch: &str, pc: &Uint) -> Rv {
+    pub fn new(arch: &str, pc: u128) -> Rv {
         let mut extensions: u32 = 0;
-        let mut csr: csr::Csr;
         let mut registers: usize = 32;
+        let pcr: Uint;
+        let width: usize;
+        let mut ext: ext::RvExtensions = ext::RvExtensions::default();
+        let argv: Vec<&str> = arch.trim().split('_').collect();
 
-        if arch.contains('I') {
-            println!("Extension: I");
+        dbg!(arch, &argv);
+        if argv[0].starts_with("rv") {
+            if argv[0].starts_with("rv32") {
+                width = 32;
+                pcr = Uint::from(pc as u32);
+            } else if argv[0].starts_with("rv64") {
+                width = 64;
+                pcr = Uint::from(pc as u64);
+            } else if argv[0].starts_with("rv128") {
+                width = 128;
+                pcr = Uint::from(pc);
+            } else {
+                panic!("Unsupported architecture width 32/64/128");
+            }
+        } else {
+            panic!("Unsupported architecture: {}", argv[0]);
+        }
+
+        if argv[0].contains('i') {
+            println!("Extension: i");
             extensions |= ext::EXT_I;
-        } else if arch.contains('E') {
-            println!("Extension: E");
+            ext.i = true;
+        } else {
+            println!("Extension: e");
             extensions |= ext::EXT_E;
             registers = 16;
+            ext.e = true;
         }
-        if arch.contains('M') {
-            println!("Extension: M");
-            extensions |= ext::EXT_M;
-        }
-        if arch.contains('A') {
-            println!("Extension: A");
-            extensions |= ext::EXT_A;
-        }
-        if arch.contains('F') {
-            println!("Extension: F");
-            extensions |= ext::EXT_F;
 
-            if arch.contains('D') {
-                println!("Extension: D");
-                extensions |= ext::EXT_D;
+        if argv[0].contains('m') {
+            println!("Extension: m");
+            extensions |= ext::EXT_M;
+            ext.m = true;
+
+            if arch.contains("zmmul") {
+                println!("Extension: zmmul");
+                ext.zmmul = true;
             }
         }
 
-        csr = csr::Csr::new(width, arch.contains('S'), arch.contains('H'));
-        match width {
-            32 => csr.set(csr::MISA, &Uint::from(extensions)),
-            64 => csr.set(csr::MISA, &Uint::from(extensions as u64)),
-            128 => csr.set(csr::MISA, &Uint::from(extensions as u128)),
-            _ => unreachable!(),
+        if arch.contains('a') {
+            println!("Extension: a");
+            extensions |= ext::EXT_A;
+            ext.a = true;
         }
+
+        if arch.contains("zicsr") {
+            println!("Extension: zicsr");
+            ext.zicsr = true;
+        }
+
+        if arch.contains('f') {
+            println!("Extension: f");
+            extensions |= ext::EXT_F;
+            ext.f = true;
+
+            if !ext.zicsr {
+                panic!("Missing zicsr extension");
+            }
+
+            if arch.contains('d') {
+                println!("Extension: d");
+                extensions |= ext::EXT_D;
+                ext.d = true;
+            }
+        }
+
+        if arch.contains("zifencei") {
+            println!("Extension: zifencei");
+            ext.zifencei = true;
+        }
+
+        if arch.contains("zicntr") {
+            if !ext.zicsr {
+                panic!("Missing zicsr extension");
+            }
+
+            println!("Extension: zicntr");
+            ext.zicntr = true;
+        }
+
+        if arch.contains("zihpm") {
+            if !ext.zicsr {
+                panic!("Missing zicsr extension");
+            }
+
+            println!("Extension: zihpm");
+            ext.zihpm = true;
+        }
+
+        let c = if ext.zicsr {
+            let mut csr = csr::Csr::new(width, arch.contains('s'), arch.contains('h'));
+            match width {
+                32 => csr.set(csr::MISA, &Uint::from(extensions)),
+                64 => csr.set(csr::MISA, &Uint::from(extensions as u64)),
+                128 => csr.set(csr::MISA, &Uint::from(extensions as u128)),
+                _ => unreachable!(),
+            }
+            Some(csr)
+        } else {
+            None
+        };
 
         Rv {
             width,
             reg: RvRegisters::new(width, registers),
-            pc: pc.clone(),
-            csr,
+            pc: pcr,
+            csr: c,
+            extensions: ext,
         }
     }
 }
@@ -132,6 +207,10 @@ impl fmt::Display for Rv {
         // stream: `f`. Returns `fmt::Result` which indicates whether the
         // operation succeeded or failed. Note that `write!` uses syntax which
         // is very similar to `println!`.
-        write!(f, "(Rv\n    (pc {})\n    {}   )\n", self.pc, self.reg)
+        write!(
+            f,
+            "(Rv\n    {}\n    (pc {})\n    {}   )\n",
+            self.extensions, self.pc, self.reg
+        )
     }
 }

@@ -26,5 +26,25 @@ cargo build
 # Run
 
 ```sh
-cargo run -- --arch=RV64IM --binary=../twise/rvmulator/riscv-tests/isa/rv64ui-p-sw.bin
+cargo run -- --arch=rv64im_zicsr_zifencei --binary=../twise/rvmulator/riscv-tests/isa/rv64ui-p-sw.bin
+```
+
+# Tests
+
+In order to build riscv-tests/isa, should have first to install some packages:
+
+```sh
+sudo apt install picolibc-riscv64-unknown-elf gcc-riscv64-unknown-elf
+```
+
+and in CC_OPTIONS of `riscv-tests/isa/Makefile` should must add 
+
+```sh
+RISCV_GCC_OPTS ?= -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles
+RISCV_GCC_OPTS += -specs=picolibc.specs
+```
+
+And now yo ucan build the tests: do not forget to convert ELF files into binary
+```
+make -C isa
 ```

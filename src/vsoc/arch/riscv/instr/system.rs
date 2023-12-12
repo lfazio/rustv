@@ -8,13 +8,13 @@ use crate::vsoc::arch::{
 
 use super::super::registers::RvRegisters;
 
-pub fn ecall(reg: &mut RvRegisters, csr: &mut Csr) -> Option<RvException> {
+pub fn ecall(reg: &mut RvRegisters) -> Option<RvException> {
     println!("ecall\ttodo\ttodo\ttodo");
 
     None
 }
 
-pub fn ebreak(reg: &mut RvRegisters, csr: &mut Csr) -> Option<RvException> {
+pub fn ebreak(reg: &mut RvRegisters) -> Option<RvException> {
     println!("ebreak\ttodo\ttodo\ttodo");
 
     Some(RvException::Breakpoint)

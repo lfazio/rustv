@@ -1,3 +1,5 @@
+use std::fmt;
+
 pub const EXT_A: u32 = 1 << 0;
 pub const EXT_C: u32 = 1 << 2;
 pub const EXT_D: u32 = 1 << 3;
@@ -12,4 +14,69 @@ pub const EXT_U: u32 = 1 << 20; /* User Mode */
 pub const EXT_V: u32 = 1 << 21;
 pub const EXT_X: u32 = 1 << 23;
 
-pub const EXT_G: u32 = EXT_I | EXT_M | EXT_A | EXT_D;
+#[derive(Debug, Default)]
+pub struct RvExtensions {
+    pub i: bool,
+    pub e: bool,
+    pub m: bool,
+    pub a: bool,
+    pub f: bool,
+    pub d: bool,
+    pub zicsr: bool,
+    pub zifencei: bool,
+    pub zmmul: bool,
+    pub zicntr: bool,
+    pub zihpm: bool,
+}
+
+impl fmt::Display for RvExtensions {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        _ = writeln!(f, "(extensions");
+
+        if self.i {
+            _ = writeln!(f, "     (i\t{})", self.i);
+        }
+
+        if self.e {
+            _ = writeln!(f, "     (e\t{})", self.e);
+        }
+
+        if self.m {
+            _ = writeln!(f, "     (m\t{})", self.m);
+        }
+
+        if self.a {
+            _ = writeln!(f, "     (a\t{})", self.a);
+        }
+
+        if self.f {
+            _ = writeln!(f, "     (f\t{})", self.f);
+        }
+
+        if self.d {
+            _ = writeln!(f, "     (d\t{})", self.d);
+        }
+
+        if self.zicsr {
+            _ = writeln!(f, "     (zicsr\t{})", self.zicsr);
+        }
+
+        if self.zifencei {
+            _ = writeln!(f, "     (zifencei\t{})", self.zifencei);
+        }
+
+        if self.zmmul {
+            _ = writeln!(f, "     (zmmul\t{})", self.zmmul);
+        }
+
+        if self.zicntr {
+            _ = writeln!(f, "     (zicntr\t{})", self.zicntr);
+        }
+
+        if self.zihpm {
+            _ = writeln!(f, "     (zihpm\t{})", self.zihpm);
+        }
+
+        write!(f, "    )")
+    }
+}
