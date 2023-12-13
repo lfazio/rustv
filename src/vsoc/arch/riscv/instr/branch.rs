@@ -10,32 +10,8 @@ pub fn beq(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
         print!("beqz\t{},", reg.name(rs1));
     }
 
-    match reg.width() {
-        32 => {
-            let rs1value: i32 = i32::from(rs1v);
-            let rs2value: i32 = i32::from(rs2v);
-
-            if rs1value == rs2value {
-                return Ok(true);
-            }
-        }
-        64 => {
-            let rs1value: i64 = i64::from(rs1v);
-            let rs2value: i64 = i64::from(rs2v);
-
-            if rs1value == rs2value {
-                return Ok(true);
-            }
-        }
-        128 => {
-            let rs1value: i128 = i128::from(rs1v);
-            let rs2value: i128 = i128::from(rs2v);
-
-            if rs1value == rs2value {
-                return Ok(true);
-            }
-        }
-        _ => return Err(RvException::InstructionIllegal),
+    if rs1v == rs2v {
+        return Ok(true);
     }
 
     Ok(false)
@@ -51,32 +27,8 @@ pub fn bne(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
         print!("bnez\t{},", reg.name(rs1));
     }
 
-    match reg.width() {
-        32 => {
-            let rs1value: i32 = i32::from(rs1v);
-            let rs2value: i32 = i32::from(rs2v);
-
-            if rs1value != rs2value {
-                return Ok(true);
-            }
-        }
-        64 => {
-            let rs1value: i64 = i64::from(rs1v);
-            let rs2value: i64 = i64::from(rs2v);
-
-            if rs1value != rs2value {
-                return Ok(true);
-            }
-        }
-        128 => {
-            let rs1value: i128 = i128::from(rs1v);
-            let rs2value: i128 = i128::from(rs2v);
-
-            if rs1value != rs2value {
-                return Ok(true);
-            }
-        }
-        _ => return Err(RvException::InstructionIllegal),
+    if rs1v != rs2v {
+        return Ok(true);
     }
 
     Ok(false)
@@ -174,32 +126,8 @@ pub fn bltu(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExc
         print!("bltuz\t{},", reg.name(rs1));
     }
 
-    match reg.width() {
-        32 => {
-            let rs1value: u32 = u32::from(rs1v);
-            let rs2value: u32 = u32::from(rs2v);
-
-            if rs1value < rs2value {
-                return Ok(true);
-            }
-        }
-        64 => {
-            let rs1value: u64 = u64::from(rs1v);
-            let rs2value: u64 = u64::from(rs2v);
-
-            if rs1value < rs2value {
-                return Ok(true);
-            }
-        }
-        128 => {
-            let rs1value: u128 = u128::from(rs1v);
-            let rs2value: u128 = u128::from(rs2v);
-
-            if rs1value < rs2value {
-                return Ok(true);
-            }
-        }
-        _ => return Err(RvException::InstructionIllegal),
+    if rs1v < rs2v {
+        return Ok(true);
     }
 
     Ok(false)
@@ -215,32 +143,8 @@ pub fn bgeu(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExc
         print!("bgeuz\t{},", reg.name(rs1));
     }
 
-    match reg.width() {
-        32 => {
-            let rs1value: u32 = u32::from(rs1v);
-            let rs2value: u32 = u32::from(rs2v);
-
-            if rs1value >= rs2value {
-                return Ok(true);
-            }
-        }
-        64 => {
-            let rs1value: u64 = u64::from(rs1v);
-            let rs2value: u64 = u64::from(rs2v);
-
-            if rs1value >= rs2value {
-                return Ok(true);
-            }
-        }
-        128 => {
-            let rs1value: u128 = u128::from(rs1v);
-            let rs2value: u128 = u128::from(rs2v);
-
-            if rs1value >= rs2value {
-                return Ok(true);
-            }
-        }
-        _ => return Err(RvException::InstructionIllegal),
+    if rs1v >= rs2v {
+        return Ok(true);
     }
 
     Ok(false)

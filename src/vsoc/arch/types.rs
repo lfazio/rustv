@@ -1,4 +1,7 @@
-use std::fmt;
+use std::{
+    fmt,
+    ops::{Add, AddAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Not, ShlAssign, Shl},
+};
 
 #[derive(Debug, Clone)]
 pub struct Uint {
@@ -8,6 +11,18 @@ pub struct Uint {
 impl Uint {
     pub fn new(value: Vec<u8>) -> Self {
         Self { value }
+    }
+
+    pub fn zero(width: usize) -> Self {
+        Self {
+            value: vec![0u8; width / 8],
+        }
+    }
+
+    pub fn ff_ff(width: usize) -> Self {
+        Self {
+            value: vec![0xffu8; width / 8],
+        }
     }
 
     fn into_u8(self) -> u8 {
@@ -149,6 +164,137 @@ impl Uint {
                 Uint::from(i)
             }
             _ => panic!("Unsupported Uint width: {}", width),
+        }
+    }
+
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.value
+            .iter()
+            .rev()
+            .cmp(other.value.iter().rev())
+    }
+}
+
+impl PartialEq for Uint {
+    fn eq(&self, other: &Self) -> bool {
+        self.value
+            .iter()
+            .zip(other.value.iter())
+            .all(|(x, y)| x == y)
+    }
+}
+
+impl PartialOrd for Uint {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl BitAnd for Uint {
+    type Output = Self;
+
+    fn bitand(self, rhs: Self) -> Self::Output {
+        Self {
+            value: self
+                .value
+                .iter()
+                .zip(rhs.value.iter())
+                .map(|(x, y)| x & y)
+                .collect(),
+        }
+    }
+}
+
+impl BitAndAssign for Uint {
+    fn bitand_assign(&mut self, rhs: Self) {
+        self.value
+            .iter_mut()
+            .zip(rhs.value.iter())
+            .for_each(|(x, y)| *x &= *y);
+    }
+}
+
+impl BitOr for Uint {
+    type Output = Self;
+
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Self {
+            value: self
+                .value
+                .iter()
+                .zip(rhs.value.iter())
+                .map(|(x, y)| x | y)
+                .collect(),
+        }
+    }
+}
+
+impl BitOrAssign for Uint {
+    fn bitor_assign(&mut self, rhs: Self) {
+        self.value
+            .iter_mut()
+            .zip(rhs.value.iter())
+            .for_each(|(x, y)| *x |= *y);
+    }
+}
+
+impl Not for Uint {
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
+        Self {
+            value: self.value.iter().map(|x| !x).collect(),
+        }
+    }
+}
+
+impl BitXor for Uint {
+    type Output = Self;
+
+    fn bitxor(self, rhs: Self) -> Self::Output {
+        Self {
+            value: self
+                .value
+                .iter()
+                .zip(rhs.value.iter())
+                .map(|(x, y)| x ^ y)
+                .collect(),
+        }
+    }
+}
+
+impl BitXorAssign for Uint {
+    fn bitxor_assign(&mut self, rhs: Self) {
+        self.value
+            .iter_mut()
+            .zip(rhs.value.iter())
+            .for_each(|(x, y)| *x ^= *y);
+    }
+}
+
+impl Add for Uint {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        let mut carry: u16 = 0;
+        let mut s = Vec::<u8>::clone(&self.value);
+        for i in 0..self.value.len() {
+            let sum: u16 = s[i] as u16 + rhs.value[i] as u16 + carry;
+            carry = sum & 0xff00 >> 8;
+            s[i] = sum as u8;
+        }
+
+        Uint::new(s)
+    }
+}
+
+impl AddAssign for Uint {
+    fn add_assign(&mut self, rhs: Self) {
+        let mut carry: u16 = 0;
+        for i in 0..self.value.len() {
+            let sum: u16 = self.value[i] as u16 + rhs.value[i] as u16 + carry;
+            carry = sum & 0xff00 >> 8;
+            self.value[i] = sum as u8;
         }
     }
 }
@@ -383,5 +529,122 @@ mod tests {
         let mut value = Uint::from(0x80u8);
         value = value.sextend(128, 8);
         assert_eq!(u128::from(value), 0xffffffffffffffffffffffffffffff80);
+    }
+
+    #[test]
+    fn test_uint_truncate() {
+        let mut value = Uint::from(42);
+        value.truncate(32);
+        assert_eq!(u32::from(value), 42);
+
+        let mut value = Uint::from(42);
+        value.truncate(64);
+        assert_eq!(u64::from(value), 42);
+
+        let mut value = Uint::from(42);
+        value.truncate(128);
+        assert_eq!(u128::from(value), 42);
+
+        let mut value = Uint::from(0x80u8);
+        value.truncate(8);
+        assert_eq!(u8::from(value), 0x80);
+
+        let mut value = Uint::from(0x80u8);
+        value.truncate(32);
+        assert_eq!(u32::from(value), 0x80);
+
+        let mut value = Uint::from(0x80u8);
+        value.truncate(64);
+        assert_eq!(u64::from(value), 0x80);
+
+        let mut value = Uint::from(0x80u8);
+        value.truncate(128);
+        assert_eq!(u128::from(value), 0x80);
+    }
+
+    #[test]
+    fn test_partial_eq() {
+        let value = Uint::from(256u32);
+
+        assert_eq!(value, Uint::from(256u32));
+        assert_ne!(value, Uint::from(257u32));
+
+        assert_eq!(value, Uint::from(256u32));
+        assert_ne!(value, Uint::from(0xfffffu32));
+    }
+
+    #[test]
+    fn test_partial_ord_ge() {
+        let value = Uint::from(256u32);
+
+        assert!(value >= Uint::from(255u32));
+        assert!(value >= Uint::from(254u32));
+        assert!(value >= Uint::from(253u32));
+        assert!(value >= Uint::from(252u32));
+        assert!(value >= Uint::from(251u32));
+        assert!(value >= Uint::from(250u32));
+        assert!(value >= Uint::from(249u32));
+        assert!(value >= Uint::from(248u32));
+        assert!(value >= Uint::from(247u32));
+        assert!(value >= Uint::from(246u32));
+        assert!(value >= Uint::from(245u32));
+        assert!(value >= Uint::from(244u32));
+        assert!(value >= Uint::from(243u32));
+        assert!(value >= Uint::from(242u32));
+        assert!(value >= Uint::from(241u32));
+        assert!(value >= Uint::from(240u32));
+        assert!(value >= Uint::from(239u32));
+        assert!(value >= Uint::from(238u32));
+        assert!(value >= Uint::from(237u32));
+        assert!(value >= Uint::from(236u32));
+    }
+
+    #[test]
+    fn test_partial_ord_lt() {
+        let value = Uint::from(255u32);
+
+        assert!(value < Uint::from(256u32));
+        assert!(value < Uint::from(257u32));
+        assert!(value < Uint::from(0xfffffu32));
+    }
+
+    #[test]
+    fn test_add() {
+        let value = Uint::from(42u32) + Uint::from(42u32);
+        assert_eq!(u32::from(value), 84);
+
+        let value = Uint::from(42u64) + Uint::from(42u64);
+        assert_eq!(u64::from(value), 84);
+
+        let value = Uint::from(42u128) + Uint::from(42u128);
+        assert_eq!(u128::from(value), 84);
+
+        let value = Uint::from(42i32) + Uint::from(42i32);
+        assert_eq!(i32::from(value), 84);
+
+        let value = Uint::from(42i64) + Uint::from(42i64);
+        assert_eq!(i64::from(value), 84);
+
+        let value = Uint::from(42i128) + Uint::from(42i128);
+        assert_eq!(i128::from(value), 84);
+
+        let value = Uint::from(255u32) + Uint::from(1u32);
+        assert_eq!(u32::from(value), 256u32);
+    }
+
+    #[test]
+    fn test_add_assign() {
+        let mut value = Uint::from(42u32);
+        let value2 = Uint::from(42u32);
+
+        value += value2;
+        assert_eq!(u32::from(value), 84);
+
+
+        let mut value = Uint::from(255u32);
+        let value2 = Uint::from(1u32);
+
+        value += value2;
+        assert_eq!(u32::from(value), 256u32);
     }
 }

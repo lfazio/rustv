@@ -124,62 +124,28 @@ pub fn sltiu(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
 
 pub fn andi(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
     let rs1v: Uint = reg.get(rs1);
+    let i: Uint = Uint::from(imm).sextend(reg.width(), 32);
+    let result: Uint = rs1v & i;
 
     println!("andi\t{},{},{}", reg.name(rd), reg.name(rs1), imm);
 
-    match reg.width() {
-        32 => {
-            let rs1value: i32 = i32::from(rs1v);
-            let result: i32 = rs1value & imm;
-
-            reg.set(rd, &Uint::from(result));
-        }
-        64 => {
-            let rs1value: i64 = i64::from(rs1v);
-            let result: i64 = rs1value & imm as i64;
-
-            reg.set(rd, &Uint::from(result));
-        }
-        128 => {
-            let rs1value: i128 = i128::from(rs1v);
-            let result: i128 = rs1value & imm as i128;
-
-            reg.set(rd, &Uint::from(result));
-        }
-        _ => unreachable!(),
-    }
+    reg.set(rd, &result);
 }
 
 pub fn ori(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
     let rs1v: Uint = reg.get(rs1);
+    let i: Uint = Uint::from(imm).sextend(reg.width(), 32);
+    let result: Uint = rs1v | i;
 
     println!("ori\t{},{},{}", reg.name(rd), reg.name(rs1), imm);
 
-    match reg.width() {
-        32 => {
-            let rs1value: i32 = i32::from(rs1v);
-            let result: i32 = rs1value | imm;
-
-            reg.set(rd, &Uint::from(result));
-        }
-        64 => {
-            let rs1value: i64 = i64::from(rs1v);
-            let result: i64 = rs1value | imm as i64;
-
-            reg.set(rd, &Uint::from(result));
-        }
-        128 => {
-            let rs1value: i128 = i128::from(rs1v);
-            let result: i128 = rs1value | imm as i128;
-
-            reg.set(rd, &Uint::from(result));
-        }
-        _ => unreachable!(),
-    }
+    reg.set(rd, &result);
 }
 
 pub fn xori(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
     let rs1v: Uint = reg.get(rs1);
+    let i: Uint = Uint::from(imm).sextend(reg.width(), 32);
+    let result: Uint = rs1v ^ i;
 
     if imm == -1 {
         println!("not\t{},{}", reg.name(rd), reg.name(rs1));
@@ -187,27 +153,7 @@ pub fn xori(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
         println!("xori\t{},{},{}", reg.name(rd), reg.name(rs1), imm);
     }
 
-    match reg.width() {
-        32 => {
-            let rs1value: i32 = i32::from(rs1v);
-            let result: i32 = rs1value ^ imm;
-
-            reg.set(rd, &Uint::from(result));
-        }
-        64 => {
-            let rs1value: i64 = i64::from(rs1v);
-            let result: i64 = rs1value ^ imm as i64;
-
-            reg.set(rd, &Uint::from(result));
-        }
-        128 => {
-            let rs1value: i128 = i128::from(rs1v);
-            let result: i128 = rs1value ^ imm as i128;
-
-            reg.set(rd, &Uint::from(result));
-        }
-        _ => unreachable!(),
-    }
+    reg.set(rd, &result);
 }
 
 pub fn slli(reg: &mut RvRegisters, rd: usize, rs1: usize, shamt: usize) {

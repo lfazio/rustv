@@ -133,14 +133,14 @@ pub fn slt(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
         64 => {
             let rs1value: i64 = i64::from(rs1v);
             let rs2value: i64 = i64::from(rs2v);
-            let result: i64 = if rs1value < rs2value as i64 { 1 } else { 0 };
+            let result: i64 = if rs1value < rs2value { 1 } else { 0 };
 
             reg.set(rd, &Uint::from(result));
         }
         128 => {
             let rs1value: i128 = i128::from(rs1v);
             let rs2value: i128 = i128::from(rs2v);
-            let result: i128 = if rs1value < rs2value as i128 { 1 } else { 0 };
+            let result: i128 = if rs1value < rs2value { 1 } else { 0 };
 
             reg.set(rd, &Uint::from(result));
         }
@@ -156,23 +156,17 @@ pub fn sltu(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
 
     match reg.width() {
         32 => {
-            let rs1value: u32 = u32::from(rs1v);
-            let rs2value: u32 = u32::from(rs2v);
-            let result: u32 = if rs1value < rs2value { 1 } else { 0 };
+            let result: u32 = if rs1v < rs2v { 1 } else { 0 };
 
             reg.set(rd, &Uint::from(result));
         }
         64 => {
-            let rs1value: u64 = u64::from(rs1v);
-            let rs2value: u64 = u64::from(rs2v);
-            let result: u64 = if rs1value < rs2value as u64 { 1 } else { 0 };
+            let result: u64 = if rs1v < rs2v { 1 } else { 0 };
 
             reg.set(rd, &Uint::from(result));
         }
         128 => {
-            let rs1value: u128 = u128::from(rs1v);
-            let rs2value: u128 = u128::from(rs2v);
-            let result: u128 = if rs1value < rs2value as u128 { 1 } else { 0 };
+            let result: u128 = if rs1v < rs2v { 1 } else { 0 };
 
             reg.set(rd, &Uint::from(result));
         }
@@ -183,97 +177,31 @@ pub fn sltu(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
 pub fn and(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
     let rs1v: Uint = reg.get(rs1);
     let rs2v: Uint = reg.get(rs2);
+    let result: Uint = rs1v & rs2v;
 
     println!("and\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
 
-    match reg.width() {
-        32 => {
-            let rs1value: i32 = i32::from(rs1v);
-            let rs2value: i32 = i32::from(rs2v);
-            let result: i32 = rs1value & rs2value;
-
-            reg.set(rd, &Uint::from(result));
-        }
-        64 => {
-            let rs1value: i64 = i64::from(rs1v);
-            let rs2value: i64 = i64::from(rs2v);
-            let result: i64 = rs1value & rs2value;
-
-            reg.set(rd, &Uint::from(result));
-        }
-        128 => {
-            let rs1value: i128 = i128::from(rs1v);
-            let rs2value: i128 = i128::from(rs2v);
-            let result: i128 = rs1value & rs2value;
-
-            reg.set(rd, &Uint::from(result));
-        }
-        _ => unreachable!(),
-    }
+    reg.set(rd, &result);
 }
 
 pub fn or(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
     let rs1v: Uint = reg.get(rs1);
     let rs2v: Uint = reg.get(rs2);
+    let result: Uint = rs1v | rs2v;
 
     println!("or\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
 
-    match reg.width() {
-        32 => {
-            let rs1value: i32 = i32::from(rs1v);
-            let rs2value: i32 = i32::from(rs2v);
-            let result: i32 = rs1value | rs2value;
-
-            reg.set(rd, &Uint::from(result));
-        }
-        64 => {
-            let rs1value: i64 = i64::from(rs1v);
-            let rs2value: i64 = i64::from(rs2v);
-            let result: i64 = rs1value | rs2value;
-
-            reg.set(rd, &Uint::from(result));
-        }
-        128 => {
-            let rs1value: i128 = i128::from(rs1v);
-            let rs2value: i128 = i128::from(rs2v);
-            let result: i128 = rs1value | rs2value;
-
-            reg.set(rd, &Uint::from(result));
-        }
-        _ => unreachable!(),
-    }
+    reg.set(rd, &result);
 }
 
 pub fn xor(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
     let rs1v: Uint = reg.get(rs1);
     let rs2v: Uint = reg.get(rs2);
+    let result: Uint = rs1v ^ rs2v;
 
     println!("xor\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
 
-    match reg.width() {
-        32 => {
-            let rs1value: i32 = i32::from(rs1v);
-            let rs2value: i32 = i32::from(rs2v);
-            let result: i32 = rs1value ^ rs2value;
-
-            reg.set(rd, &Uint::from(result));
-        }
-        64 => {
-            let rs1value: i64 = i64::from(rs1v);
-            let rs2value: i64 = i64::from(rs2v);
-            let result: i64 = rs1value ^ rs2value;
-
-            reg.set(rd, &Uint::from(result));
-        }
-        128 => {
-            let rs1value: i128 = i128::from(rs1v);
-            let rs2value: i128 = i128::from(rs2v);
-            let result: i128 = rs1value ^ rs2value;
-
-            reg.set(rd, &Uint::from(result));
-        }
-        _ => unreachable!(),
-    }
+    reg.set(rd, &result);
 }
 
 pub fn sll(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
@@ -365,13 +293,13 @@ pub fn srlw(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
     match reg.width() {
         64 => {
             let rs1value: i64 = i64::from(rs1v);
-            let result: i64 = (rs1value as u32).wrapping_shr(shamt as u32) as i32 as i64;
+            let result: i64 = (rs1value as u32).wrapping_shr(shamt) as i32 as i64;
 
             reg.set(rd, &Uint::from(result));
         }
         128 => {
             let rs1value: i128 = i128::from(rs1v);
-            let result: i128 = (rs1value as u32).wrapping_shr(shamt as u32) as i32 as i128;
+            let result: i128 = (rs1value as u32).wrapping_shr(shamt) as i32 as i128;
 
             reg.set(rd, &Uint::from(result));
         }
@@ -588,14 +516,17 @@ pub fn div(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
 
     println!("div\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
 
+    if rs2v == Uint::zero(reg.width()) {
+        reg.set(rd, &Uint::ff_ff(reg.width()));
+        return;
+    }
+
     match reg.width() {
         32 => {
             let rs1value: i32 = i32::from(rs1v.clone());
             let rs2value: i32 = i32::from(rs2v);
 
-            if rs2value == 0 {
-                reg.set(rd, &Uint::from(-1i32));
-            } else if rs1value == (-1 << 31) && rs2value == -1 {
+            if rs1value == (-1 << 31) && rs2value == -1 {
                 reg.set(rd, &rs1v);
             } else {
                 let result: i32 = rs1value.wrapping_div(rs2value);
@@ -607,9 +538,7 @@ pub fn div(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
             let rs1value: i64 = i64::from(rs1v.clone());
             let rs2value: i64 = i64::from(rs2v);
 
-            if rs2value == 0 {
-                reg.set(rd, &Uint::from(-1i64));
-            } else if rs1value == (-1 << 63) && rs2value == -1 {
+            if rs1value == (-1 << 63) && rs2value == -1 {
                 reg.set(rd, &rs1v);
             } else {
                 let result: i64 = rs1value.wrapping_div(rs2value);
@@ -619,9 +548,8 @@ pub fn div(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
         128 => {
             let rs1value: i128 = i128::from(rs1v.clone());
             let rs2value: i128 = i128::from(rs2v);
-            if rs2value == 0 {
-                reg.set(rd, &Uint::from(-1i128));
-            } else if rs1value == (-1 << 127) && rs2value == -1 {
+            
+            if rs1value == (-1 << 127) && rs2value == -1 {
                 reg.set(rd, &rs1v);
             } else {
                 let result: i128 = rs1value.wrapping_div(rs2value);
@@ -639,42 +567,34 @@ pub fn divu(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
 
     println!("divu\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
 
+    if rs2v == Uint::zero(reg.width()) {
+        reg.set(rd, &Uint::ff_ff(reg.width()));
+        return;
+    }
+
     match reg.width() {
         32 => {
             let rs1value: u32 = u32::from(rs1v);
             let rs2value: u32 = u32::from(rs2v);
+            let result: u32 = rs1value.wrapping_div(rs2value);
 
-            if rs2value == 0 {
-                reg.set(rd, &Uint::from(0xffffffffu32));
-            } else {
-                let result: u32 = rs1value.wrapping_div(rs2value);
-
-                reg.set(rd, &Uint::from(result));
-            }
+            reg.set(rd, &Uint::from(result));
         }
         64 => {
             let rs1value: u64 = u64::from(rs1v);
             let rs2value: u64 = u64::from(rs2v);
 
-            if rs2value == 0 {
-                reg.set(rd, &Uint::from(0xffffffffffffffffu64));
-            } else {
-                let result: u64 = rs1value.wrapping_div(rs2value);
+            let result: u64 = rs1value.wrapping_div(rs2value);
 
-                reg.set(rd, &Uint::from(result));
-            }
+            reg.set(rd, &Uint::from(result));
         }
         128 => {
             let rs1value: u128 = u128::from(rs1v);
             let rs2value: u128 = u128::from(rs2v);
 
-            if rs2value == 0 {
-                reg.set(rd, &Uint::from(0xffffffffffffffffffffffffffffffffu128));
-            } else {
-                let result: u128 = rs1value.wrapping_div(rs2value);
+            let result: u128 = rs1value.wrapping_div(rs2value);
 
-                reg.set(rd, &Uint::from(result));
-            }
+            reg.set(rd, &Uint::from(result));
         }
         _ => unreachable!(),
     }
@@ -686,14 +606,17 @@ pub fn divw(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
 
     println!("divw\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
 
+    if rs2v == Uint::zero(reg.width()) {
+        reg.set(rd, &Uint::ff_ff(reg.width()));
+        return;
+    }
+
     match reg.width() {
         64 => {
             let rs1value: i64 = i64::from(rs1v.clone());
             let rs2value: i64 = i64::from(rs2v);
 
-            if rs2value == 0 {
-                reg.set(rd, &Uint::from(-1i64));
-            } else if rs1value == (-1 << 63) && rs2value == -1 {
+            if rs1value == (-1 << 63) && rs2value == -1 {
                 reg.set(rd, &rs1v);
             } else {
                 let result: i64 = (rs1value as i32).wrapping_div(rs2value as i32) as i64;
@@ -705,9 +628,7 @@ pub fn divw(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
             let rs1value: i128 = i128::from(rs1v.clone());
             let rs2value: i128 = i128::from(rs2v);
 
-            if rs2value == 0 {
-                reg.set(rd, &Uint::from(-1i128));
-            } else if rs1value == (-1 << 127) && rs2value == -1 {
+            if rs1value == (-1 << 127) && rs2value == -1 {
                 reg.set(rd, &rs1v);
             } else {
                 let result: i128 = (rs1value as i32).wrapping_div(rs2value as i32) as i128;
@@ -730,30 +651,25 @@ pub fn divuw(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
         reg.name(rs2)
     );
 
+    if rs2v == Uint::zero(reg.width()) {
+        reg.set(rd, &Uint::ff_ff(reg.width()));
+        return;
+    }
+
     match reg.width() {
         64 => {
             let rs1value: u64 = u64::from(rs1v);
             let rs2value: u64 = u64::from(rs2v);
+            let result: i64 = (rs1value as u32).wrapping_div(rs2value as u32) as i32 as i64;
 
-            if rs2value == 0 {
-                reg.set(rd, &Uint::from(0xffffffffffffffffu64));
-            } else {
-                let result: i64 = (rs1value as u32).wrapping_div(rs2value as u32) as i32 as i64;
-
-                reg.set(rd, &Uint::from(result));
-            }
+            reg.set(rd, &Uint::from(result));
         }
         128 => {
             let rs1value: u128 = u128::from(rs1v);
             let rs2value: u128 = u128::from(rs2v);
+            let result: i128 = (rs1value as u32).wrapping_div(rs2value as u32) as i32 as i128;
 
-            if rs2value == 0 {
-                reg.set(rd, &Uint::from(0xffffffffffffffffffffffffffffffffu128));
-            } else {
-                let result: i128 = (rs1value as u32).wrapping_div(rs2value as u32) as i32 as i128;
-
-                reg.set(rd, &Uint::from(result));
-            }
+            reg.set(rd, &Uint::from(result));
         }
         _ => unreachable!(),
     }
@@ -765,14 +681,17 @@ pub fn rem(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
 
     println!("rem\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
 
+    if rs2v == Uint::zero(reg.width()) {
+        reg.set(rd, &rs1v);
+        return;
+    }
+
     match reg.width() {
         32 => {
             let rs1value: i32 = i32::from(rs1v.clone());
             let rs2value: i32 = i32::from(rs2v);
 
-            if rs2value == 0 {
-                reg.set(rd, &rs1v);
-            } else if rs1value == (-1 << 31) && rs2value == -1 {
+            if rs1value == (-1 << 31) && rs2value == -1 {
                 reg.set(rd, &Uint::from(0u32));
             } else {
                 let result: i32 = rs1value.wrapping_rem(rs2value);
@@ -784,9 +703,7 @@ pub fn rem(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
             let rs1value: i64 = i64::from(rs1v.clone());
             let rs2value: i64 = i64::from(rs2v);
 
-            if rs2value == 0 {
-                reg.set(rd, &rs1v);
-            } else if rs1value == (-1 << 63) && rs2value == -1 {
+            if rs1value == (-1 << 63) && rs2value == -1 {
                 reg.set(rd, &Uint::from(0u64));
             } else {
                 let result: i64 = rs1value.wrapping_rem(rs2value);
@@ -797,9 +714,7 @@ pub fn rem(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
             let rs1value: i128 = i128::from(rs1v.clone());
             let rs2value: i128 = i128::from(rs2v);
 
-            if rs2value == 0 {
-                reg.set(rd, &rs1v);
-            } else if rs1value == (-1 << 127) && rs2value == -1 {
+            if rs1value == (-1 << 127) && rs2value == -1 {
                 reg.set(rd, &Uint::from(0u128));
             } else {
                 let result: i128 = rs1value.wrapping_rem(rs2value);
@@ -817,42 +732,32 @@ pub fn remu(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
 
     println!("remu\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
 
+    if rs2v == Uint::zero(reg.width()) {
+        reg.set(rd, &rs1v);
+        return;
+    }
+
     match reg.width() {
         32 => {
             let rs2value: u32 = u32::from(rs2v);
+            let rs1value: u32 = u32::from(rs1v);
+            let result: u32 = rs1value.wrapping_rem(rs2value);
 
-            if rs2value == 0 {
-                reg.set(rd, &rs1v);
-            } else {
-                let rs1value: u32 = u32::from(rs1v);
-                let result: u32 = rs1value.wrapping_rem(rs2value);
-
-                reg.set(rd, &Uint::from(result));
-            }
+            reg.set(rd, &Uint::from(result));
         }
         64 => {
             let rs2value: u64 = u64::from(rs2v);
+            let rs1value: u64 = u64::from(rs1v);
+            let result: u64 = rs1value.wrapping_rem(rs2value);
 
-            if rs2value == 0 {
-                reg.set(rd, &rs1v);
-            } else {
-                let rs1value: u64 = u64::from(rs1v);
-                let result: u64 = rs1value.wrapping_rem(rs2value);
-
-                reg.set(rd, &Uint::from(result));
-            }
+            reg.set(rd, &Uint::from(result));
         }
         128 => {
             let rs2value: u128 = u128::from(rs2v);
+            let rs1value: u128 = u128::from(rs1v);
+            let result: u128 = rs1value.wrapping_rem(rs2value);
 
-            if rs2value == 0 {
-                reg.set(rd, &rs1v);
-            } else {
-                let rs1value: u128 = u128::from(rs1v);
-                let result: u128 = rs1value.wrapping_rem(rs2value);
-
-                reg.set(rd, &Uint::from(result));
-            }
+            reg.set(rd, &Uint::from(result));
         }
         _ => unreachable!(),
     }
@@ -864,14 +769,17 @@ pub fn remw(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
 
     println!("remw\t{},{},{}", reg.name(rd), reg.name(rs1), reg.name(rs2));
 
+    if rs2v == Uint::zero(reg.width()) {
+        reg.set(rd, &rs1v);
+        return;
+    }
+
     match reg.width() {
         64 => {
             let rs1value: i64 = i64::from(rs1v.clone());
             let rs2value: i64 = i64::from(rs2v);
 
-            if rs2value == 0 {
-                reg.set(rd, &rs1v);
-            } else if rs1value == (-1 << 63) && rs2value == -1 {
+            if rs1value == (-1 << 63) && rs2value == -1 {
                 reg.set(rd, &Uint::from(0u64));
             } else {
                 let result: i64 = (rs1value as i32).wrapping_rem(rs2value as i32) as i64;
@@ -883,9 +791,7 @@ pub fn remw(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
             let rs1value: i128 = i128::from(rs1v.clone());
             let rs2value: i128 = i128::from(rs2v);
 
-            if rs2value == 0 {
-                reg.set(rd, &rs1v);
-            } else if rs1value == (-1 << 127) && rs2value == -1 {
+            if rs1value == (-1 << 127) && rs2value == -1 {
                 reg.set(rd, &Uint::from(0u128));
             } else {
                 let result: i128 = (rs1value as i32).wrapping_rem(rs2value as i32) as i128;
@@ -908,30 +814,25 @@ pub fn remuw(reg: &mut RvRegisters, rd: usize, rs1: usize, rs2: usize) {
         reg.name(rs2)
     );
 
+    if rs2v == Uint::zero(reg.width()) {
+        reg.set(rd, &rs1v);
+        return;
+    }
+
     match reg.width() {
         64 => {
             let rs2value: u64 = u64::from(rs2v);
+            let rs1value: u64 = u64::from(rs1v);
+            let result: i64 = (rs1value as u32).wrapping_rem(rs2value as u32) as i32 as i64;
 
-            if rs2value == 0 {
-                reg.set(rd, &rs1v);
-            } else {
-                let rs1value: u64 = u64::from(rs1v);
-                let result: i64 = (rs1value as u32).wrapping_rem(rs2value as u32) as i32 as i64;
-
-                reg.set(rd, &Uint::from(result));
-            }
+            reg.set(rd, &Uint::from(result));
         }
         128 => {
             let rs2value: u128 = u128::from(rs2v);
+            let rs1value: u128 = u128::from(rs1v);
+            let result: i128 = (rs1value as u32).wrapping_rem(rs2value as u32) as i32 as i128;
 
-            if rs2value == 0 {
-                reg.set(rd, &rs1v);
-            } else {
-                let rs1value: u128 = u128::from(rs1v);
-                let result: i128 = (rs1value as u32).wrapping_rem(rs2value as u32) as i32 as i128;
-
-                reg.set(rd, &Uint::from(result));
-            }
+            reg.set(rd, &Uint::from(result));
         }
         _ => unreachable!(),
     }

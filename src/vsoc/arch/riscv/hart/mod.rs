@@ -199,12 +199,7 @@ impl ArchInterface for Rv {
                 }
 
                 // Reset register $zero to 0
-                match self.width {
-                    32 => self.reg.set(0, &Uint::from(0u32)),
-                    64 => self.reg.set(0, &Uint::from(0u64)),
-                    128 => self.reg.set(0, &Uint::from(0u128)),
-                    _ => unreachable!(),
-                }
+                self.reg.set(0, &Uint::zero(self.width));
             }
             Err(e) => {
                 println!("<invalid>");

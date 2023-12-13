@@ -142,7 +142,7 @@ pub fn ld(
     println!("ld\t{},{},{:x}", reg.name(rd), reg.name(rs1), v);
 
     value = match reg.width() {
-        64 => Uint::from(v as i64),
+        64 => Uint::from(v),
         128 => Uint::from(v as i128),
         _ => unreachable!(),
     };
