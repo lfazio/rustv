@@ -70,10 +70,34 @@ impl Rv {
             }
         }
 
-        if arch.contains('a') {
+        if argv[0].contains('a') {
             println!("Extension: a");
             extensions |= ext::EXT_A;
             ext.a = true;
+        }
+
+        if argv[0].contains('h') {
+            println!("Extension: h");
+            extensions |= ext::EXT_H;
+            ext.h = true;
+        }
+
+        if argv[0].contains('c') {
+            println!("Extension: c");
+            extensions |= ext::EXT_C;
+            ext.c = true;
+        }
+
+        if argv[0].contains('s') {
+            println!("Extension: s");
+            extensions |= ext::EXT_S;
+            ext.s = true;
+        }
+
+        if argv[0].contains('u') {
+            println!("Extension: u");
+            extensions |= ext::EXT_U;
+            ext.u = true;
         }
 
         if arch.contains("zicsr") {
@@ -121,7 +145,7 @@ impl Rv {
         }
 
         let c = if ext.zicsr {
-            let mut csr = csr::Csr::new(width, arch.contains('s'), arch.contains('h'));
+            let mut csr = csr::Csr::new(width, &ext);
             match width {
                 32 => csr.set(csr::MISA, &Uint::from(extensions)),
                 64 => csr.set(csr::MISA, &Uint::from(extensions as u64)),

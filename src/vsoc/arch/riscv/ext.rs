@@ -22,6 +22,10 @@ pub struct RvExtensions {
     pub a: bool,
     pub f: bool,
     pub d: bool,
+    pub s: bool,
+    pub h: bool,
+    pub u: bool,
+    pub c: bool,
     pub zicsr: bool,
     pub zifencei: bool,
     pub zmmul: bool,
@@ -55,6 +59,22 @@ impl fmt::Display for RvExtensions {
 
         if self.d {
             _ = writeln!(f, "     (d\t{})", self.d);
+        }
+
+        if self.c {
+            _ = writeln!(f, "     (c\t{})", self.c);
+        }
+
+        if self.s {
+            _ = writeln!(f, "     (s\t{})", self.s);
+        }
+
+        if self.h {
+            _ = writeln!(f, "     (h\t{})", self.h);
+        }
+
+        if self.d {
+            _ = writeln!(f, "     (u\t{})", self.u);
         }
 
         if self.zicsr {

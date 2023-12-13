@@ -128,6 +128,8 @@ pub const DSCRATCH1: usize = 0x7b3;
 
 use crate::vsoc::arch::{registers::ArchRegister, types::Uint};
 
+use super::ext::RvExtensions;
+
 #[derive(Debug, Default)]
 pub struct Csr {
     width: usize,
@@ -135,17 +137,9 @@ pub struct Csr {
 }
 
 impl Csr {
-    pub fn new(width: usize, s: bool, hs: bool) -> Csr {
+    pub fn new(width: usize, extensions: &RvExtensions) -> Csr {
         let mut csr: Vec<ArchRegister> = Vec::<ArchRegister>::with_capacity(4096);
-        let zero32 = vec![0; 4];
-        let zero64 = vec![0; 8];
-        let zero128 = vec![0; 16];
-        let zero: Uint = match width {
-            32 => Uint::new(zero32),
-            64 => Uint::new(zero64),
-            128 => Uint::new(zero128),
-            _ => unreachable!(),
-        };
+        let zero = Uint::new(vec![0; width / 8]);
 
         println!("* Creating CSR registers");
 
@@ -159,38 +153,46 @@ impl Csr {
         }
 
         println!("* Populating CSR registers");
-        csr[FFLAGS] = ArchRegister::new(width, String::from("fflags"), FFLAGS, zero.clone());
-        csr[FRM] = ArchRegister::new(width, String::from("frm"), FRM, zero.clone());
-        csr[FCSR] = ArchRegister::new(width, String::from("fcsr"), FCSR, zero.clone());
-
-        csr[CYCLE] = ArchRegister::new(width, String::from("cycle"), CYCLE, zero.clone());
-        csr[TIME] = ArchRegister::new(width, String::from("time"), TIME, zero.clone());
-        csr[INSTRET] = ArchRegister::new(width, String::from("instret"), INSTRET, zero.clone());
-        if width == 32 {
-            csr[CYCLEH] = ArchRegister::new(width, String::from("cycleh"), CYCLEH, zero.clone());
-            csr[TIMEH] = ArchRegister::new(width, String::from("timeh"), TIMEH, zero.clone());
-            csr[INSTRETH] =
-                ArchRegister::new(width, String::from("instreth"), INSTRETH, zero.clone());
+        if extensions.f {
+            csr[FFLAGS] = ArchRegister::new(width, String::from("fflags"), FFLAGS, zero.clone());
+            csr[FRM] = ArchRegister::new(width, String::from("frm"), FRM, zero.clone());
+            csr[FCSR] = ArchRegister::new(width, String::from("fcsr"), FCSR, zero.clone());
         }
-        for i in 0..0x1c {
-            csr[HPMCOUNTER3 + i] = ArchRegister::new(
-                width,
-                format!("hpmcounter{}", i + 3),
-                HPMCOUNTER3 + i,
-                zero.clone(),
-            );
+
+        if extensions.zicntr {
+            csr[CYCLE] = ArchRegister::new(width, String::from("cycle"), CYCLE, zero.clone());
+            csr[TIME] = ArchRegister::new(width, String::from("time"), TIME, zero.clone());
+            csr[INSTRET] = ArchRegister::new(width, String::from("instret"), INSTRET, zero.clone());
             if width == 32 {
-                csr[HPMCOUNTER3H + i] = ArchRegister::new(
+                csr[CYCLEH] =
+                    ArchRegister::new(width, String::from("cycleh"), CYCLEH, zero.clone());
+                csr[TIMEH] = ArchRegister::new(width, String::from("timeh"), TIMEH, zero.clone());
+                csr[INSTRETH] =
+                    ArchRegister::new(width, String::from("instreth"), INSTRETH, zero.clone());
+            }
+        }
+
+        if extensions.zihpm {
+            for i in 0..0x1c {
+                csr[HPMCOUNTER3 + i] = ArchRegister::new(
                     width,
-                    format!("hpmcounterh{}", i + 3),
-                    HPMCOUNTER3H + i,
+                    format!("hpmcounter{}", i + 3),
+                    HPMCOUNTER3 + i,
                     zero.clone(),
                 );
+                if width == 32 {
+                    csr[HPMCOUNTER3H + i] = ArchRegister::new(
+                        width,
+                        format!("hpmcounterh{}", i + 3),
+                        HPMCOUNTER3H + i,
+                        zero.clone(),
+                    );
+                }
             }
         }
 
         // Supervisor
-        if s {
+        if extensions.s {
             println!("* Populating CSR registers for supervisor mode");
             csr[SSTATUS] = ArchRegister::new(width, String::from("sstatus"), SSTATUS, zero.clone());
             csr[SIE] = ArchRegister::new(width, String::from("sie"), SIE, zero.clone());
@@ -210,7 +212,7 @@ impl Csr {
         }
 
         // Hypervisor
-        if hs {
+        if extensions.h {
             println!("* Populating CSR registers for hypervisor mode");
             csr[HSTATUS] = ArchRegister::new(width, String::from("hstatus"), HSTATUS, zero.clone());
             csr[HEDELEG] = ArchRegister::new(width, String::from("hedeleg"), HEDELEG, zero.clone());
