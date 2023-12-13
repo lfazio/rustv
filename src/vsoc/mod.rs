@@ -26,26 +26,21 @@ pub enum VsocException {
 impl fmt::Display for VsocException {
     // This trait requires `fmt` with this exact signature.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let s: String;
-        // Write strictly the first element into the supplied output
-        // stream: `f`. Returns `fmt::Result` which indicates whether the
-        // operation succeeded or failed. Note that `write!` uses syntax which
-        // is very similar to `println!`.
-        match *self {
-            Self::InstructionAddressMisaligned => s = String::from("InstructionAddressMisaligned"),
-            Self::InstructionAccessFault => s = String::from("InstructionAccessFault"),
-            Self::InstructionIllegal => s = String::from("InstructionIllegal"),
-            Self::Breakpoint => s = String::from("Breakpoint"),
-            Self::LoadAddressMisaligned => s = String::from("LoadAddressMisaligned"),
-            Self::LoadAccessFault => s = String::from("LoadAccessFault"),
-            Self::StoreAddressMisaligned => s = String::from("StoreAddressMisaligned"),
-            Self::StoreAccessFault => s = String::from("StoreAccessFault"),
-            Self::EnvironmentCallUMode => s = String::from("EnvironmentCallUMode"),
-            Self::EnvironmentCallSMode => s = String::from("EnvironmentCallSMode"),
-            Self::InstructionPageFault => s = String::from("InstructionPageFault"),
-            Self::LoadPageFault => s = String::from("LoadPageFault"),
-            Self::StorePageFault => s = String::from("StorePageFault"),
-        }
+        let s: String = match *self {
+            Self::InstructionAddressMisaligned => String::from("InstructionAddressMisaligned"),
+            Self::InstructionAccessFault => String::from("InstructionAccessFault"),
+            Self::InstructionIllegal => String::from("InstructionIllegal"),
+            Self::Breakpoint => String::from("Breakpoint"),
+            Self::LoadAddressMisaligned => String::from("LoadAddressMisaligned"),
+            Self::LoadAccessFault => String::from("LoadAccessFault"),
+            Self::StoreAddressMisaligned => String::from("StoreAddressMisaligned"),
+            Self::StoreAccessFault => String::from("StoreAccessFault"),
+            Self::EnvironmentCallUMode => String::from("EnvironmentCallUMode"),
+            Self::EnvironmentCallSMode => String::from("EnvironmentCallSMode"),
+            Self::InstructionPageFault => String::from("InstructionPageFault"),
+            Self::LoadPageFault => String::from("LoadPageFault"),
+            Self::StorePageFault => String::from("StorePageFault"),
+        };
         write!(f, "VsocException::{}", s)
     }
 }
@@ -79,8 +74,8 @@ impl<'a> Vsoc<'a> {
             uart,
         ));
 
-        bus.attach(0x8000_0000, p_flash);
-        bus.attach(0x2000_0000, p_sram);
+        bus.attach(0x2000_0000, p_flash);
+        bus.attach(0x8000_0000, p_sram);
         bus.attach(0x4001_3c00, p_uart);
         Vsoc {
             cpu: arch::cpu::Cpu::new(arch, 0x8000_0000),

@@ -1,4 +1,3 @@
-use std::collections::BTreeMap;
 use std::fmt;
 use std::fmt::Debug;
 
@@ -15,18 +14,19 @@ pub enum BusException {
 
 #[derive(Debug, Default)]
 pub struct Bus {
-    map: BTreeMap<u64, Box<Peripheral>>,
+    map: Vec<(u64, Box<Peripheral>)>,
 }
 
 impl Bus {
     pub fn new() -> Bus {
         Bus {
-            map: BTreeMap::new(),
+            map: Vec::<(u64, Box<Peripheral>)>::new(),
         }
     }
 
     pub fn attach(&mut self, origin: u64, p: Box<Peripheral>) {
-        self.map.insert(origin, p);
+        self.map.push((origin, p));
+        self.map.sort_by(|a, b| a.0.cmp(&b.0));
     }
 
     pub fn fetch(&mut self, width: usize, addr: u64) -> Result<Vec<u8>, BusException> {
@@ -54,7 +54,7 @@ impl Bus {
         for (origin, p) in self.map.iter_mut() {
             if addr >= *origin && addr < *origin + p.size() as u64 {
                 if addr % width as u64 == 0 {
-                    return p.store(width, (addr - origin) as usize, value);
+                    return p.store(width, (addr - *origin) as usize, value);
                 } else {
                     let base: u64 = addr - *origin;
                     for i in 0..width {
