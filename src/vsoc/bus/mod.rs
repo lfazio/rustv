@@ -52,13 +52,16 @@ impl Bus {
 
     pub fn store(&mut self, width: usize, addr: u64, value: &Vec<u8>) -> Option<BusException> {
         for (origin, p) in self.map.iter_mut() {
-            if addr >= *origin && addr < *origin + p.size() as u64 {
-                if addr % width as u64 == 0 {
+            if *origin <= addr && addr < *origin + p.size() as u64 {
+                if width == 1 || addr % width as u64 == 0 {
                     return p.store(width, (addr - *origin) as usize, value);
                 } else {
                     let base: u64 = addr - *origin;
                     for i in 0..width {
-                        p.store(1, base as usize + i, &[value[i]].to_vec());
+                        match p.store(1, base as usize + i, &[value[i]].to_vec()) {
+                            Some(e) => return Some(e),
+                            None => (),
+                        }
                     }
 
                     return None;
@@ -109,7 +112,7 @@ mod tests {
 
     impl PeripheralInterface for PeripheralLikeStruct {
         fn fetch(&mut self, _width: usize, addr: usize) -> Result<Vec<u8>, BusException> {
-            if (0x8000_0000..0x8000_1000).contains(&addr) {
+            if (0x0000..0x1000).contains(&addr) {
                 return Ok(u8::to_le_bytes(0x01).to_vec());
             }
 
@@ -117,7 +120,7 @@ mod tests {
         }
 
         fn store(&mut self, _width: usize, addr: usize, _value: &Vec<u8>) -> Option<BusException> {
-            if (0x8000_0000..0x8000_1000).contains(&addr) {
+            if (0x0000..0x1000).contains(&addr) {
                 return None;
             }
 

@@ -93,7 +93,7 @@ mod tests {
 
     #[test]
     fn test_store_peripheral() {
-        let mut io = PeripheralLikeStruct;
+        let io = PeripheralLikeStruct;
         let mut p: Peripheral = Peripheral::new(String::from("test"), 0x1000, Box::new(io));
 
         assert!(p.store(1, 0x0, &[0u8; 1].to_vec()).is_none());
@@ -102,7 +102,7 @@ mod tests {
 
     #[test]
     fn test_fetch_peripheral() {
-        let mut io = PeripheralLikeStruct;
+        let io = PeripheralLikeStruct;
         let mut p: Peripheral = Peripheral::new(String::from("test"), 0x1000, Box::new(io));
 
         assert_eq!(
