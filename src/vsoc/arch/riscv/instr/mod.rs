@@ -6,7 +6,6 @@ mod op;
 mod opimm;
 mod store;
 mod system;
-mod todo;
 
 use super::csr::Csr;
 use super::exception;

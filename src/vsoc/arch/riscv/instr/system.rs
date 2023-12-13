@@ -1,6 +1,6 @@
 use crate::vsoc::arch::{
     riscv::{
-        csr::{self, Csr},
+        csr::Csr,
         exception::RvException,
     },
     types::Uint,
@@ -8,24 +8,24 @@ use crate::vsoc::arch::{
 
 use super::super::registers::RvRegisters;
 
-pub fn ecall(reg: &mut RvRegisters) -> Option<RvException> {
+pub fn ecall(_reg: &mut RvRegisters) -> Option<RvException> {
     println!("ecall\ttodo\ttodo\ttodo");
 
     None
 }
 
-pub fn ebreak(reg: &mut RvRegisters) -> Option<RvException> {
+pub fn ebreak(_reg: &mut RvRegisters) -> Option<RvException> {
     println!("ebreak\ttodo\ttodo\ttodo");
 
     Some(RvException::Breakpoint)
 }
 
 pub fn xret(
-    reg: &mut RvRegisters,
-    rd: usize,
-    rs1: usize,
-    funct12: usize,
-    csr: &mut Csr,
+    _reg: &mut RvRegisters,
+    _rd: usize,
+    _rs1: usize,
+    _funct12: usize,
+    _csr: &mut Csr,
 ) -> Option<RvException> {
     println!("xret\ttodo\ttodo\ttodo");
 

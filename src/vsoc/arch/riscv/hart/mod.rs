@@ -30,7 +30,6 @@ impl Rv {
         let mut ext: ext::RvExtensions = ext::RvExtensions::default();
         let argv: Vec<&str> = arch.trim().split('_').collect();
 
-        dbg!(arch, &argv);
         if argv[0].starts_with("rv") {
             if argv[0].starts_with("rv32") {
                 width = 32;

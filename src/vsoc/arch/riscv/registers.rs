@@ -1,7 +1,7 @@
 use std::fmt;
 
 use crate::vsoc::arch::registers::ArchRegister;
-use crate::vsoc::arch::types::{self, Uint};
+use crate::vsoc::arch::types::Uint;
 
 #[derive(Debug, Default)]
 pub struct RvRegisters {
@@ -13,15 +13,7 @@ pub struct RvRegisters {
 impl RvRegisters {
     pub fn new(width: usize, count: usize) -> RvRegisters {
         let mut reg: Vec<ArchRegister>;
-        let zero32 = vec![0; 4];
-        let zero64 = vec![0; 8];
-        let zero128 = vec![0; 16];
-        let zero: Uint = match width {
-            32 => Uint::new(zero32),
-            64 => Uint::new(zero64),
-            128 => Uint::new(zero128),
-            _ => unreachable!(),
-        };
+        let zero = Uint::new(vec![0; width / 8]);
 
         println!("* Creating RISC-V registers");
         reg = Vec::<ArchRegister>::with_capacity(count);
