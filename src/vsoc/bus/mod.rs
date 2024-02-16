@@ -33,7 +33,26 @@ impl Bus {
         for (origin, p) in self.map.iter_mut() {
             if addr >= *origin && addr < *origin + p.size() as u64 {
                 if addr % width as u64 == 0 {
-                    return p.fetch(width, (addr - *origin) as usize);
+                    let mut i = 0;
+                    let mut w = width;
+                    let mut value: Vec<u8> = Vec::new();
+
+                    while i < width {
+                        if width > p.size() {
+                            w = p.size()
+                        } else {
+                            w = width - i;
+                        }
+
+                        match p.fetch(w, (addr - *origin) as usize) {
+                            Ok(mut v) => value.append(&mut v),
+                            Err(e) => return Err(e),
+                        }
+
+                        i += w;
+                    }
+                    
+                    return Ok(value);
                 } else {
                     let base: u64 = addr - *origin;
                     let mut value: Vec<u8> = Vec::new();
@@ -50,17 +69,34 @@ impl Bus {
         Err(BusException::LoadAccessFault)
     }
 
-    pub fn store(&mut self, width: usize, addr: u64, value: &Vec<u8>) -> Option<BusException> {
+    pub fn store(&mut self, width: usize, addr: u64, value: &[u8]) -> Option<BusException> {
         for (origin, p) in self.map.iter_mut() {
             if *origin <= addr && addr < *origin + p.size() as u64 {
                 if width == 1 || addr % width as u64 == 0 {
-                    return p.store(width, (addr - *origin) as usize, value);
+                    let mut i = 0;
+                    let mut w;
+                    let len = std::cmp::min(value.len(), width);
+
+                    while i < len {
+                        if len > p.size() {
+                            w = p.size()
+                        } else {
+                            w = len - i;
+                        }
+
+                        if let Some(e) = p.store(w, (addr - *origin) as usize + i, &value[i..i+w].to_vec()) {
+                            return Some(e);
+                        }
+
+                        i += w;
+                    }
+
+                    return None;
                 } else {
                     let base: u64 = addr - *origin;
                     for i in 0..width {
-                        match p.store(1, base as usize + i, &[value[i]].to_vec()) {
-                            Some(e) => return Some(e),
-                            None => (),
+                        if let Some(e) = p.store(1, base as usize + i, &[value[i]].to_vec()) {
+                            return Some(e);
                         }
                     }
 

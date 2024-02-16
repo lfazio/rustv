@@ -42,11 +42,11 @@ impl Flash {
     }
 
     fn fetch64(&self, addr: usize) -> u64 {
-        let hi = self.fetch32(addr + 4);
-        let lo = self.fetch32(addr);
-        let value: u64 = ((hi as u64) << 32) | (lo as u64);
+        let cell = addr >> 2;
+        let lo: u64 = self.data[cell] as u64;
+        let hi: u64 = (self.data[cell + 1] as u64) << 32;
 
-        value
+        hi | lo
     }
 
     fn store8(&mut self, addr: usize, value: u8) {
@@ -72,11 +72,10 @@ impl Flash {
     }
 
     fn store64(&mut self, addr: usize, value: u64) {
-        let hi = value as u32;
-        let lo = (value >> 32) as u32;
+        let cell: usize = addr >> 2;
 
-        self.store32(addr, lo);
-        self.store32(addr + 4, hi);
+        self.data[cell] = (value & 0xffffffff) as u32;
+        self.data[cell + 1] = (value >> 32) as u32;
     }
 }
 
