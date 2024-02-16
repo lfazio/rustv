@@ -139,7 +139,6 @@ pub struct Csr {
 impl Csr {
     pub fn new(width: usize, extensions: &RvExtensions) -> Csr {
         let mut csr: Vec<ArchRegister> = Vec::<ArchRegister>::with_capacity(4096);
-        let zero = Uint::new(vec![0; width / 8]);
 
         println!("* Creating CSR registers");
 
@@ -148,27 +147,27 @@ impl Csr {
                 width,
                 String::from("invalid"),
                 i,
-                zero.clone(),
+                Uint::zero(width),
             ));
         }
 
         println!("* Populating CSR registers");
         if extensions.f {
-            csr[FFLAGS] = ArchRegister::new(width, String::from("fflags"), FFLAGS, zero.clone());
-            csr[FRM] = ArchRegister::new(width, String::from("frm"), FRM, zero.clone());
-            csr[FCSR] = ArchRegister::new(width, String::from("fcsr"), FCSR, zero.clone());
+            csr[FFLAGS] = ArchRegister::new(width, String::from("fflags"), FFLAGS, Uint::zero(width));
+            csr[FRM] = ArchRegister::new(width, String::from("frm"), FRM, Uint::zero(width));
+            csr[FCSR] = ArchRegister::new(width, String::from("fcsr"), FCSR, Uint::zero(width));
         }
 
         if extensions.zicntr {
-            csr[CYCLE] = ArchRegister::new(width, String::from("cycle"), CYCLE, zero.clone());
-            csr[TIME] = ArchRegister::new(width, String::from("time"), TIME, zero.clone());
-            csr[INSTRET] = ArchRegister::new(width, String::from("instret"), INSTRET, zero.clone());
+            csr[CYCLE] = ArchRegister::new(width, String::from("cycle"), CYCLE, Uint::zero(width));
+            csr[TIME] = ArchRegister::new(width, String::from("time"), TIME, Uint::zero(width));
+            csr[INSTRET] = ArchRegister::new(width, String::from("instret"), INSTRET, Uint::zero(width));
             if width == 32 {
                 csr[CYCLEH] =
-                    ArchRegister::new(width, String::from("cycleh"), CYCLEH, zero.clone());
-                csr[TIMEH] = ArchRegister::new(width, String::from("timeh"), TIMEH, zero.clone());
+                    ArchRegister::new(width, String::from("cycleh"), CYCLEH, Uint::zero(width));
+                csr[TIMEH] = ArchRegister::new(width, String::from("timeh"), TIMEH, Uint::zero(width));
                 csr[INSTRETH] =
-                    ArchRegister::new(width, String::from("instreth"), INSTRETH, zero.clone());
+                    ArchRegister::new(width, String::from("instreth"), INSTRETH, Uint::zero(width));
             }
         }
 
@@ -178,14 +177,14 @@ impl Csr {
                     width,
                     format!("hpmcounter{}", i + 3),
                     HPMCOUNTER3 + i,
-                    zero.clone(),
+                    Uint::zero(width),
                 );
                 if width == 32 {
                     csr[HPMCOUNTER3H + i] = ArchRegister::new(
                         width,
                         format!("hpmcounterh{}", i + 3),
                         HPMCOUNTER3H + i,
-                        zero.clone(),
+                        Uint::zero(width),
                     );
                 }
             }
@@ -194,136 +193,136 @@ impl Csr {
         // Supervisor
         if extensions.s {
             println!("* Populating CSR registers for supervisor mode");
-            csr[SSTATUS] = ArchRegister::new(width, String::from("sstatus"), SSTATUS, zero.clone());
-            csr[SIE] = ArchRegister::new(width, String::from("sie"), SIE, zero.clone());
-            csr[STVEC] = ArchRegister::new(width, String::from("stvec"), STVEC, zero.clone());
+            csr[SSTATUS] = ArchRegister::new(width, String::from("sstatus"), SSTATUS, Uint::zero(width));
+            csr[SIE] = ArchRegister::new(width, String::from("sie"), SIE, Uint::zero(width));
+            csr[STVEC] = ArchRegister::new(width, String::from("stvec"), STVEC, Uint::zero(width));
             csr[SCOUNTEREN] =
-                ArchRegister::new(width, String::from("scounteren"), SCOUNTEREN, zero.clone());
-            csr[SENVCFG] = ArchRegister::new(width, String::from("senvcfg"), SENVCFG, zero.clone());
+                ArchRegister::new(width, String::from("scounteren"), SCOUNTEREN, Uint::zero(width));
+            csr[SENVCFG] = ArchRegister::new(width, String::from("senvcfg"), SENVCFG, Uint::zero(width));
             csr[SSCRATCH] =
-                ArchRegister::new(width, String::from("sscratch"), SSCRATCH, zero.clone());
-            csr[SEPC] = ArchRegister::new(width, String::from("sepc"), SEPC, zero.clone());
-            csr[SCAUSE] = ArchRegister::new(width, String::from("scause"), SCAUSE, zero.clone());
-            csr[STVAL] = ArchRegister::new(width, String::from("stval"), STVAL, zero.clone());
-            csr[SIP] = ArchRegister::new(width, String::from("sip"), SIP, zero.clone());
-            csr[SATP] = ArchRegister::new(width, String::from("satp"), SATP, zero.clone());
+                ArchRegister::new(width, String::from("sscratch"), SSCRATCH, Uint::zero(width));
+            csr[SEPC] = ArchRegister::new(width, String::from("sepc"), SEPC, Uint::zero(width));
+            csr[SCAUSE] = ArchRegister::new(width, String::from("scause"), SCAUSE, Uint::zero(width));
+            csr[STVAL] = ArchRegister::new(width, String::from("stval"), STVAL, Uint::zero(width));
+            csr[SIP] = ArchRegister::new(width, String::from("sip"), SIP, Uint::zero(width));
+            csr[SATP] = ArchRegister::new(width, String::from("satp"), SATP, Uint::zero(width));
             csr[SCONTEXT] =
-                ArchRegister::new(width, String::from("scontext"), SCONTEXT, zero.clone());
+                ArchRegister::new(width, String::from("scontext"), SCONTEXT, Uint::zero(width));
         }
 
         // Hypervisor
         if extensions.h {
             println!("* Populating CSR registers for hypervisor mode");
-            csr[HSTATUS] = ArchRegister::new(width, String::from("hstatus"), HSTATUS, zero.clone());
-            csr[HEDELEG] = ArchRegister::new(width, String::from("hedeleg"), HEDELEG, zero.clone());
-            csr[HIDELEG] = ArchRegister::new(width, String::from("hideleg"), HIDELEG, zero.clone());
-            csr[HIE] = ArchRegister::new(width, String::from("hie"), HIE, zero.clone());
+            csr[HSTATUS] = ArchRegister::new(width, String::from("hstatus"), HSTATUS, Uint::zero(width));
+            csr[HEDELEG] = ArchRegister::new(width, String::from("hedeleg"), HEDELEG, Uint::zero(width));
+            csr[HIDELEG] = ArchRegister::new(width, String::from("hideleg"), HIDELEG, Uint::zero(width));
+            csr[HIE] = ArchRegister::new(width, String::from("hie"), HIE, Uint::zero(width));
             csr[HCOUNTEREN] =
-                ArchRegister::new(width, String::from("hcounteren"), HCOUNTEREN, zero.clone());
-            csr[HGEIE] = ArchRegister::new(width, String::from("hgeie"), HGEIE, zero.clone());
-            csr[HTVAL] = ArchRegister::new(width, String::from("htval"), HTVAL, zero.clone());
-            csr[HIP] = ArchRegister::new(width, String::from("hip"), HIP, zero.clone());
-            csr[HVIP] = ArchRegister::new(width, String::from("hvip"), HVIP, zero.clone());
-            csr[HTINST] = ArchRegister::new(width, String::from("htinst"), HTINST, zero.clone());
-            csr[HGEIP] = ArchRegister::new(width, String::from("hgeip"), HGEIP, zero.clone());
-            csr[HENVCFG] = ArchRegister::new(width, String::from("henvcfg"), HENVCFG, zero.clone());
+                ArchRegister::new(width, String::from("hcounteren"), HCOUNTEREN, Uint::zero(width));
+            csr[HGEIE] = ArchRegister::new(width, String::from("hgeie"), HGEIE, Uint::zero(width));
+            csr[HTVAL] = ArchRegister::new(width, String::from("htval"), HTVAL, Uint::zero(width));
+            csr[HIP] = ArchRegister::new(width, String::from("hip"), HIP, Uint::zero(width));
+            csr[HVIP] = ArchRegister::new(width, String::from("hvip"), HVIP, Uint::zero(width));
+            csr[HTINST] = ArchRegister::new(width, String::from("htinst"), HTINST, Uint::zero(width));
+            csr[HGEIP] = ArchRegister::new(width, String::from("hgeip"), HGEIP, Uint::zero(width));
+            csr[HENVCFG] = ArchRegister::new(width, String::from("henvcfg"), HENVCFG, Uint::zero(width));
             if width == 32 {
                 csr[HENVCFGH] =
-                    ArchRegister::new(width, String::from("henvcfgh"), HENVCFGH, zero.clone());
+                    ArchRegister::new(width, String::from("henvcfgh"), HENVCFGH, Uint::zero(width));
             }
-            csr[HGATP] = ArchRegister::new(width, String::from("hgatp"), HGATP, zero.clone());
+            csr[HGATP] = ArchRegister::new(width, String::from("hgatp"), HGATP, Uint::zero(width));
             csr[HCONTEXT] =
-                ArchRegister::new(width, String::from("hcontext"), HCONTEXT, zero.clone());
+                ArchRegister::new(width, String::from("hcontext"), HCONTEXT, Uint::zero(width));
             csr[HTIMEDELTA] =
-                ArchRegister::new(width, String::from("htimedelta"), HTIMEDELTA, zero.clone());
+                ArchRegister::new(width, String::from("htimedelta"), HTIMEDELTA, Uint::zero(width));
             if width == 32 {
                 csr[HTIMEDELTAH] = ArchRegister::new(
                     width,
                     String::from("htimedeltah"),
                     HTIMEDELTAH,
-                    zero.clone(),
+                    Uint::zero(width),
                 );
             }
             csr[VSSTATUS] =
-                ArchRegister::new(width, String::from("vsstatus"), VSSTATUS, zero.clone());
-            csr[VSIE] = ArchRegister::new(width, String::from("vsie"), VSIE, zero.clone());
-            csr[VSTVEC] = ArchRegister::new(width, String::from("vstvec"), VSTVEC, zero.clone());
+                ArchRegister::new(width, String::from("vsstatus"), VSSTATUS, Uint::zero(width));
+            csr[VSIE] = ArchRegister::new(width, String::from("vsie"), VSIE, Uint::zero(width));
+            csr[VSTVEC] = ArchRegister::new(width, String::from("vstvec"), VSTVEC, Uint::zero(width));
             csr[VSSCRATCH] =
-                ArchRegister::new(width, String::from("vsscratch"), VSSCRATCH, zero.clone());
-            csr[VSEPC] = ArchRegister::new(width, String::from("vsepc"), VSEPC, zero.clone());
-            csr[VSCAUSE] = ArchRegister::new(width, String::from("vscause"), VSCAUSE, zero.clone());
-            csr[VSTVAL] = ArchRegister::new(width, String::from("vstval"), VSTVAL, zero.clone());
-            csr[VSIP] = ArchRegister::new(width, String::from("vsip"), VSIP, zero.clone());
-            csr[VSATP] = ArchRegister::new(width, String::from("vsatp"), VSATP, zero.clone());
+                ArchRegister::new(width, String::from("vsscratch"), VSSCRATCH, Uint::zero(width));
+            csr[VSEPC] = ArchRegister::new(width, String::from("vsepc"), VSEPC, Uint::zero(width));
+            csr[VSCAUSE] = ArchRegister::new(width, String::from("vscause"), VSCAUSE, Uint::zero(width));
+            csr[VSTVAL] = ArchRegister::new(width, String::from("vstval"), VSTVAL, Uint::zero(width));
+            csr[VSIP] = ArchRegister::new(width, String::from("vsip"), VSIP, Uint::zero(width));
+            csr[VSATP] = ArchRegister::new(width, String::from("vsatp"), VSATP, Uint::zero(width));
         }
 
         // Machine
         println!("* Populating CSR registers for machine mode");
         csr[MVENDORID] =
-            ArchRegister::new(width, String::from("mvendorid"), MVENDORID, zero.clone());
-        csr[MARCHID] = ArchRegister::new(width, String::from("marchid"), MARCHID, zero.clone());
-        csr[MIMPID] = ArchRegister::new(width, String::from("mimpid"), MIMPID, zero.clone());
-        csr[MHARTID] = ArchRegister::new(width, String::from("mhartid"), MHARTID, zero.clone());
+            ArchRegister::new(width, String::from("mvendorid"), MVENDORID, Uint::zero(width));
+        csr[MARCHID] = ArchRegister::new(width, String::from("marchid"), MARCHID, Uint::zero(width));
+        csr[MIMPID] = ArchRegister::new(width, String::from("mimpid"), MIMPID, Uint::zero(width));
+        csr[MHARTID] = ArchRegister::new(width, String::from("mhartid"), MHARTID, Uint::zero(width));
         csr[MCONFIGPTR] =
-            ArchRegister::new(width, String::from("mconfigptr"), MCONFIGPTR, zero.clone());
-        csr[MSTATUS] = ArchRegister::new(width, String::from("mstatus"), MSTATUS, zero.clone());
+            ArchRegister::new(width, String::from("mconfigptr"), MCONFIGPTR, Uint::zero(width));
+        csr[MSTATUS] = ArchRegister::new(width, String::from("mstatus"), MSTATUS, Uint::zero(width));
         if width == 32 {
             csr[MSTATUSH] =
-                ArchRegister::new(width, String::from("mstatush"), MSTATUSH, zero.clone());
+                ArchRegister::new(width, String::from("mstatush"), MSTATUSH, Uint::zero(width));
         }
-        csr[MISA] = ArchRegister::new(width, String::from("misa"), MISA, zero.clone());
-        csr[MEDELEG] = ArchRegister::new(width, String::from("medeleg"), MEDELEG, zero.clone());
-        csr[MIDELEG] = ArchRegister::new(width, String::from("mideleg"), MIDELEG, zero.clone());
-        csr[MIE] = ArchRegister::new(width, String::from("mie"), MIE, zero.clone());
-        csr[MTVEC] = ArchRegister::new(width, String::from("mtvec"), MTVEC, zero.clone());
+        csr[MISA] = ArchRegister::new(width, String::from("misa"), MISA, Uint::zero(width));
+        csr[MEDELEG] = ArchRegister::new(width, String::from("medeleg"), MEDELEG, Uint::zero(width));
+        csr[MIDELEG] = ArchRegister::new(width, String::from("mideleg"), MIDELEG, Uint::zero(width));
+        csr[MIE] = ArchRegister::new(width, String::from("mie"), MIE, Uint::zero(width));
+        csr[MTVEC] = ArchRegister::new(width, String::from("mtvec"), MTVEC, Uint::zero(width));
         csr[MCOUNTEREN] =
-            ArchRegister::new(width, String::from("mcounteren"), MCOUNTEREN, zero.clone());
-        csr[MSCRATCH] = ArchRegister::new(width, String::from("mscratch"), MSCRATCH, zero.clone());
-        csr[MEPC] = ArchRegister::new(width, String::from("mepc"), MEPC, zero.clone());
-        csr[MCAUSE] = ArchRegister::new(width, String::from("mcause"), MCAUSE, zero.clone());
-        csr[MTVAL] = ArchRegister::new(width, String::from("mtval"), MTVAL, zero.clone());
-        csr[MIP] = ArchRegister::new(width, String::from("mip"), MIP, zero.clone());
-        csr[MTINST] = ArchRegister::new(width, String::from("mtinst"), MTINST, zero.clone());
-        csr[MTVAL2] = ArchRegister::new(width, String::from("mtval2"), MTVAL2, zero.clone());
-        csr[MENVCFG] = ArchRegister::new(width, String::from("menvcfg"), MENVCFG, zero.clone());
-        csr[MSECCFG] = ArchRegister::new(width, String::from("mseccfg"), MSECCFG, zero.clone());
+            ArchRegister::new(width, String::from("mcounteren"), MCOUNTEREN, Uint::zero(width));
+        csr[MSCRATCH] = ArchRegister::new(width, String::from("mscratch"), MSCRATCH, Uint::zero(width));
+        csr[MEPC] = ArchRegister::new(width, String::from("mepc"), MEPC, Uint::zero(width));
+        csr[MCAUSE] = ArchRegister::new(width, String::from("mcause"), MCAUSE, Uint::zero(width));
+        csr[MTVAL] = ArchRegister::new(width, String::from("mtval"), MTVAL, Uint::zero(width));
+        csr[MIP] = ArchRegister::new(width, String::from("mip"), MIP, Uint::zero(width));
+        csr[MTINST] = ArchRegister::new(width, String::from("mtinst"), MTINST, Uint::zero(width));
+        csr[MTVAL2] = ArchRegister::new(width, String::from("mtval2"), MTVAL2, Uint::zero(width));
+        csr[MENVCFG] = ArchRegister::new(width, String::from("menvcfg"), MENVCFG, Uint::zero(width));
+        csr[MSECCFG] = ArchRegister::new(width, String::from("mseccfg"), MSECCFG, Uint::zero(width));
         if width == 32 {
             csr[MENVCFGH] =
-                ArchRegister::new(width, String::from("menvcfgh"), MENVCFGH, zero.clone());
+                ArchRegister::new(width, String::from("menvcfgh"), MENVCFGH, Uint::zero(width));
             csr[MSECCFGH] =
-                ArchRegister::new(width, String::from("mseccfgh"), MSECCFGH, zero.clone());
+                ArchRegister::new(width, String::from("mseccfgh"), MSECCFGH, Uint::zero(width));
         }
         for i in 0..0x0f {
             csr[PMPCFG0 + i] =
-                ArchRegister::new(width, format!("pmpcfg{}", i), PMPCFG0 + i, zero.clone());
+                ArchRegister::new(width, format!("pmpcfg{}", i), PMPCFG0 + i, Uint::zero(width));
             csr[PMPADDR0 + i] =
-                ArchRegister::new(width, format!("pmpaddr{}", i), PMPADDR0 + i, zero.clone());
+                ArchRegister::new(width, format!("pmpaddr{}", i), PMPADDR0 + i, Uint::zero(width));
         }
         csr[MNSCRATCH] =
-            ArchRegister::new(width, String::from("mnscratch"), MNSCRATCH, zero.clone());
-        csr[MNEPC] = ArchRegister::new(width, String::from("mnepc"), MNEPC, zero.clone());
-        csr[MNCAUSE] = ArchRegister::new(width, String::from("mncause"), MNCAUSE, zero.clone());
-        csr[MNSTATUS] = ArchRegister::new(width, String::from("mnstatus"), MNSTATUS, zero.clone());
-        csr[MCYCLE] = ArchRegister::new(width, String::from("mcycle"), MCYCLE, zero.clone());
-        csr[MINSTRET] = ArchRegister::new(width, String::from("minstret"), MINSTRET, zero.clone());
+            ArchRegister::new(width, String::from("mnscratch"), MNSCRATCH, Uint::zero(width));
+        csr[MNEPC] = ArchRegister::new(width, String::from("mnepc"), MNEPC, Uint::zero(width));
+        csr[MNCAUSE] = ArchRegister::new(width, String::from("mncause"), MNCAUSE, Uint::zero(width));
+        csr[MNSTATUS] = ArchRegister::new(width, String::from("mnstatus"), MNSTATUS, Uint::zero(width));
+        csr[MCYCLE] = ArchRegister::new(width, String::from("mcycle"), MCYCLE, Uint::zero(width));
+        csr[MINSTRET] = ArchRegister::new(width, String::from("minstret"), MINSTRET, Uint::zero(width));
         if width == 32 {
-            csr[MCYCLEH] = ArchRegister::new(width, String::from("mcycleh"), MCYCLE, zero.clone());
+            csr[MCYCLEH] = ArchRegister::new(width, String::from("mcycleh"), MCYCLE, Uint::zero(width));
             csr[MINSTRETH] =
-                ArchRegister::new(width, String::from("minstreth"), MINSTRET, zero.clone());
+                ArchRegister::new(width, String::from("minstreth"), MINSTRET, Uint::zero(width));
         }
         for i in 0..0x1c {
             csr[MHPMCOUNTER3 + i] = ArchRegister::new(
                 width,
                 format!("mhpmcounter{}", i + 3),
                 MHPMCOUNTER3 + i,
-                zero.clone(),
+                Uint::zero(width),
             );
             if width == 32 {
                 csr[MHPMCOUNTER3H + i] = ArchRegister::new(
                     width,
                     format!("mhpmcounterh{}", i + 3),
                     MHPMCOUNTER3H + i,
-                    zero.clone(),
+                    Uint::zero(width),
                 );
             }
         }
@@ -331,29 +330,29 @@ impl Csr {
             width,
             String::from("mcountinhibit"),
             MCOUNTINHIBIT,
-            zero.clone(),
+            Uint::zero(width),
         );
         for i in 0..0x1c {
             csr[MHPMEVENT3 + i] = ArchRegister::new(
                 width,
                 format!("mhpmevent{}", i + 3),
                 MHPMEVENT3 + i,
-                zero.clone(),
+                Uint::zero(width),
             );
         }
 
         println!("* Populating CSR registers for debug mode");
-        csr[TSELECT] = ArchRegister::new(width, String::from("tselect"), TSELECT, zero.clone());
-        csr[TDATA1] = ArchRegister::new(width, String::from("tdata1"), TDATA1, zero.clone());
-        csr[TDATA2] = ArchRegister::new(width, String::from("tdata2"), TDATA2, zero.clone());
-        csr[TDATA3] = ArchRegister::new(width, String::from("tdata3"), TDATA3, zero.clone());
-        csr[MCONTEXT] = ArchRegister::new(width, String::from("mcontext"), MCONTEXT, zero.clone());
-        csr[DCSR] = ArchRegister::new(width, String::from("dcsr"), DCSR, zero.clone());
-        csr[DPC] = ArchRegister::new(width, String::from("dpc"), DPC, zero.clone());
+        csr[TSELECT] = ArchRegister::new(width, String::from("tselect"), TSELECT, Uint::zero(width));
+        csr[TDATA1] = ArchRegister::new(width, String::from("tdata1"), TDATA1, Uint::zero(width));
+        csr[TDATA2] = ArchRegister::new(width, String::from("tdata2"), TDATA2, Uint::zero(width));
+        csr[TDATA3] = ArchRegister::new(width, String::from("tdata3"), TDATA3, Uint::zero(width));
+        csr[MCONTEXT] = ArchRegister::new(width, String::from("mcontext"), MCONTEXT, Uint::zero(width));
+        csr[DCSR] = ArchRegister::new(width, String::from("dcsr"), DCSR, Uint::zero(width));
+        csr[DPC] = ArchRegister::new(width, String::from("dpc"), DPC, Uint::zero(width));
         csr[DSCRATCH0] =
-            ArchRegister::new(width, String::from("dscratch0"), DSCRATCH0, zero.clone());
+            ArchRegister::new(width, String::from("dscratch0"), DSCRATCH0, Uint::zero(width));
         csr[DSCRATCH1] =
-            ArchRegister::new(width, String::from("dscratch1"), DSCRATCH1, zero.clone());
+            ArchRegister::new(width, String::from("dscratch1"), DSCRATCH1, Uint::zero(width));
 
         Csr { width, bank: csr }
     }
@@ -364,30 +363,48 @@ impl Csr {
 
     pub fn set(&mut self, addr: usize, value: &Uint) {
         if write_is_allowed(addr) {
-            self.bank[addr].set(value);
+            match addr {
+                FFLAGS => {
+                    let msk: Uint = Uint::from(0x1fu8).extend(self.width).clone();
+                    let fcsr = self.bank[FCSR].get() & !msk.clone() | value.clone() & msk;
+                    self.bank[FCSR].set(&fcsr);
+                },
+                FRM => {
+                    let msk: Uint = Uint::from(0x3u8 << 5).extend(self.width).clone();
+                    let shift: Uint = Uint::from(5u8).extend(self.width).clone();
+                    let fcsr = self.bank[FCSR].get() & !msk.clone() | ((value.clone() & msk) << shift.clone());
+                    self.bank[FCSR].set(&(fcsr >> shift));
+                },
+                _ => {
+                    self.bank[addr].set(value);
+                },
+            }
         }
     }
 
     pub fn get(&self, addr: usize) -> Option<Uint> {
-        let zero32 = vec![0; 4];
-        let zero64 = vec![0; 8];
-        let zero128 = vec![0; 16];
-        let zero: Uint = match self.width {
-            32 => Uint::new(zero32),
-            64 => Uint::new(zero64),
-            128 => Uint::new(zero128),
-            _ => unreachable!(),
-        };
-
         if addr > self.bank.len() {
             return None;
         }
 
         if read_is_allowed(addr) {
-            return Some(self.bank[addr].get().clone());
+            match addr {
+                FFLAGS => {
+                    let msk: Uint = Uint::from(0x1fu8).extend(self.width).clone();
+                    return Some(self.bank[FCSR].get() & msk);
+                },
+                FRM => {
+                    let msk: Uint = Uint::from(0x3u8 << 5).extend(self.width).clone();
+                    let shift: Uint = Uint::from(5u8).extend(self.width).clone();
+                    return Some((self.bank[FCSR].get() & msk) >> shift);
+                },
+                _ => {
+                    return Some(self.bank[addr].get());
+                },
+            }
         }
 
-        Some(zero.clone())
+        Some(Uint::zero(self.width))
     }
 }
 
