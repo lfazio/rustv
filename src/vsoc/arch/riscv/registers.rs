@@ -5,64 +5,63 @@ use crate::vsoc::arch::types::Uint;
 
 #[derive(Debug, Default)]
 pub struct RvRegisters {
-    width: usize,
+    xlen: usize,
     count: usize,
     reg: Vec<ArchRegister>,
 }
 
 impl RvRegisters {
-    pub fn new(width: usize, count: usize) -> RvRegisters {
+    pub fn new(xlen: usize, count: usize) -> RvRegisters {
         let mut reg: Vec<ArchRegister>;
-        let zero = Uint::new(vec![0; width / 8]);
 
         println!("* Creating RISC-V registers");
         reg = Vec::<ArchRegister>::with_capacity(count);
         for i in 0..count {
-            reg.push(ArchRegister::new(width, format!("{}", i), i, zero.clone()));
+            reg.push(ArchRegister::new(format!("x{}", i), i, Uint::zero(xlen)));
         }
 
         println!("* Populating RISC-V registers");
-        reg[0x00] = ArchRegister::new(width, String::from("zero"), 0, zero.clone());
-        reg[0x01] = ArchRegister::new(width, String::from("ra"), 0x01, zero.clone());
-        reg[0x02] = ArchRegister::new(width, String::from("sp"), 0x02, zero.clone());
-        reg[0x03] = ArchRegister::new(width, String::from("gp"), 0x03, zero.clone());
-        reg[0x04] = ArchRegister::new(width, String::from("tp"), 0x04, zero.clone());
-        reg[0x05] = ArchRegister::new(width, String::from("t0"), 0x05, zero.clone());
-        reg[0x06] = ArchRegister::new(width, String::from("t1"), 0x06, zero.clone());
-        reg[0x07] = ArchRegister::new(width, String::from("t2"), 0x07, zero.clone());
-        reg[0x08] = ArchRegister::new(width, String::from("s0/fp"), 0x08, zero.clone());
-        reg[0x09] = ArchRegister::new(width, String::from("s1"), 0x09, zero.clone());
-        reg[0x0a] = ArchRegister::new(width, String::from("a0"), 0x0a, zero.clone());
-        reg[0x0b] = ArchRegister::new(width, String::from("a1"), 0x0b, zero.clone());
-        reg[0x0c] = ArchRegister::new(width, String::from("a2"), 0x0c, zero.clone());
-        reg[0x0d] = ArchRegister::new(width, String::from("a3"), 0x0d, zero.clone());
-        reg[0x0e] = ArchRegister::new(width, String::from("a4"), 0x0e, zero.clone());
-        reg[0x0f] = ArchRegister::new(width, String::from("a5"), 0x0f, zero.clone());
+        reg[0x00] = ArchRegister::new(String::from("zero"), 0, Uint::zero(xlen));
+        reg[0x01] = ArchRegister::new(String::from("ra"), 0x01, Uint::zero(xlen));
+        reg[0x02] = ArchRegister::new(String::from("sp"), 0x02, Uint::zero(xlen));
+        reg[0x03] = ArchRegister::new(String::from("gp"), 0x03, Uint::zero(xlen));
+        reg[0x04] = ArchRegister::new(String::from("tp"), 0x04, Uint::zero(xlen));
+        reg[0x05] = ArchRegister::new(String::from("t0"), 0x05, Uint::zero(xlen));
+        reg[0x06] = ArchRegister::new(String::from("t1"), 0x06, Uint::zero(xlen));
+        reg[0x07] = ArchRegister::new(String::from("t2"), 0x07, Uint::zero(xlen));
+        reg[0x08] = ArchRegister::new(String::from("s0/fp"), 0x08, Uint::zero(xlen));
+        reg[0x09] = ArchRegister::new(String::from("s1"), 0x09, Uint::zero(xlen));
+        reg[0x0a] = ArchRegister::new(String::from("a0"), 0x0a, Uint::zero(xlen));
+        reg[0x0b] = ArchRegister::new(String::from("a1"), 0x0b, Uint::zero(xlen));
+        reg[0x0c] = ArchRegister::new(String::from("a2"), 0x0c, Uint::zero(xlen));
+        reg[0x0d] = ArchRegister::new(String::from("a3"), 0x0d, Uint::zero(xlen));
+        reg[0x0e] = ArchRegister::new(String::from("a4"), 0x0e, Uint::zero(xlen));
+        reg[0x0f] = ArchRegister::new(String::from("a5"), 0x0f, Uint::zero(xlen));
 
         if count == 32 {
-            reg[0x10] = ArchRegister::new(width, String::from("a6"), 0x10, zero.clone());
-            reg[0x11] = ArchRegister::new(width, String::from("a7"), 0x11, zero.clone());
-            reg[0x12] = ArchRegister::new(width, String::from("s2"), 0x12, zero.clone());
-            reg[0x13] = ArchRegister::new(width, String::from("s3"), 0x13, zero.clone());
-            reg[0x14] = ArchRegister::new(width, String::from("s4"), 0x14, zero.clone());
-            reg[0x15] = ArchRegister::new(width, String::from("s5"), 0x15, zero.clone());
-            reg[0x16] = ArchRegister::new(width, String::from("s6"), 0x16, zero.clone());
-            reg[0x17] = ArchRegister::new(width, String::from("s7"), 0x17, zero.clone());
-            reg[0x18] = ArchRegister::new(width, String::from("s8"), 0x18, zero.clone());
-            reg[0x19] = ArchRegister::new(width, String::from("s9"), 0x19, zero.clone());
-            reg[0x1a] = ArchRegister::new(width, String::from("s10"), 0x1a, zero.clone());
-            reg[0x1b] = ArchRegister::new(width, String::from("s11"), 0x1b, zero.clone());
-            reg[0x1c] = ArchRegister::new(width, String::from("t3"), 0x1c, zero.clone());
-            reg[0x1d] = ArchRegister::new(width, String::from("t4"), 0x1d, zero.clone());
-            reg[0x1e] = ArchRegister::new(width, String::from("t5"), 0x1e, zero.clone());
-            reg[0x1f] = ArchRegister::new(width, String::from("t6"), 0x1f, zero.clone());
+            reg[0x10] = ArchRegister::new(String::from("a6"), 0x10, Uint::zero(xlen));
+            reg[0x11] = ArchRegister::new(String::from("a7"), 0x11, Uint::zero(xlen));
+            reg[0x12] = ArchRegister::new(String::from("s2"), 0x12, Uint::zero(xlen));
+            reg[0x13] = ArchRegister::new(String::from("s3"), 0x13, Uint::zero(xlen));
+            reg[0x14] = ArchRegister::new(String::from("s4"), 0x14, Uint::zero(xlen));
+            reg[0x15] = ArchRegister::new(String::from("s5"), 0x15, Uint::zero(xlen));
+            reg[0x16] = ArchRegister::new(String::from("s6"), 0x16, Uint::zero(xlen));
+            reg[0x17] = ArchRegister::new(String::from("s7"), 0x17, Uint::zero(xlen));
+            reg[0x18] = ArchRegister::new(String::from("s8"), 0x18, Uint::zero(xlen));
+            reg[0x19] = ArchRegister::new(String::from("s9"), 0x19, Uint::zero(xlen));
+            reg[0x1a] = ArchRegister::new(String::from("s10"), 0x1a, Uint::zero(xlen));
+            reg[0x1b] = ArchRegister::new(String::from("s11"), 0x1b, Uint::zero(xlen));
+            reg[0x1c] = ArchRegister::new(String::from("t3"), 0x1c, Uint::zero(xlen));
+            reg[0x1d] = ArchRegister::new(String::from("t4"), 0x1d, Uint::zero(xlen));
+            reg[0x1e] = ArchRegister::new(String::from("t5"), 0x1e, Uint::zero(xlen));
+            reg[0x1f] = ArchRegister::new(String::from("t6"), 0x1f, Uint::zero(xlen));
         }
 
-        RvRegisters { width, count, reg }
+        RvRegisters { xlen, count, reg }
     }
 
-    pub fn width(&self) -> usize {
-        self.width
+    pub fn len(&self) -> usize {
+        self.xlen
     }
 
     pub fn name(&self, regidx: usize) -> &str {

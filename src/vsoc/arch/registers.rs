@@ -10,7 +10,7 @@ pub struct ArchRegister {
 }
 
 impl ArchRegister {
-    pub fn new(_width: usize, name: String, addr: usize, initial_value: Uint) -> ArchRegister {
+    pub fn new(name: String, addr: usize, initial_value: Uint) -> ArchRegister {
         ArchRegister {
             name,
             addr,

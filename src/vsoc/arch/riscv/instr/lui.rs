@@ -1,9 +1,9 @@
 use crate::vsoc::arch::{riscv::registers::RvRegisters, types::Uint};
 
-pub fn lui(reg: &mut RvRegisters, rd: usize, imm: i32) {
+pub fn lui(x: &mut RvRegisters, rd: usize, imm: i32) {
     print!("lui\t");
 
-    reg.set(rd, &Uint::from(imm).sextend(reg.width(), 32));
+    x.set(rd, &Uint::from(imm).sextend(x.len(), 32));
 
-    println!("{},{:#0x}", reg.name(rd), imm as u32 >> 12);
+    println!("{},{:#0x}", x.name(rd), imm as u32 >> 12);
 }

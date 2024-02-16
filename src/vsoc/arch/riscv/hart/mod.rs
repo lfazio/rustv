@@ -12,9 +12,10 @@ use crate::vsoc::bus::BusException;
 
 #[derive(Debug)]
 pub struct Rv {
-    width: usize,
-    pub reg: RvRegisters,
+    xlen: usize,
+
     pub pc: Uint,
+    pub x: RvRegisters,
 
     pub csr: Option<csr::Csr>,
 
@@ -25,17 +26,17 @@ impl Rv {
     pub fn new(arch: &str) -> Rv {
         let mut extensions: u32 = 0;
         let mut registers: usize = 32;
-        let width: usize;
+        let xlen: usize;
         let mut ext: ext::RvExtensions = ext::RvExtensions::default();
         let argv: Vec<&str> = arch.trim().split('_').collect();
 
         if argv[0].starts_with("rv") {
             if argv[0].starts_with("rv32") {
-                width = 32;
+                xlen = 32;
             } else if argv[0].starts_with("rv64") {
-                width = 64;
+                xlen = 64;
             } else if argv[0].starts_with("rv128") {
-                width = 128;
+                xlen = 128;
             } else {
                 panic!("Unsupported architecture width 32/64/128");
             }
@@ -139,24 +140,20 @@ impl Rv {
             ext.zihpm = true;
         }
 
-        let c = if ext.zicsr {
-            let mut csr = csr::Csr::new(width, &ext);
-            match width {
-                32 => csr.set(csr::MISA, &Uint::from(extensions)),
-                64 => csr.set(csr::MISA, &Uint::from(extensions as u64)),
-                128 => csr.set(csr::MISA, &Uint::from(extensions as u128)),
-                _ => unreachable!(),
-            }
-            Some(csr)
+        let csr = if ext.zicsr {
+            let mut c = csr::Csr::new(xlen, &ext);
+            c.set(csr::MISA, Uint::from(extensions).extend(xlen));
+            
+            Some(c)
         } else {
             None
         };
 
         Rv {
-            width,
-            reg: RvRegisters::new(width, registers),
-            pc: Uint::zero(width),
-            csr: c,
+            xlen,
+            pc: Uint::zero(xlen),
+            x: RvRegisters::new(xlen, registers),
+            csr,
             extensions: ext,
         }
     }
@@ -169,7 +166,7 @@ impl Rv {
 
 impl ArchInterface for Rv {
     fn step(&mut self, bus: &mut Bus) -> Option<RvException> {
-        let pc = match self.width {
+        let pc = match self.xlen {
             32 => u32::from(self.pc.clone()) as u64,
             64 => u64::from(self.pc.clone()),
             128 => u128::from(self.pc.clone()) as u64,
@@ -178,7 +175,7 @@ impl ArchInterface for Rv {
         match bus.fetch(4, pc as u64) {
             Ok(instr) => {
                 match Instr::from(instr).process(self, bus) {
-                    Ok(offset) => match self.width {
+                    Ok(offset) => match self.xlen {
                         32 => self.pc = Uint::from(i32::from(self.pc.clone()) + offset as i32),
                         64 => self.pc = Uint::from(i64::from(self.pc.clone()) + offset as i64),
                         128 => self.pc = Uint::from(i128::from(self.pc.clone()) + offset),
@@ -199,7 +196,7 @@ impl ArchInterface for Rv {
                 }
 
                 // Reset register $zero to 0
-                self.reg.set(0, &Uint::zero(self.width));
+                self.x.set(0, &Uint::zero(self.xlen));
             }
             Err(e) => {
                 println!("<invalid>");
@@ -228,8 +225,8 @@ impl fmt::Display for Rv {
         // is very similar to `println!`.
         write!(
             f,
-            "(Rv\n    {}\n    (pc {})\n    {}   )\n",
-            self.extensions, self.pc, self.reg
+            "(Rv{}\n    {}\n    (pc {})\n    {}   )\n",
+            self.xlen, self.extensions, self.pc, self.x
         )
     }
 }

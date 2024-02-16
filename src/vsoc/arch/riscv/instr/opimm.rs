@@ -2,314 +2,314 @@ use crate::vsoc::arch::types::Uint;
 
 use super::super::registers::RvRegisters;
 
-pub fn addi(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
-    let rs1v: Uint = reg.get(rs1);
+pub fn addi(x: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
+    let rs1v: Uint = x.get(rs1);
 
     if rs1 == 0 {
         if rd == 0 && imm == 0 {
             println!("nop");
             return;
         } else {
-            print!("li\t{},{}\t# ", reg.name(rd), imm);
+            print!("li\t{},{}\t# ", x.name(rd), imm);
         }
     } else if imm == 0 {
-        print!("mv\t{},{}\t# ", reg.name(rd), reg.name(rs1));
+        print!("mv\t{},{}\t# ", x.name(rd), x.name(rs1));
     } else {
-        print!("addi\t{},{},{}\t# ", reg.name(rd), reg.name(rs1), imm);
+        print!("addi\t{},{},{}\t# ", x.name(rd), x.name(rs1), imm);
     }
 
-    match reg.width() {
+    match x.len() {
         32 => {
             let rs1value: i32 = i32::from(rs1v);
             let result: i32 = rs1value.wrapping_add(imm);
 
             println!("{}", &Uint::from(result));
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         64 => {
             let rs1value: i64 = i64::from(rs1v);
             let result: i64 = rs1value.wrapping_add(imm as i64);
 
             println!("{}", &Uint::from(result));
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         128 => {
             let rs1value: i128 = i128::from(rs1v);
             let result: i128 = rs1value.wrapping_add(imm as i128);
 
             println!("{}", &Uint::from(result));
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         _ => unreachable!(),
     }
 }
 
-pub fn addiw(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
-    let rs1v: Uint = reg.get(rs1);
+pub fn addiw(x: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
+    let rs1v: Uint = x.get(rs1);
 
     if imm == 0 {
-        print!("sext.w\t{},{}\t# ", reg.name(rd), reg.name(rs1));
+        print!("sext.w\t{},{}\t# ", x.name(rd), x.name(rs1));
     } else {
-        print!("addiw\t{},{},{}\t# ", reg.name(rd), reg.name(rs1), imm);
+        print!("addiw\t{},{},{}\t# ", x.name(rd), x.name(rs1), imm);
     }
 
-    match reg.width() {
+    match x.len() {
         64 => {
             let rs1value: i64 = i64::from(rs1v);
             let result: i64 = rs1value.wrapping_add(imm as i64) as i32 as i64;
 
             println!("{}", &Uint::from(result));
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         128 => {
             let rs1value: i128 = i128::from(rs1v);
             let result: i128 = rs1value.wrapping_add(imm as i128) as i32 as i128;
 
             println!("{}", &Uint::from(result));
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         _ => unreachable!(),
     }
 }
 
-pub fn slti(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
-    let rs1v: Uint = reg.get(rs1);
+pub fn slti(x: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
+    let rs1v: Uint = x.get(rs1);
 
-    println!("slti\t{},{},{}", reg.name(rd), reg.name(rs1), imm);
+    println!("slti\t{},{},{}", x.name(rd), x.name(rs1), imm);
 
-    match reg.width() {
+    match x.len() {
         32 => {
             let rs1value: i32 = i32::from(rs1v);
             let result: i32 = if rs1value < imm { 1 } else { 0 };
 
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         64 => {
             let rs1value: i64 = i64::from(rs1v);
             let result: i64 = if rs1value < imm as i64 { 1 } else { 0 };
 
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         128 => {
             let rs1value: i128 = i128::from(rs1v);
             let result: i128 = if rs1value < imm as i128 { 1 } else { 0 };
 
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         _ => unreachable!(),
     }
 }
 
-pub fn sltiu(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
-    let rs1v: Uint = reg.get(rs1);
+pub fn sltiu(x: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
+    let rs1v: Uint = x.get(rs1);
 
-    println!("sltiu\t{},{},{}", reg.name(rd), reg.name(rs1), imm);
+    println!("sltiu\t{},{},{}", x.name(rd), x.name(rs1), imm);
 
-    match reg.width() {
+    match x.len() {
         32 => {
             let rs1value: u32 = u32::from(rs1v);
             let result: u32 = if rs1value < imm as u32 { 1 } else { 0 };
 
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         64 => {
             let rs1value: u64 = u64::from(rs1v);
             let result: u64 = if rs1value < imm as u64 { 1 } else { 0 };
 
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         128 => {
             let rs1value: u128 = u128::from(rs1v);
             let result: u128 = if rs1value < imm as u128 { 1 } else { 0 };
 
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         _ => unreachable!(),
     }
 }
 
-pub fn andi(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
-    let rs1v: Uint = reg.get(rs1);
-    let i: Uint = Uint::from(imm).sextend(reg.width(), 32);
+pub fn andi(x: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
+    let rs1v: Uint = x.get(rs1);
+    let i: Uint = Uint::from(imm).sextend(x.len(), 32);
     let result: Uint = rs1v & i;
 
-    println!("andi\t{},{},{}", reg.name(rd), reg.name(rs1), imm);
+    println!("andi\t{},{},{}", x.name(rd), x.name(rs1), imm);
 
-    reg.set(rd, &result);
+    x.set(rd, &result);
 }
 
-pub fn ori(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
-    let rs1v: Uint = reg.get(rs1);
-    let i: Uint = Uint::from(imm).sextend(reg.width(), 32);
+pub fn ori(x: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
+    let rs1v: Uint = x.get(rs1);
+    let i: Uint = Uint::from(imm).sextend(x.len(), 32);
     let result: Uint = rs1v | i;
 
-    println!("ori\t{},{},{}", reg.name(rd), reg.name(rs1), imm);
+    println!("ori\t{},{},{}", x.name(rd), x.name(rs1), imm);
 
-    reg.set(rd, &result);
+    x.set(rd, &result);
 }
 
-pub fn xori(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
-    let rs1v: Uint = reg.get(rs1);
-    let i: Uint = Uint::from(imm).sextend(reg.width(), 32);
+pub fn xori(x: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
+    let rs1v: Uint = x.get(rs1);
+    let i: Uint = Uint::from(imm).sextend(x.len(), 32);
     let result: Uint = rs1v ^ i;
 
     if imm == -1 {
-        println!("not\t{},{}", reg.name(rd), reg.name(rs1));
+        println!("not\t{},{}", x.name(rd), x.name(rs1));
     } else {
-        println!("xori\t{},{},{}", reg.name(rd), reg.name(rs1), imm);
+        println!("xori\t{},{},{}", x.name(rd), x.name(rs1), imm);
     }
 
-    reg.set(rd, &result);
+    x.set(rd, &result);
 }
 
-pub fn slli(reg: &mut RvRegisters, rd: usize, rs1: usize, shamt: usize) {
-    let rs1v: Uint = reg.get(rs1);
+pub fn slli(x: &mut RvRegisters, rd: usize, rs1: usize, shamt: usize) {
+    let rs1v: Uint = x.get(rs1);
 
-    print!("slli\t{},{},{:#x}\t# ", reg.name(rd), reg.name(rs1), shamt);
+    print!("slli\t{},{},{:#x}\t# ", x.name(rd), x.name(rs1), shamt);
 
-    match reg.width() {
+    match x.len() {
         32 => {
             let rs1value: u32 = u32::from(rs1v);
             let result: u32 = rs1value << shamt;
 
             println!("{}", &Uint::from(result));
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         64 => {
             let rs1value: u64 = u64::from(rs1v);
             let result: u64 = rs1value << shamt;
 
             println!("{}", &Uint::from(result));
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         128 => {
             let rs1value: u128 = u128::from(rs1v);
             let result: u128 = rs1value << shamt;
 
             println!("{}", &Uint::from(result));
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         _ => unreachable!(),
     }
 }
 
-pub fn slliw(reg: &mut RvRegisters, rd: usize, rs1: usize, shamt: usize) {
-    let rs1v: Uint = reg.get(rs1);
+pub fn slliw(x: &mut RvRegisters, rd: usize, rs1: usize, shamt: usize) {
+    let rs1v: Uint = x.get(rs1);
 
-    println!("slliw\t{},{},{:#x}", reg.name(rd), reg.name(rs1), shamt);
+    println!("slliw\t{},{},{:#x}", x.name(rd), x.name(rs1), shamt);
 
-    match reg.width() {
+    match x.len() {
         64 => {
             let rs1value: u64 = u64::from(rs1v);
             let result: i64 = ((rs1value << shamt) & 0xffffffff) as i32 as i64;
 
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         128 => {
             let rs1value: u128 = u128::from(rs1v);
             let result: i128 = ((rs1value << shamt) & 0xffffffff) as i32 as i128;
 
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         _ => unreachable!(),
     }
 }
 
-pub fn srli(reg: &mut RvRegisters, rd: usize, rs1: usize, shamt: usize) {
-    let rs1v: Uint = reg.get(rs1);
+pub fn srli(x: &mut RvRegisters, rd: usize, rs1: usize, shamt: usize) {
+    let rs1v: Uint = x.get(rs1);
 
-    println!("srli\t{},{},{:#x}", reg.name(rd), reg.name(rs1), shamt);
+    println!("srli\t{},{},{:#x}", x.name(rd), x.name(rs1), shamt);
 
-    match reg.width() {
+    match x.len() {
         32 => {
             let rs1value: u32 = u32::from(rs1v);
             let result: u32 = rs1value.wrapping_shr(shamt as u32);
 
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         64 => {
             let rs1value: u64 = u64::from(rs1v);
             let result: u64 = rs1value.wrapping_shr(shamt as u32);
 
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         128 => {
             let rs1value: u128 = u128::from(rs1v);
             let result: u128 = rs1value.wrapping_shr(shamt as u32);
 
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         _ => unreachable!(),
     }
 }
 
-pub fn srliw(reg: &mut RvRegisters, rd: usize, rs1: usize, shamt: usize) {
-    let rs1v: Uint = reg.get(rs1);
+pub fn srliw(x: &mut RvRegisters, rd: usize, rs1: usize, shamt: usize) {
+    let rs1v: Uint = x.get(rs1);
 
-    println!("srliw\t{},{},{:#x}", reg.name(rd), reg.name(rs1), shamt);
+    println!("srliw\t{},{},{:#x}", x.name(rd), x.name(rs1), shamt);
 
-    match reg.width() {
+    match x.len() {
         64 => {
             let rs1value: i64 = i64::from(rs1v);
             let result: i64 = (rs1value as u32).wrapping_shr(shamt as u32) as i32 as i64;
 
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         128 => {
             let rs1value: i128 = i128::from(rs1v);
             let result: i128 = (rs1value as u32).wrapping_shr(shamt as u32) as i32 as i128;
 
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         _ => unreachable!(),
     }
 }
 
-pub fn srai(reg: &mut RvRegisters, rd: usize, rs1: usize, shamt: usize) {
-    let rs1v: Uint = reg.get(rs1);
+pub fn srai(x: &mut RvRegisters, rd: usize, rs1: usize, shamt: usize) {
+    let rs1v: Uint = x.get(rs1);
 
-    println!("srai\t{},{},{:#0x}", reg.name(rd), reg.name(rs1), shamt);
+    println!("srai\t{},{},{:#0x}", x.name(rd), x.name(rs1), shamt);
 
-    match reg.width() {
+    match x.len() {
         32 => {
             let rs1value: i32 = i32::from(rs1v);
             let result: i32 = rs1value >> shamt;
 
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         64 => {
             let rs1value: i64 = i64::from(rs1v);
             let result: i64 = rs1value >> shamt;
 
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         128 => {
             let rs1value: i128 = i128::from(rs1v);
             let result: i128 = rs1value >> shamt;
 
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         _ => unreachable!(),
     }
 }
 
-pub fn sraiw(reg: &mut RvRegisters, rd: usize, rs1: usize, shamt: usize) {
-    let rs1v: Uint = reg.get(rs1);
+pub fn sraiw(x: &mut RvRegisters, rd: usize, rs1: usize, shamt: usize) {
+    let rs1v: Uint = x.get(rs1);
 
-    println!("sraiw\t{},{},{}", reg.name(rd), reg.name(rs1), shamt);
+    println!("sraiw\t{},{},{}", x.name(rd), x.name(rs1), shamt);
 
-    match reg.width() {
+    match x.len() {
         64 => {
             let rs1value: i64 = i64::from(rs1v);
             let result: i64 = (rs1value as i32).wrapping_shr(shamt as u32) as i64;
 
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         128 => {
             let rs1value: i128 = i128::from(rs1v);
             let result: i128 = (rs1value as i32).wrapping_shr(shamt as u32) as i128;
 
-            reg.set(rd, &Uint::from(result));
+            x.set(rd, &Uint::from(result));
         }
         _ => unreachable!(),
     }

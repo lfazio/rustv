@@ -5,25 +5,25 @@ use crate::vsoc::{
 };
 
 pub fn sb(
-    reg: &mut RvRegisters,
+    x: &mut RvRegisters,
     rs1: usize,
     rs2: usize,
     imm: i32,
     bus: &mut Bus,
 ) -> Result<Uint, RvException> {
     let addr: u64 = if imm < 0 {
-        u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64
+        u64::from(x.get(rs1)) - imm.unsigned_abs() as u64
     } else {
-        u64::from(reg.get(rs1)) + imm as u64
+        u64::from(x.get(rs1)) + imm as u64
     };
-    let mut value: Uint = reg.get(rs2);
+    let mut value: Uint = x.get(rs2);
 
     value.truncate(1);
     println!(
         "sb\t{},{}({})",
-        reg.name(rs2),
+        x.name(rs2),
         imm,
-        reg.name(rs1)
+        x.name(rs1)
     );
 
     match bus.store(1, addr, &Vec::<u8>::from(value.clone())) {
@@ -33,25 +33,25 @@ pub fn sb(
 }
 
 pub fn sh(
-    reg: &mut RvRegisters,
+    x: &mut RvRegisters,
     rs1: usize,
     rs2: usize,
     imm: i32,
     bus: &mut Bus,
 ) -> Result<Uint, RvException> {
     let addr: u64 = if imm < 0 {
-        u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64
+        u64::from(x.get(rs1)) - imm.unsigned_abs() as u64
     } else {
-        u64::from(reg.get(rs1)) + imm as u64
+        u64::from(x.get(rs1)) + imm as u64
     };
-    let mut value: Uint = reg.get(rs2);
+    let mut value: Uint = x.get(rs2);
 
     value.truncate(2);
     println!(
         "sh\t{},{}({})\t# {}",
-        reg.name(rs2),
+        x.name(rs2),
         imm,
-        reg.name(rs1),
+        x.name(rs1),
         value
     );
 
@@ -62,25 +62,25 @@ pub fn sh(
 }
 
 pub fn sw(
-    reg: &mut RvRegisters,
+    x: &mut RvRegisters,
     rs1: usize,
     rs2: usize,
     imm: i32,
     bus: &mut Bus,
 ) -> Result<Uint, RvException> {
     let addr: u64 = if imm < 0 {
-        u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64
+        u64::from(x.get(rs1)) - imm.unsigned_abs() as u64
     } else {
-        u64::from(reg.get(rs1)) + imm as u64
+        u64::from(x.get(rs1)) + imm as u64
     };
-    let mut value: Uint = reg.get(rs2);
+    let mut value: Uint = x.get(rs2);
 
     value.truncate(4);
     println!(
         "sw\t{},{}({})\t# {}",
-        reg.name(rs2),
+        x.name(rs2),
         imm,
-        reg.name(rs1),
+        x.name(rs1),
         value
     );
 
@@ -91,25 +91,25 @@ pub fn sw(
 }
 
 pub fn sd(
-    reg: &mut RvRegisters,
+    x: &mut RvRegisters,
     rs1: usize,
     rs2: usize,
     imm: i32,
     bus: &mut Bus,
 ) -> Result<Uint, RvException> {
     let addr: u64 = if imm < 0 {
-        u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64
+        u64::from(x.get(rs1)) - imm.unsigned_abs() as u64
     } else {
-        u64::from(reg.get(rs1)) + imm as u64
+        u64::from(x.get(rs1)) + imm as u64
     };
-    let mut value: Uint = reg.get(rs2);
+    let mut value: Uint = x.get(rs2);
 
     value.truncate(8);
     println!(
         "sd\t{},{}({})\t# {}",
-        reg.name(rs2),
+        x.name(rs2),
         imm,
-        reg.name(rs1),
+        x.name(rs1),
         value
     );
 

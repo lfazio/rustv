@@ -1,13 +1,13 @@
 use crate::vsoc::arch::riscv::{exception::RvException, registers::RvRegisters};
 
-pub fn beq(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvException> {
-    let rs1v = reg.get(rs1);
-    let rs2v = reg.get(rs2);
+pub fn beq(x: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvException> {
+    let rs1v = x.get(rs1);
+    let rs2v = x.get(rs2);
 
     if rs2 > 0 {
-        print!("beq\t{},{},", reg.name(rs1), reg.name(rs2));
+        print!("beq\t{},{},", x.name(rs1), x.name(rs2));
     } else {
-        print!("beqz\t{},", reg.name(rs1));
+        print!("beqz\t{},", x.name(rs1));
     }
 
     if rs1v == rs2v {
@@ -17,14 +17,14 @@ pub fn beq(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
     Ok(false)
 }
 
-pub fn bne(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvException> {
-    let rs1v = reg.get(rs1);
-    let rs2v = reg.get(rs2);
+pub fn bne(x: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvException> {
+    let rs1v = x.get(rs1);
+    let rs2v = x.get(rs2);
 
     if rs2 > 0 {
-        print!("bne\t{},{},", reg.name(rs1), reg.name(rs2));
+        print!("bne\t{},{},", x.name(rs1), x.name(rs2));
     } else {
-        print!("bnez\t{},", reg.name(rs1));
+        print!("bnez\t{},", x.name(rs1));
     }
 
     if rs1v != rs2v {
@@ -34,17 +34,17 @@ pub fn bne(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
     Ok(false)
 }
 
-pub fn blt(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvException> {
-    let rs1v = reg.get(rs1);
-    let rs2v = reg.get(rs2);
+pub fn blt(x: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvException> {
+    let rs1v = x.get(rs1);
+    let rs2v = x.get(rs2);
 
     if rs2 > 0 {
-        print!("blt\t{},{},", reg.name(rs1), reg.name(rs2));
+        print!("blt\t{},{},", x.name(rs1), x.name(rs2));
     } else {
-        print!("bltz\t{},", reg.name(rs1));
+        print!("bltz\t{},", x.name(rs1));
     }
 
-    match reg.width() {
+    match x.len() {
         32 => {
             let rs1value: i32 = i32::from(rs1v);
             let rs2value: i32 = i32::from(rs2v);
@@ -75,17 +75,17 @@ pub fn blt(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
     Ok(false)
 }
 
-pub fn bge(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvException> {
-    let rs1v = reg.get(rs1);
-    let rs2v = reg.get(rs2);
+pub fn bge(x: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvException> {
+    let rs1v = x.get(rs1);
+    let rs2v = x.get(rs2);
 
     if rs2 > 0 {
-        print!("bge\t{},{},", reg.name(rs1), reg.name(rs2));
+        print!("bge\t{},{},", x.name(rs1), x.name(rs2));
     } else {
-        print!("bgez\t{},", reg.name(rs1));
+        print!("bgez\t{},", x.name(rs1));
     }
 
-    match reg.width() {
+    match x.len() {
         32 => {
             let rs1value: i32 = i32::from(rs1v);
             let rs2value: i32 = i32::from(rs2v);
@@ -116,14 +116,14 @@ pub fn bge(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExce
     Ok(false)
 }
 
-pub fn bltu(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvException> {
-    let rs1v = reg.get(rs1);
-    let rs2v = reg.get(rs2);
+pub fn bltu(x: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvException> {
+    let rs1v = x.get(rs1);
+    let rs2v = x.get(rs2);
 
     if rs2 > 0 {
-        print!("bltu\t{},{},", reg.name(rs1), reg.name(rs2));
+        print!("bltu\t{},{},", x.name(rs1), x.name(rs2));
     } else {
-        print!("bltuz\t{},", reg.name(rs1));
+        print!("bltuz\t{},", x.name(rs1));
     }
 
     if rs1v < rs2v {
@@ -133,14 +133,14 @@ pub fn bltu(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvExc
     Ok(false)
 }
 
-pub fn bgeu(reg: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvException> {
-    let rs1v = reg.get(rs1);
-    let rs2v = reg.get(rs2);
+pub fn bgeu(x: &mut RvRegisters, rs1: usize, rs2: usize) -> Result<bool, RvException> {
+    let rs1v = x.get(rs1);
+    let rs2v = x.get(rs2);
 
     if rs2 > 0 {
-        print!("bgeu\t{},{},", reg.name(rs1), reg.name(rs2));
+        print!("bgeu\t{},{},", x.name(rs1), x.name(rs2));
     } else {
-        print!("bgeuz\t{},", reg.name(rs1));
+        print!("bgeuz\t{},", x.name(rs1));
     }
 
     if rs1v >= rs2v {

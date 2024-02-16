@@ -1,6 +1,6 @@
 use crate::vsoc::arch::{
     riscv::{
-        csr::{Csr, self},
+        csr::Csr,
         exception::RvException,
     },
     types::Uint,
@@ -8,20 +8,20 @@ use crate::vsoc::arch::{
 
 use super::super::registers::RvRegisters;
 
-pub fn ecall(_reg: &mut RvRegisters) -> Option<RvException> {
+pub fn ecall(_x: &mut RvRegisters) -> Option<RvException> {
     println!("ecall\ttodo\ttodo\ttodo");
 
     None
 }
 
-pub fn ebreak(_reg: &mut RvRegisters) -> Option<RvException> {
+pub fn ebreak(_x: &mut RvRegisters) -> Option<RvException> {
     println!("ebreak\ttodo\ttodo\ttodo");
 
     Some(RvException::Breakpoint)
 }
 
 pub fn xret(
-    _reg: &mut RvRegisters,
+    _x: &mut RvRegisters,
     _rd: usize,
     _rs1: usize,
     _funct12: usize,
@@ -33,7 +33,7 @@ pub fn xret(
 }
 
 pub fn csrrw(
-    reg: &mut RvRegisters,
+    x: &mut RvRegisters,
     rd: usize,
     rs1: usize,
     funct3: usize,
@@ -55,19 +55,19 @@ pub fn csrrw(
             };
 
             if rd == 0 {
-                println!("csrw\t{},{}", csr.name(funct12), reg.name(rs1));
+                println!("csrw\t{},{}", csr.name(funct12), x.name(rs1));
             } else {
                 println!(
                     "csrrw\t{},{},{}",
                     csr.name(funct12),
-                    reg.name(rd),
-                    reg.name(rs1)
+                    x.name(rd),
+                    x.name(rs1)
                 );
             }
         }
         0x5 => {
             // csrrwi
-            value = match reg.width() {
+            value = match x.len() {
                 32 => Uint::from((((rs1 << 26) as i32) >> 26) as u32),
                 64 => Uint::from((((rs1 << 26) as i32) >> 26) as i64 as u64),
                 128 => Uint::from((((rs1 << 26) as i32) >> 26) as i128 as u128),
@@ -84,13 +84,13 @@ pub fn csrrw(
     }
 
     csr.set(funct12, &value);
-    reg.set(rd, &dest);
+    x.set(rd, &dest);
 
     None
 }
 
 pub fn csrrs(
-    reg: &mut RvRegisters,
+    x: &mut RvRegisters,
     rd: usize,
     rs1: usize,
     funct3: usize,
@@ -104,30 +104,30 @@ pub fn csrrs(
     };
 
     if rs1 == 0 {
-        println!("csrr\t{},{}", reg.name(rd), csr.name(funct12));
+        println!("csrr\t{},{}", x.name(rd), csr.name(funct12));
     } else {
         match funct3 {
             0x2 => {
                 // csrrs
-                value = match reg.width() {
-                    32 => Uint::from(u32::from(dest.clone()) | u32::from(reg.get(rs1))),
-                    64 => Uint::from(u64::from(dest.clone()) | u64::from(reg.get(rs1))),
-                    128 => Uint::from(u128::from(dest.clone()) | u128::from(reg.get(rs1))),
+                value = match x.len() {
+                    32 => Uint::from(u32::from(dest.clone()) | u32::from(x.get(rs1))),
+                    64 => Uint::from(u64::from(dest.clone()) | u64::from(x.get(rs1))),
+                    128 => Uint::from(u128::from(dest.clone()) | u128::from(x.get(rs1))),
                     _ => return Some(RvException::InstructionIllegal),
                 };
 
-                println!("csrs\t{},{:0x},{:0x}", reg.name(rd), funct12, rs1);
+                println!("csrs\t{},{:0x},{:0x}", x.name(rd), funct12, rs1);
             },
             0x6 => {
                 // csrrsi
-                value = match reg.width() {
+                value = match x.len() {
                     32 => Uint::from(u32::from(dest.clone()) | rs1 as u32),
                     64 => Uint::from(u64::from(dest.clone()) | rs1 as u64),
                     128 => Uint::from(u128::from(dest.clone()) | rs1 as u128),
                     _ => return Some(RvException::InstructionIllegal),
                 };
 
-                println!("csrrs\t{},{},{:0x}", reg.name(rd), csr.name(funct12), rs1);
+                println!("csrrs\t{},{},{:0x}", x.name(rd), csr.name(funct12), rs1);
             },
             _ => return Some(RvException::InstructionIllegal),
         }
@@ -135,13 +135,13 @@ pub fn csrrs(
         csr.set(funct12, &value);
     }
 
-    reg.set(rd, &dest);
+    x.set(rd, &dest);
 
     None
 }
 
 pub fn csrrc(
-    reg: &mut RvRegisters,
+    x: &mut RvRegisters,
     rd: usize,
     rs1: usize,
     funct3: usize,
@@ -155,30 +155,30 @@ pub fn csrrc(
     };
 
     if rs1 == 0 {
-        println!("csrr\t{},{}", reg.name(rd), csr.name(funct12));
+        println!("csrr\t{},{}", x.name(rd), csr.name(funct12));
     } else {
         match funct3 {
             0x3 => {
                 // csrrc
-                value = match reg.width() {
-                    32 => Uint::from(u32::from(dest.clone()) & !u32::from(reg.get(rs1))),
-                    64 => Uint::from(u64::from(dest.clone()) & !u64::from(reg.get(rs1))),
-                    128 => Uint::from(u128::from(dest.clone()) & !u128::from(reg.get(rs1))),
+                value = match x.len() {
+                    32 => Uint::from(u32::from(dest.clone()) & !u32::from(x.get(rs1))),
+                    64 => Uint::from(u64::from(dest.clone()) & !u64::from(x.get(rs1))),
+                    128 => Uint::from(u128::from(dest.clone()) & !u128::from(x.get(rs1))),
                     _ => return Some(RvException::InstructionIllegal),
                 };
 
-                println!("csrc\t{},{},{:0x}", reg.name(rd), csr.name(funct12), rs1);
+                println!("csrc\t{},{},{:0x}", x.name(rd), csr.name(funct12), rs1);
             },
             0x7 => {
                 // csrrci
-                value = match reg.width() {
+                value = match x.len() {
                     32 => Uint::from(u32::from(dest.clone()) & !(rs1 as u32)),
                     64 => Uint::from(u64::from(dest.clone()) & !(rs1 as u64)),
                     128 => Uint::from(u128::from(dest.clone()) & !(rs1 as u128)),
                     _ => return Some(RvException::InstructionIllegal),
                 };
 
-                println!("csrrc\t{},{},{:0x}", reg.name(rd), csr.name(funct12), rs1);
+                println!("csrrc\t{},{},{:0x}", x.name(rd), csr.name(funct12), rs1);
             },
             _ => return Some(RvException::InstructionIllegal),
         }
@@ -186,7 +186,7 @@ pub fn csrrc(
         csr.set(funct12, &value);
     }
 
-    reg.set(rd, &dest);
+    x.set(rd, &dest);
 
     None
 }

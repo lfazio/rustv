@@ -5,7 +5,7 @@ use crate::vsoc::{
 };
 
 pub fn lb(
-    reg: &mut RvRegisters,
+    x: &mut RvRegisters,
     rd: usize,
     rs1: usize,
     imm: i32,
@@ -13,14 +13,14 @@ pub fn lb(
 ) -> Result<Uint, RvException> {
     let addr: u64;
     let value: Uint = if imm < 0 {
-        addr = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
+        addr = u64::from(x.get(rs1)) - imm.unsigned_abs() as u64;
 
         match bus.fetch(1, addr) {
             Ok(v) => Uint::new(v),
             Err(e) => return Err(RvException::from(e)),
         }
     } else {
-        addr = u64::from(reg.get(rs1)) + imm.unsigned_abs() as u64;
+        addr = u64::from(x.get(rs1)) + imm.unsigned_abs() as u64;
 
         match bus.fetch(1, addr) {
             Ok(v) => Uint::new(v),
@@ -28,29 +28,29 @@ pub fn lb(
         }
     };
 
-    println!("lb\t{},{}({})\t# @{:0x}={}", reg.name(rd), imm, reg.name(rs1), addr, value);
+    println!("lb\t{},{}({})\t# @{:0x}={}", x.name(rd), imm, x.name(rs1), addr, value);
 
-    reg.set(rd, &value);
+    x.set(rd, &value);
 
     Ok(value)
 }
 
 pub fn lh(
-    reg: &mut RvRegisters,
+    x: &mut RvRegisters,
     rd: usize,
     rs1: usize,
     imm: i32,
     bus: &mut Bus,
 ) -> Result<Uint, RvException> {
     let value: Uint = if imm < 0 {
-        let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
+        let addr: u64 = u64::from(x.get(rs1)) - imm.unsigned_abs() as u64;
 
         match bus.fetch(2, addr) {
             Ok(v) => Uint::new(v),
             Err(e) => return Err(RvException::from(e)),
         }
     } else {
-        let addr: u64 = u64::from(reg.get(rs1)) + imm.unsigned_abs() as u64;
+        let addr: u64 = u64::from(x.get(rs1)) + imm.unsigned_abs() as u64;
 
         match bus.fetch(2, addr) {
             Ok(v) => Uint::new(v),
@@ -58,15 +58,15 @@ pub fn lh(
         }
     };
 
-    println!("lh\t{},{}({})\t# {}", reg.name(rd), imm, reg.name(rs1), value);
+    println!("lh\t{},{}({})\t# {}", x.name(rd), imm, x.name(rs1), value);
 
-    reg.set(rd, &value);
+    x.set(rd, &value);
 
     Ok(value)
 }
 
 pub fn lw(
-    reg: &mut RvRegisters,
+    x: &mut RvRegisters,
     rd: usize,
     rs1: usize,
     imm: i32,
@@ -74,14 +74,14 @@ pub fn lw(
 ) -> Result<Uint, RvException> {
     let addr: u64;
     let value: Uint = if imm < 0 {
-        addr = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
+        addr = u64::from(x.get(rs1)) - imm.unsigned_abs() as u64;
 
         match bus.fetch(4, addr) {
             Ok(v) => Uint::new(v),
             Err(e) => return Err(RvException::from(e)),
         }
     } else {
-        addr = u64::from(reg.get(rs1)) + imm.unsigned_abs() as u64;
+        addr = u64::from(x.get(rs1)) + imm.unsigned_abs() as u64;
 
         match bus.fetch(4, addr) {
             Ok(v) => Uint::new(v),
@@ -89,29 +89,29 @@ pub fn lw(
         }
     };
 
-    println!("lw\t{},{}({})\t# @{:0x}={}", reg.name(rd), imm, reg.name(rs1), addr, value);
+    println!("lw\t{},{}({})\t# @{:0x}={}", x.name(rd), imm, x.name(rs1), addr, value);
 
-    reg.set(rd, &value);
+    x.set(rd, &value);
 
     Ok(value)
 }
 
 pub fn ld(
-    reg: &mut RvRegisters,
+    x: &mut RvRegisters,
     rd: usize,
     rs1: usize,
     imm: i32,
     bus: &mut Bus,
 ) -> Result<Uint, RvException> {
     let value: Uint = if imm < 0 {
-        let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
+        let addr: u64 = u64::from(x.get(rs1)) - imm.unsigned_abs() as u64;
 
         match bus.fetch(8, addr) {
             Ok(v) => Uint::new(v),
             Err(e) => return Err(RvException::from(e)),
         }
     } else {
-        let addr: u64 = u64::from(reg.get(rs1)) + imm.unsigned_abs() as u64;
+        let addr: u64 = u64::from(x.get(rs1)) + imm.unsigned_abs() as u64;
 
         match bus.fetch(8, addr) {
             Ok(v) => Uint::new(v),
@@ -119,29 +119,29 @@ pub fn ld(
         }
     };
 
-    println!("ld\t{},{}({})\t# {}", reg.name(rd), imm, reg.name(rs1), value);
+    println!("ld\t{},{}({})\t# {}", x.name(rd), imm, x.name(rs1), value);
 
-    reg.set(rd, &value);
+    x.set(rd, &value);
 
     Ok(value)
 }
 
 pub fn lbu(
-    reg: &mut RvRegisters,
+    x: &mut RvRegisters,
     rd: usize,
     rs1: usize,
     imm: i32,
     bus: &mut Bus,
 ) -> Result<Uint, RvException> {
     let value: Uint = if imm < 0 {
-        let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
+        let addr: u64 = u64::from(x.get(rs1)) - imm.unsigned_abs() as u64;
 
         match bus.fetch(1, addr) {
             Ok(v) => Uint::new(v),
             Err(e) => return Err(RvException::from(e)),
         }
     } else {
-        let addr: u64 = u64::from(reg.get(rs1)) + imm.unsigned_abs() as u64;
+        let addr: u64 = u64::from(x.get(rs1)) + imm.unsigned_abs() as u64;
 
         match bus.fetch(1, addr) {
             Ok(v) => Uint::new(v),
@@ -149,29 +149,29 @@ pub fn lbu(
         }
     };
 
-    println!("lbu\t{},{}({})\t# {}", reg.name(rd), imm, reg.name(rs1), value);
+    println!("lbu\t{},{}({})\t# {}", x.name(rd), imm, x.name(rs1), value);
 
-    reg.set(rd, &value);
+    x.set(rd, &value);
 
     Ok(value)
 }
 
 pub fn lhu(
-    reg: &mut RvRegisters,
+    x: &mut RvRegisters,
     rd: usize,
     rs1: usize,
     imm: i32,
     bus: &mut Bus,
 ) -> Result<Uint, RvException> {
     let value: Uint = if imm < 0 {
-        let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
+        let addr: u64 = u64::from(x.get(rs1)) - imm.unsigned_abs() as u64;
 
         match bus.fetch(2, addr) {
             Ok(v) => Uint::new(v),
             Err(e) => return Err(RvException::from(e)),
         }
     } else {
-        let addr: u64 = u64::from(reg.get(rs1)) + imm.unsigned_abs() as u64;
+        let addr: u64 = u64::from(x.get(rs1)) + imm.unsigned_abs() as u64;
 
         match bus.fetch(2, addr) {
             Ok(v) => Uint::new(v),
@@ -179,29 +179,29 @@ pub fn lhu(
         }
     };
 
-    println!("lhu\t{},{}({})\t# {}", reg.name(rd), imm, reg.name(rs1), value);
+    println!("lhu\t{},{}({})\t# {}", x.name(rd), imm, x.name(rs1), value);
 
-    reg.set(rd, &value);
+    x.set(rd, &value);
 
     Ok(value)
 }
 
 pub fn lwu(
-    reg: &mut RvRegisters,
+    x: &mut RvRegisters,
     rd: usize,
     rs1: usize,
     imm: i32,
     bus: &mut Bus,
 ) -> Result<Uint, RvException> {
     let value: Uint = if imm < 0 {
-        let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
+        let addr: u64 = u64::from(x.get(rs1)) - imm.unsigned_abs() as u64;
 
         match bus.fetch(4, addr) {
             Ok(v) => Uint::new(v),
             Err(e) => return Err(RvException::from(e)),
         }
     } else {
-        let addr: u64 = u64::from(reg.get(rs1)) + imm.unsigned_abs() as u64;
+        let addr: u64 = u64::from(x.get(rs1)) + imm.unsigned_abs() as u64;
 
         match bus.fetch(4, addr) {
             Ok(v) => Uint::new(v),
@@ -209,9 +209,9 @@ pub fn lwu(
         }
     };
 
-    println!("lwu\t{},{}({})\t# {}", reg.name(rd), imm, reg.name(rs1), value);
+    println!("lwu\t{},{}({})\t# {}", x.name(rd), imm, x.name(rs1), value);
 
-    reg.set(rd, &value);
+    x.set(rd, &value);
 
     Ok(value)
 }
