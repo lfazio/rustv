@@ -6,12 +6,22 @@ This project aims to build a RISC-V emulator at first, but able to be improved w
 
 ## RISC-V
 
-All architectures supports: Zifencei, Zicsr
+Available architectures:
+- `rv32i` or `rv32e`
+- `rv64i` or `rv64e`
+- `rv128i`
 
-- RV64I 
-- RV64IM
-- RV64E
-- RV64EM
+> **NOTE**: `rv<xlen>ima` is fully supported
+
+> **NOTE**: `rv<xlen>imafd` is partially supported (only load/store FP instructions are implemented currently)
+
+All architectures supports: 
+- `zifencei`
+- `zicsr`
+- `zmmul`
+- `zalrsc` (included in `A`)
+- `zamo` (included in `A`)
+- `zacas` (included in `A`)
 
 # TODO
 
@@ -26,8 +36,20 @@ cargo build
 # Run
 
 ```sh
-cargo run -- --arch=rv64im_zicsr_zifencei --binary=../twise/rvmulator/riscv-tests/isa/rv64ui-p-sw.bin
+cargo run -- --arch=rv64imafd_zicsr_zifencei --binary=../twise/rvmulator/riscv-tests/isa/rv64ui-p-sw.bin
 ```
+
+Or for example:
+
+```sh
+cargo run -- --arch=rv64imfd_zacas_zamo_zalrsc_zicsr_zifencei --binary=../twise/rvmulator/riscv-tests/isa/rv64ua-p-lrsc.bin
+```
+
+>
+> `a` is equivalent to `_zacas_zamo_zalrsc`
+>
+> `_zmmul` is also available in order to emulate the subset of the RISC-V ISA you need
+>
 
 # Tests
 

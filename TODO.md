@@ -1,16 +1,13 @@
-# Backlog
+# BACKLOG
 
-- Add riscv-tests
-- Add extensions: AFD at least, napot, bits...
-- Add user mode
-- Add full machine mode
-- Add supervisor mode
-- Add hypervisor mode
-- Add csr priviledge handling
-- Add virtual peripheral
-- Add clint
-- Add no_std support
-- Add mapping of real peripherals into the logical memory mapping
-- Add multihart emulation
-- Add virtio support
-- Add other architecture (8051?, mips32r6, arm-v7m)
+- Add F and D extensions (and Q?)
+  - [x] Load FP
+  - [x] Store FP
+  - [ ] Operation FP
+- Build riscv-tests automatically
+- Add extensions supervisor, user, traps, Znapot...
+- Add clint support
+- Add peripherals: dma, trng, map real peripheral into the logical bus
+- no_std
+- Add hypervisor extension
+- handle mulh, mulhu, mulhsu for 128 bits

@@ -10,6 +10,13 @@ pub struct RvRegisters {
     reg: Vec<ArchRegister>,
 }
 
+#[derive(Debug, Default)]
+pub struct RvFpuRegisters {
+    flen: usize,
+    count: usize,
+    reg: Vec<ArchRegister>,
+}
+
 impl RvRegisters {
     pub fn new(xlen: usize, count: usize) -> RvRegisters {
         let mut reg: Vec<ArchRegister>;
@@ -78,6 +85,60 @@ impl RvRegisters {
 }
 
 impl fmt::Display for RvRegisters {
+    // This trait requires `fmt` with this exact signature.
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // Write strictly the first element into the supplied output
+        // stream: `f`. Returns `fmt::Result` which indicates whether the
+        // operation succeeded or failed. Note that `write!` uses syntax which
+        // is very similar to `println!`.
+        match writeln!(f, "(registers\n     (#count {})\n     (", self.count) {
+            Ok(_) => (),
+            Err(e) => return Err(e),
+        }
+
+        for reg in self.reg.iter() {
+            match writeln!(f, "      {}", reg) {
+                Ok(_) => (),
+                Err(e) => return Err(e),
+            }
+        }
+
+        writeln!(f, "     )\n    )")
+    }
+}
+
+impl RvFpuRegisters {
+    pub fn new(flen: usize) -> RvFpuRegisters {
+        let mut reg: Vec<ArchRegister>;
+        let zero = Uint::new(vec![0; flen / 8]);
+
+        println!("* Creating RISC-V registers");
+        reg = Vec::<ArchRegister>::with_capacity(32);
+        for i in 0..32 {
+            reg.push(ArchRegister::new(format!("f{}", i), i, Uint::zero(flen)));
+        }
+
+        RvFpuRegisters { flen, count: 32, reg }
+    }
+
+    pub fn len(&self) -> usize {
+        self.flen
+    }
+
+    pub fn name(&self, regidx: usize) -> &str {
+        self.reg[regidx].name()
+    }
+
+    pub fn set(&mut self, regidx: usize, value: &Uint) {
+        self.reg[regidx].set(value);
+    }
+
+    pub fn get(&self, regidx: usize) -> Uint {
+        self.reg[regidx].get()
+    }
+}
+
+impl fmt::Display for RvFpuRegisters {
     // This trait requires `fmt` with this exact signature.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // Write strictly the first element into the supplied output

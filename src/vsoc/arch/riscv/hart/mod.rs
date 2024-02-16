@@ -3,6 +3,7 @@ use std::fmt;
 use super::atomic::AtomicCtx;
 use super::exception::RvException;
 use super::instr::Instr;
+use super::registers::RvFpuRegisters;
 use super::registers::RvRegisters;
 use crate::vsoc::arch::interface::ArchInterface;
 use crate::vsoc::arch::riscv::csr;
@@ -14,9 +15,11 @@ use crate::vsoc::bus::BusException;
 #[derive(Debug)]
 pub struct Rv {
     xlen: usize,
+    flen: usize,
 
     pub pc: Uint,
     pub x: RvRegisters,
+    pub f: Option<RvFpuRegisters>,
 
     pub csr: Option<csr::Csr>,
 
@@ -30,6 +33,7 @@ impl Rv {
         let mut extensions: u32 = 0;
         let mut registers: usize = 32;
         let xlen: usize;
+        let mut flen: usize = 0;
         let mut ext: ext::RvExtensions = ext::RvExtensions::default();
         let argv: Vec<&str> = arch.trim().split('_').collect();
         let mut atomic_ctx: Option<AtomicCtx> = None;
@@ -130,6 +134,7 @@ impl Rv {
             println!("Extension: f");
             extensions |= ext::EXT_F;
             ext.f = true;
+            flen = 32;
 
             if !ext.zicsr {
                 panic!("Missing zicsr extension");
@@ -139,6 +144,14 @@ impl Rv {
                 println!("Extension: d");
                 extensions |= ext::EXT_D;
                 ext.d = true;
+                flen = 64;
+
+                if arch.contains('q') {
+                    println!("Extension: q");
+                    extensions |= ext::EXT_Q;
+                    ext.q = true;
+                    flen = 128;
+                }
             }
         }
 
@@ -176,8 +189,14 @@ impl Rv {
 
         Rv {
             xlen,
+            flen,
             pc: Uint::zero(xlen),
             x: RvRegisters::new(xlen, registers),
+            f: if ext.f {
+                Some(RvFpuRegisters::new(flen))
+            } else {
+                None
+            },
             csr,
             extensions: ext,
             atomic_ctx,
@@ -249,10 +268,19 @@ impl fmt::Display for Rv {
         // stream: `f`. Returns `fmt::Result` which indicates whether the
         // operation succeeded or failed. Note that `write!` uses syntax which
         // is very similar to `println!`.
-        write!(
-            f,
-            "(Rv{}\n    {}\n    (pc {})\n    {}   )\n",
-            self.xlen, self.extensions, self.pc, self.x
-        )
+        if self.f.is_none() {
+            write!(
+                f,
+                "(Rv{}\n    {}\n    (pc {})\n    {}   )\n",
+                self. xlen, self.extensions, self.pc, self.x
+            )
+        } else {
+            write!(
+                f,
+                "(Rv{}\n    (flen {})\n    {}\n    (pc {})\n    {}\n    {}   )\n",
+                self.xlen, self.flen,
+                self.extensions, self.pc, self.x, self.f.as_ref().unwrap()
+            )
+        }
     }
 }

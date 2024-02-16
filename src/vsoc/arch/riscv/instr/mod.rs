@@ -1,6 +1,7 @@
 mod amo;
 mod auipc;
 mod branch;
+mod fp;
 mod load;
 mod lui;
 mod op;
@@ -13,7 +14,7 @@ use super::csr::Csr;
 use super::exception;
 use super::ext::RvExtensions;
 use super::hart::Rv;
-use super::registers::RvRegisters;
+use super::registers::{RvRegisters, RvFpuRegisters};
 use crate::vsoc::arch::types::Uint;
 use crate::vsoc::bus::Bus;
 
@@ -76,6 +77,42 @@ impl Instr {
             0x4 => load::lbu(x, rd, rs1, imm, bus), // load byte unsigned
             0x5 => load::lhu(x, rd, rs1, imm, bus), // load half unsigned
             0x6 => load::lwu(x, rd, rs1, imm, bus), // load word unsigned
+            _ => return Some(exception::RvException::InstructionIllegal),
+        };
+
+        match result {
+            Ok(_) => None,
+            Err(e) => Some(e),
+        }
+    }
+
+    fn load_fp(&self, x: &mut RvRegisters, f: &mut RvFpuRegisters, extensions: &RvExtensions, bus: &mut Bus) -> Option<exception::RvException> {
+        let funct3: usize = self.get_funct3();
+        let rd: usize = self.get_rd();
+        let rs1: usize = self.get_rs1();
+        let imm: i32 = self.get_i_imm();
+        let  result: Result<Uint, exception::RvException>;
+
+        if !extensions.f {
+            return Some(exception::RvException::InstructionIllegal);
+        }
+
+        match funct3 {
+            0x2 =>  if extensions.f || extensions.d || extensions.q {
+                result = fp::load(x, f, 4, rd, rs1, imm, bus); // load word
+            } else {
+                return Some(exception::RvException::InstructionIllegal);
+            },
+            0x3 => if extensions.d || extensions.q {
+                result = fp::load(x, f, 8, rd, rs1, imm, bus); // load double
+            } else {
+                return Some(exception::RvException::InstructionIllegal);
+            },
+            0x4 => if extensions.q { 
+                result = fp::load(x, f,  16, rd, rs1, imm, bus); // load quad
+            } else {
+                return Some(exception::RvException::InstructionIllegal);
+            },
             _ => return Some(exception::RvException::InstructionIllegal),
         };
 
@@ -471,6 +508,38 @@ impl Instr {
         }
     }
 
+    fn store_fp(&self, x: &mut RvRegisters, f: &mut RvFpuRegisters, extensions: &RvExtensions, bus: &mut Bus) -> Option<exception::RvException> {
+        let funct3: usize = self.get_funct3();
+        let rs1: usize = self.get_rs1();
+        let rs2: usize = self.get_rs2();
+        let imm: i32 = self.get_s_imm();
+        let  result: Result<Uint, exception::RvException>;
+
+        match funct3 {
+            0x2 => if extensions.f || extensions.d || extensions.q {
+                result = fp::store(x, f, 4, rs1, rs2, imm, bus); // store word
+            } else {
+                return Some(exception::RvException::InstructionIllegal);
+            },
+            0x3 => if extensions.d || extensions.q {
+                result = fp::store(x, f, 8, rs1, rs2, imm, bus); // store double
+            } else {
+                return Some(exception::RvException::InstructionIllegal);
+            },
+            0x4 => if extensions.q { 
+                result = fp::store(x, f, 16, rs1, rs2, imm, bus); // store quad
+            } else {
+                return Some(exception::RvException::InstructionIllegal);
+            },
+            _ => return Some(exception::RvException::InstructionIllegal),
+        };
+
+        match result {
+            Ok(_) => None,
+            Err(e) => Some(e),
+        }
+    }
+
     fn amo(&self, x: &mut RvRegisters, atomic_ctx: &mut AtomicCtx, extensions: &RvExtensions, bus: &mut Bus) -> Option<exception::RvException> {
         let funct3: usize = self.get_funct3();
         let rd: usize = self.get_rd();
@@ -613,7 +682,18 @@ impl Instr {
                     return Err(e);
                 }
             },
-            //            0x01 => rc = self.load_fp(),
+            0x01 => {
+                if hart.f.is_none() {
+                    return Err(exception::RvException::InstructionIllegal);
+                }
+                match self.load_fp(&mut hart.x, hart.f.as_mut().unwrap(), &hart.extensions, bus) {
+                    None => (),
+                    Some(e) => {
+                        println!("<error>");
+                        return Err(e);
+                    }
+                }
+            },
             //            0x02 => rc = self.custom_0(),
             0x03 => match self.mem(hart.extensions.zifencei) {
                 None => (),
