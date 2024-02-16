@@ -45,11 +45,17 @@ impl fmt::Display for CpuCore {
 }
 
 impl<'a> Cpu<'a> {
-    pub fn new(desc: &'a String, pc: u128) -> Cpu<'a> {
+    pub fn new(desc: &'a String) -> Cpu<'a> {
         Cpu {
             desc,
             state: State::Initialised,
-            core: CpuCore::CoreRv(Rv::new(desc, pc)),
+            core: CpuCore::CoreRv(Rv::new(desc)),
+        }
+    }
+
+    pub fn set_pc(&mut self, pc: u128) {
+        match &mut self.core {
+            CpuCore::CoreRv(core) => core.set_pc(pc),
         }
     }
 

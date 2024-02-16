@@ -22,10 +22,9 @@ pub struct Rv {
 }
 
 impl Rv {
-    pub fn new(arch: &str, pc: u128) -> Rv {
+    pub fn new(arch: &str) -> Rv {
         let mut extensions: u32 = 0;
         let mut registers: usize = 32;
-        let pcr: Uint;
         let width: usize;
         let mut ext: ext::RvExtensions = ext::RvExtensions::default();
         let argv: Vec<&str> = arch.trim().split('_').collect();
@@ -33,13 +32,10 @@ impl Rv {
         if argv[0].starts_with("rv") {
             if argv[0].starts_with("rv32") {
                 width = 32;
-                pcr = Uint::from(pc as u32);
             } else if argv[0].starts_with("rv64") {
                 width = 64;
-                pcr = Uint::from(pc as u64);
             } else if argv[0].starts_with("rv128") {
                 width = 128;
-                pcr = Uint::from(pc);
             } else {
                 panic!("Unsupported architecture width 32/64/128");
             }
@@ -159,10 +155,15 @@ impl Rv {
         Rv {
             width,
             reg: RvRegisters::new(width, registers),
-            pc: pcr,
+            pc: Uint::zero(width),
             csr: c,
             extensions: ext,
         }
+    }
+
+    pub fn set_pc(&mut self, addr: u128) {
+        self.pc = Uint::from(addr);
+        self.pc.truncate(self.xlen);
     }
 }
 

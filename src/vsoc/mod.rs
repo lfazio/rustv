@@ -78,7 +78,7 @@ impl<'a> Vsoc<'a> {
         bus.attach(0x8000_0000, p_sram);
         bus.attach(0x4001_3c00, p_uart);
         Vsoc {
-            cpu: arch::cpu::Cpu::new(arch, 0x8000_0000),
+            cpu: arch::cpu::Cpu::new(arch),
             bus,
         }
     }
@@ -88,6 +88,8 @@ impl<'a> Vsoc<'a> {
             self.bus
                 .store(1, 0x8000_0000 + i as u64, &[binary[i]].to_vec());
         }
+
+        self.cpu.set_pc(0x8000_0000);
     }
 
     pub fn step(&mut self) -> Option<VsocException> {
