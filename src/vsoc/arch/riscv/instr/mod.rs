@@ -1,3 +1,4 @@
+mod amo;
 mod auipc;
 mod branch;
 mod load;
@@ -7,6 +8,7 @@ mod opimm;
 mod store;
 mod system;
 
+use super::atomic::AtomicCtx;
 use super::csr::Csr;
 use super::exception;
 use super::ext::RvExtensions;
@@ -469,6 +471,90 @@ impl Instr {
         }
     }
 
+    fn amo(&self, x: &mut RvRegisters, atomic_ctx: &mut AtomicCtx, extensions: &RvExtensions, bus: &mut Bus) -> Option<exception::RvException> {
+        let funct3: usize = self.get_funct3();
+        let rd: usize = self.get_rd();
+        let rs1: usize = self.get_rs1();
+        let rs2: usize = self.get_rs2();
+        let funct7: usize = self.get_funct7();
+        let result: Option<exception::RvException>;
+        let rl: bool = (funct7 & 0x1) != 0;
+        let aq: bool = (funct7 & 0x2) != 0;
+
+        if funct3 == 0x3 && x.len() < 64 {
+            return Some(exception::RvException::InstructionIllegal);
+        }
+
+        match funct7 >> 2 {
+            0x00 => if extensions.zamo {
+                result = amo::add(aq, rl, funct3, x, rd, rs1, rs2, bus);
+            } else {
+                return Some(exception::RvException::InstructionIllegal);
+            },
+            0x01 => if extensions.zamo {
+                result = amo::swap(aq, rl, funct3, x, rd, rs1, rs2, bus);
+            } else {
+                return Some(exception::RvException::InstructionIllegal);
+            },
+            0x02 => if extensions.zalrsc {
+                result = amo::lr(atomic_ctx, aq, rl, funct3, x, rd, rs1, rs2, bus);
+            } else {
+                return Some(exception::RvException::InstructionIllegal);
+            },
+            0x03 => if extensions.zalrsc {
+                result = amo::sc(atomic_ctx, aq, rl, funct3, x, rd, rs1, rs2, bus);
+            } else {
+                return Some(exception::RvException::InstructionIllegal);
+            },
+            0x04 =>  if extensions.zamo {
+                result = amo::xor(aq, rl, funct3, x, rd, rs1, rs2, bus);
+            } else {
+                return Some(exception::RvException::InstructionIllegal);
+            },
+            0x05 =>  if extensions.zacas {
+                if funct3 == 0x4 && x.len() < 64 {
+                    return Some(exception::RvException::InstructionIllegal);
+                }
+                result = amo::cas(aq, rl, funct3, x, rd, rs1, rs2, bus);
+            } else {
+                return Some(exception::RvException::InstructionIllegal);
+            },
+            0x08 =>  if extensions.zamo {
+                result = amo::or(aq, rl, funct3, x, rd, rs1, rs2, bus);
+            } else {
+                return Some(exception::RvException::InstructionIllegal);
+            },
+            0x0c =>  if extensions.zamo {
+                result = amo::and(aq, rl, funct3, x, rd, rs1, rs2, bus);
+            } else {
+                return Some(exception::RvException::InstructionIllegal);
+            },
+            0x10 =>  if extensions.zamo {
+                result = amo::min(aq, rl, funct3, x, rd, rs1, rs2, bus);
+            } else {
+                return Some(exception::RvException::InstructionIllegal);
+            },
+            0x14 =>  if extensions.zamo {
+                result = amo::max(aq, rl, funct3, x, rd, rs1, rs2, bus);
+            } else {
+                return Some(exception::RvException::InstructionIllegal);
+            },
+            0x18 =>  if extensions.zamo {
+                result = amo::minu(aq, rl, funct3, x, rd, rs1, rs2, bus);
+            } else {
+                return Some(exception::RvException::InstructionIllegal);
+            },
+            0x1c =>  if extensions.zamo {
+                result = amo::maxu(aq, rl, funct3, x, rd, rs1, rs2, bus);
+            } else {
+                return Some(exception::RvException::InstructionIllegal);
+            },
+            _ => return Some(exception::RvException::InstructionIllegal),
+        };
+
+        result
+    }
+
     fn system(
         &self,
         x: &mut RvRegisters,
@@ -565,9 +651,31 @@ impl Instr {
                     return Err(e);
                 }
             },
-            //            0x09 => rc = self.store_fp(),
+            0x09 => {
+                if hart.f.is_none() {
+                    return Err(exception::RvException::InstructionIllegal);
+                }
+                match self.store_fp(&mut hart.x, hart.f.as_mut().unwrap(), &hart.extensions, bus) {
+                    None => (),
+                    Some(e) => {
+                        println!("<error>");
+                        return Err(e);
+                    }
+                }
+            },
             //            0x0a => rc = self.custom_1(),
-            //            0x0b => rc = self.amo(),
+            0x0b => {
+                if hart.atomic_ctx.is_none() {
+                    return Err(exception::RvException::InstructionIllegal);
+                }
+                match self.amo(&mut hart.x, hart.atomic_ctx.as_mut().unwrap(), &hart.extensions, bus) {
+                    None => (),
+                    Some(e) => {
+                        println!("<error>");
+                        return Err(e);
+                    }
+                }
+            },
             0x0c => match self.op(&hart.extensions, &mut hart.x) {
                 None => (),
                 Some(e) => {

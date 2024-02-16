@@ -1,3 +1,4 @@
+pub mod atomic;
 pub mod csr;
 pub mod exception;
 pub mod ext;

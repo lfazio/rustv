@@ -19,13 +19,15 @@ pub struct RvExtensions {
     pub i: bool,
     pub e: bool,
     pub m: bool,
-    pub a: bool,
     pub f: bool,
     pub d: bool,
     pub s: bool,
     pub h: bool,
     pub u: bool,
     pub c: bool,
+    pub zalrsc: bool, // a
+    pub zamo: bool, // a
+    pub zacas: bool, // a
     pub zicsr: bool,
     pub zifencei: bool,
     pub zmmul: bool,
@@ -47,10 +49,6 @@ impl fmt::Display for RvExtensions {
 
         if self.m {
             _ = writeln!(f, "     (m\t{})", self.m);
-        }
-
-        if self.a {
-            _ = writeln!(f, "     (a\t{})", self.a);
         }
 
         if self.f {
@@ -75,6 +73,18 @@ impl fmt::Display for RvExtensions {
 
         if self.d {
             _ = writeln!(f, "     (u\t{})", self.u);
+        }
+
+        if self.zalrsc {
+            _ = writeln!(f, "     (zalrsc\t{})", self.zalrsc);
+        }
+
+        if self.zamo {
+            _ = writeln!(f, "     (zamo\t{})", self.zamo);
+        }
+
+        if self.zacas {
+            _ = writeln!(f, "     (zacas\t{})", self.zacas);
         }
 
         if self.zicsr {

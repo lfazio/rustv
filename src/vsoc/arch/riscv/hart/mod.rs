@@ -1,5 +1,6 @@
 use std::fmt;
 
+use super::atomic::AtomicCtx;
 use super::exception::RvException;
 use super::instr::Instr;
 use super::registers::RvRegisters;
@@ -20,6 +21,8 @@ pub struct Rv {
     pub csr: Option<csr::Csr>,
 
     pub extensions: ext::RvExtensions,
+
+    pub atomic_ctx: Option<AtomicCtx>,
 }
 
 impl Rv {
@@ -29,6 +32,7 @@ impl Rv {
         let xlen: usize;
         let mut ext: ext::RvExtensions = ext::RvExtensions::default();
         let argv: Vec<&str> = arch.trim().split('_').collect();
+        let mut atomic_ctx: Option<AtomicCtx> = None;
 
         if argv[0].starts_with("rv") {
             if argv[0].starts_with("rv32") {
@@ -69,7 +73,9 @@ impl Rv {
         if argv[0].contains('a') {
             println!("Extension: a");
             extensions |= ext::EXT_A;
-            ext.a = true;
+            ext.zalrsc = true;
+            ext.zamo = true;
+            ext.zacas = true;
         }
 
         if argv[0].contains('h') {
@@ -99,6 +105,25 @@ impl Rv {
         if arch.contains("zicsr") {
             println!("Extension: zicsr");
             ext.zicsr = true;
+        }
+
+        if arch.contains("zalrsc") {
+            println!("Extension: zalrsc");
+            ext.zalrsc = true;
+        }
+
+        if arch.contains("zamo") {
+            println!("Extension: zamo");
+            ext.zamo = true;
+        }
+
+        if arch.contains("zacas") {
+            println!("Extension: zacas");
+            ext.zacas = true;
+        }
+
+        if ext.zalrsc || ext.zamo || ext.zacas {
+            atomic_ctx = Some(AtomicCtx::new(xlen));
         }
 
         if arch.contains('f') {
@@ -155,6 +180,7 @@ impl Rv {
             x: RvRegisters::new(xlen, registers),
             csr,
             extensions: ext,
+            atomic_ctx,
         }
     }
 
