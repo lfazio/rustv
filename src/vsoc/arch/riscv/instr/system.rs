@@ -1,6 +1,6 @@
 use crate::vsoc::arch::{
     riscv::{
-        csr::Csr,
+        csr::{Csr, self},
         exception::RvException,
     },
     types::Uint,
@@ -117,7 +117,7 @@ pub fn csrrs(
                 };
 
                 println!("csrs\t{},{:0x},{:0x}", reg.name(rd), funct12, rs1);
-            }
+            },
             0x6 => {
                 // csrrsi
                 value = match reg.width() {
@@ -128,7 +128,7 @@ pub fn csrrs(
                 };
 
                 println!("csrrs\t{},{},{:0x}", reg.name(rd), csr.name(funct12), rs1);
-            }
+            },
             _ => return Some(RvException::InstructionIllegal),
         }
 
@@ -168,7 +168,7 @@ pub fn csrrc(
                 };
 
                 println!("csrc\t{},{},{:0x}", reg.name(rd), csr.name(funct12), rs1);
-            }
+            },
             0x7 => {
                 // csrrci
                 value = match reg.width() {
@@ -179,7 +179,7 @@ pub fn csrrc(
                 };
 
                 println!("csrrc\t{},{},{:0x}", reg.name(rd), csr.name(funct12), rs1);
-            }
+            },
             _ => return Some(RvException::InstructionIllegal),
         }
 

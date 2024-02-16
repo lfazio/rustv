@@ -11,15 +11,16 @@ pub fn lb(
     imm: i32,
     bus: &mut Bus,
 ) -> Result<Uint, RvException> {
-    let mut value: Uint = if imm < 0 {
-        let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
+    let addr: u64;
+    let value: Uint = if imm < 0 {
+        addr = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
 
         match bus.fetch(1, addr) {
             Ok(v) => Uint::new(v),
             Err(e) => return Err(RvException::from(e)),
         }
     } else {
-        let addr: u64 = u64::from(reg.get(rs1)) + imm.unsigned_abs() as u64;
+        addr = u64::from(reg.get(rs1)) + imm.unsigned_abs() as u64;
 
         match bus.fetch(1, addr) {
             Ok(v) => Uint::new(v),
@@ -27,15 +28,8 @@ pub fn lb(
         }
     };
 
-    let v = i8::from(value);
-    println!("lb\t{},{},{:x}", reg.name(rd), reg.name(rs1), v);
+    println!("lb\t{},{}({})\t# @{:0x}={}", reg.name(rd), imm, reg.name(rs1), addr, value);
 
-    value = match reg.width() {
-        32 => Uint::from(v as i32),
-        64 => Uint::from(v as i64),
-        128 => Uint::from(v as i128),
-        _ => unreachable!(),
-    };
     reg.set(rd, &value);
 
     Ok(value)
@@ -48,7 +42,7 @@ pub fn lh(
     imm: i32,
     bus: &mut Bus,
 ) -> Result<Uint, RvException> {
-    let mut value: Uint = if imm < 0 {
+    let value: Uint = if imm < 0 {
         let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
 
         match bus.fetch(2, addr) {
@@ -64,15 +58,8 @@ pub fn lh(
         }
     };
 
-    let v: i16 = i16::from(value.clone());
-    println!("lh\t{},{},{:x}", reg.name(rd), reg.name(rs1), v);
+    println!("lh\t{},{}({})\t# {}", reg.name(rd), imm, reg.name(rs1), value);
 
-    value = match reg.width() {
-        32 => Uint::from(v as i32),
-        64 => Uint::from(v as i64),
-        128 => Uint::from(v as i128),
-        _ => unreachable!(),
-    };
     reg.set(rd, &value);
 
     Ok(value)
@@ -85,15 +72,16 @@ pub fn lw(
     imm: i32,
     bus: &mut Bus,
 ) -> Result<Uint, RvException> {
-    let mut value: Uint = if imm < 0 {
-        let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
+    let addr: u64;
+    let value: Uint = if imm < 0 {
+        addr = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
 
         match bus.fetch(4, addr) {
             Ok(v) => Uint::new(v),
             Err(e) => return Err(RvException::from(e)),
         }
     } else {
-        let addr: u64 = u64::from(reg.get(rs1)) + imm.unsigned_abs() as u64;
+        addr = u64::from(reg.get(rs1)) + imm.unsigned_abs() as u64;
 
         match bus.fetch(4, addr) {
             Ok(v) => Uint::new(v),
@@ -101,15 +89,8 @@ pub fn lw(
         }
     };
 
-    let v = i32::from(value.clone());
-    println!("lw\t{},{},{:x}", reg.name(rd), reg.name(rs1), v);
+    println!("lw\t{},{}({})\t# @{:0x}={}", reg.name(rd), imm, reg.name(rs1), addr, value);
 
-    value = match reg.width() {
-        32 => Uint::from(v as i32),
-        64 => Uint::from(v as i64),
-        128 => Uint::from(v as i128),
-        _ => unreachable!(),
-    };
     reg.set(rd, &value);
 
     Ok(value)
@@ -122,7 +103,7 @@ pub fn ld(
     imm: i32,
     bus: &mut Bus,
 ) -> Result<Uint, RvException> {
-    let mut value: Uint = if imm < 0 {
+    let value: Uint = if imm < 0 {
         let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
 
         match bus.fetch(8, addr) {
@@ -138,14 +119,8 @@ pub fn ld(
         }
     };
 
-    let v = i64::from(value.clone());
-    println!("ld\t{},{},{:x}", reg.name(rd), reg.name(rs1), v);
+    println!("ld\t{},{}({})\t# {}", reg.name(rd), imm, reg.name(rs1), value);
 
-    value = match reg.width() {
-        64 => Uint::from(v),
-        128 => Uint::from(v as i128),
-        _ => unreachable!(),
-    };
     reg.set(rd, &value);
 
     Ok(value)
@@ -158,7 +133,7 @@ pub fn lbu(
     imm: i32,
     bus: &mut Bus,
 ) -> Result<Uint, RvException> {
-    let mut value: Uint = if imm < 0 {
+    let value: Uint = if imm < 0 {
         let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
 
         match bus.fetch(1, addr) {
@@ -174,15 +149,8 @@ pub fn lbu(
         }
     };
 
-    let v = u8::from(value.clone());
-    println!("lbu\t{},{},{:x}", reg.name(rd), reg.name(rs1), v);
+    println!("lbu\t{},{}({})\t# {}", reg.name(rd), imm, reg.name(rs1), value);
 
-    value = match reg.width() {
-        32 => Uint::from(v as u32),
-        64 => Uint::from(v as u64),
-        128 => Uint::from(v as u128),
-        _ => unreachable!(),
-    };
     reg.set(rd, &value);
 
     Ok(value)
@@ -195,7 +163,7 @@ pub fn lhu(
     imm: i32,
     bus: &mut Bus,
 ) -> Result<Uint, RvException> {
-    let mut value: Uint = if imm < 0 {
+    let value: Uint = if imm < 0 {
         let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
 
         match bus.fetch(2, addr) {
@@ -211,15 +179,8 @@ pub fn lhu(
         }
     };
 
-    let v = u16::from(value.clone());
-    println!("lhu\t{},{},{:x}", reg.name(rd), reg.name(rs1), v);
+    println!("lhu\t{},{}({})\t# {}", reg.name(rd), imm, reg.name(rs1), value);
 
-    value = match reg.width() {
-        32 => Uint::from(v as u32),
-        64 => Uint::from(v as u64),
-        128 => Uint::from(v as u128),
-        _ => unreachable!(),
-    };
     reg.set(rd, &value);
 
     Ok(value)
@@ -232,7 +193,7 @@ pub fn lwu(
     imm: i32,
     bus: &mut Bus,
 ) -> Result<Uint, RvException> {
-    let mut value: Uint = if imm < 0 {
+    let value: Uint = if imm < 0 {
         let addr: u64 = u64::from(reg.get(rs1)) - imm.unsigned_abs() as u64;
 
         match bus.fetch(4, addr) {
@@ -248,15 +209,8 @@ pub fn lwu(
         }
     };
 
-    let v = u32::from(value.clone());
-    println!("lwu\t{},{},{:x}", reg.name(rd), reg.name(rs1), v);
+    println!("lwu\t{},{}({})\t# {}", reg.name(rd), imm, reg.name(rs1), value);
 
-    value = match reg.width() {
-        32 => Uint::from(v as u32),
-        64 => Uint::from(v as u64),
-        128 => Uint::from(v as u128),
-        _ => unreachable!(),
-    };
     reg.set(rd, &value);
 
     Ok(value)

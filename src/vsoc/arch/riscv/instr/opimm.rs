@@ -8,13 +8,14 @@ pub fn addi(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
     if rs1 == 0 {
         if rd == 0 && imm == 0 {
             println!("nop");
+            return;
         } else {
-            println!("li\t{},{}", reg.name(rd), imm);
+            print!("li\t{},{}\t# ", reg.name(rd), imm);
         }
     } else if imm == 0 {
-        println!("mv\t{},{}", reg.name(rd), reg.name(rs1));
+        print!("mv\t{},{}\t# ", reg.name(rd), reg.name(rs1));
     } else {
-        println!("addi\t{},{},{}", reg.name(rd), reg.name(rs1), imm);
+        print!("addi\t{},{},{}\t# ", reg.name(rd), reg.name(rs1), imm);
     }
 
     match reg.width() {
@@ -22,18 +23,21 @@ pub fn addi(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
             let rs1value: i32 = i32::from(rs1v);
             let result: i32 = rs1value.wrapping_add(imm);
 
+            println!("{}", &Uint::from(result));
             reg.set(rd, &Uint::from(result));
         }
         64 => {
             let rs1value: i64 = i64::from(rs1v);
             let result: i64 = rs1value.wrapping_add(imm as i64);
 
+            println!("{}", &Uint::from(result));
             reg.set(rd, &Uint::from(result));
         }
         128 => {
             let rs1value: i128 = i128::from(rs1v);
             let result: i128 = rs1value.wrapping_add(imm as i128);
 
+            println!("{}", &Uint::from(result));
             reg.set(rd, &Uint::from(result));
         }
         _ => unreachable!(),
@@ -44,9 +48,9 @@ pub fn addiw(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
     let rs1v: Uint = reg.get(rs1);
 
     if imm == 0 {
-        println!("sext.w\t{},{}", reg.name(rd), reg.name(rs1));
+        print!("sext.w\t{},{}\t# ", reg.name(rd), reg.name(rs1));
     } else {
-        println!("addiw\t{},{},{}", reg.name(rd), reg.name(rs1), imm);
+        print!("addiw\t{},{},{}\t# ", reg.name(rd), reg.name(rs1), imm);
     }
 
     match reg.width() {
@@ -54,12 +58,14 @@ pub fn addiw(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
             let rs1value: i64 = i64::from(rs1v);
             let result: i64 = rs1value.wrapping_add(imm as i64) as i32 as i64;
 
+            println!("{}", &Uint::from(result));
             reg.set(rd, &Uint::from(result));
         }
         128 => {
             let rs1value: i128 = i128::from(rs1v);
             let result: i128 = rs1value.wrapping_add(imm as i128) as i32 as i128;
 
+            println!("{}", &Uint::from(result));
             reg.set(rd, &Uint::from(result));
         }
         _ => unreachable!(),
@@ -159,25 +165,28 @@ pub fn xori(reg: &mut RvRegisters, rd: usize, rs1: usize, imm: i32) {
 pub fn slli(reg: &mut RvRegisters, rd: usize, rs1: usize, shamt: usize) {
     let rs1v: Uint = reg.get(rs1);
 
-    println!("slli\t{},{},{:#x}", reg.name(rd), reg.name(rs1), shamt);
+    print!("slli\t{},{},{:#x}\t# ", reg.name(rd), reg.name(rs1), shamt);
 
     match reg.width() {
         32 => {
             let rs1value: u32 = u32::from(rs1v);
             let result: u32 = rs1value << shamt;
 
+            println!("{}", &Uint::from(result));
             reg.set(rd, &Uint::from(result));
         }
         64 => {
             let rs1value: u64 = u64::from(rs1v);
             let result: u64 = rs1value << shamt;
 
+            println!("{}", &Uint::from(result));
             reg.set(rd, &Uint::from(result));
         }
         128 => {
             let rs1value: u128 = u128::from(rs1v);
             let result: u128 = rs1value << shamt;
 
+            println!("{}", &Uint::from(result));
             reg.set(rd, &Uint::from(result));
         }
         _ => unreachable!(),

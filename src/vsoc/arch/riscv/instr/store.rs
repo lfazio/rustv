@@ -20,10 +20,10 @@ pub fn sb(
 
     value.truncate(1);
     println!(
-        "sb\t{},{},{:x}",
+        "sb\t{},{}({})",
         reg.name(rs2),
-        reg.name(rs1),
-        u8::from(value.clone())
+        imm,
+        reg.name(rs1)
     );
 
     match bus.store(1, addr, &Vec::<u8>::from(value.clone())) {
@@ -48,10 +48,11 @@ pub fn sh(
 
     value.truncate(2);
     println!(
-        "sh\t{},{},{:x}",
+        "sh\t{},{}({})\t# {}",
         reg.name(rs2),
+        imm,
         reg.name(rs1),
-        u8::from(value.clone())
+        value
     );
 
     match bus.store(2, addr, &Vec::<u8>::from(value.clone())) {
@@ -76,10 +77,11 @@ pub fn sw(
 
     value.truncate(4);
     println!(
-        "sw\t{},{},{:x}",
+        "sw\t{},{}({})\t# {}",
         reg.name(rs2),
+        imm,
         reg.name(rs1),
-        u32::from(value.clone())
+        value
     );
 
     match bus.store(4, addr, &Vec::<u8>::from(value.clone())) {
@@ -104,10 +106,11 @@ pub fn sd(
 
     value.truncate(8);
     println!(
-        "sd\t{},{},{:x}",
+        "sd\t{},{}({})\t# {}",
         reg.name(rs2),
+        imm,
         reg.name(rs1),
-        u64::from(value.clone())
+        value
     );
 
     match bus.store(8, addr, &Vec::<u8>::from(value.clone())) {

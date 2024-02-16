@@ -427,17 +427,17 @@ impl Instr {
             32 => {
                 let pcvalue: i32 = i32::from(pc.clone()) + offset;
 
-                println!("{:0x}", pcvalue)
+                println!("{:0x}\t# {} {}", pcvalue, reg.get(rs1), reg.get(rs2))
             }
             64 => {
                 let pcvalue: i64 = i64::from(pc.clone()) + offset as i64;
 
-                println!("{:0x}", pcvalue)
+                println!("{:0x}\t# {} {}", pcvalue, reg.get(rs1), reg.get(rs2))
             }
             128 => {
                 let pcvalue: i128 = i128::from(pc.clone()) + offset as i128;
 
-                println!("{:0x}", pcvalue)
+                println!("{:0x}\t# {} {}", pcvalue, reg.get(rs1), reg.get(rs2))
             }
             _ => return Err(exception::RvException::InstructionIllegal),
         }
