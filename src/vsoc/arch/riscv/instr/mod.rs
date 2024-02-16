@@ -772,7 +772,7 @@ impl Instr {
             Instr::InstrC0(_) => todo!(),
             Instr::InstrC1(_) => todo!(),
             Instr::InstrC2(_) => todo!(),
-            Instr::Instr32(i) => ((i >> 25) & 0x2f) as usize,
+            Instr::Instr32(i) => ((i >> 25) & 0x7f) as usize,
             Instr::Invalid => unreachable!(),
         }
     }
