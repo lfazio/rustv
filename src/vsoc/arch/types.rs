@@ -1,6 +1,6 @@
 use std::{
     fmt,
-    ops::{Add, AddAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Not, ShlAssign, Shl},
+    ops::{Add, BitAnd, BitOr, BitXor, Not, Shl, Shr},
 };
 
 #[derive(Debug, Clone)]
@@ -16,6 +16,15 @@ impl Uint {
     pub fn zero(width: usize) -> Self {
         Self {
             value: vec![0u8; width / 8],
+        }
+    }
+
+    pub fn one(width: usize) -> Self {
+        let mut value: Vec<u8> = vec![0u8; width / 8];
+
+        value[0] = 1;
+        Self {
+            value,
         }
     }
 
@@ -47,7 +56,7 @@ impl Uint {
         u16::from_le_bytes(v.try_into().unwrap())
     }
 
-    fn into_u32(self) -> u32 {
+    fn into_u32(&mut self) -> u32 {
         let mut v = self.value.clone();
         if v.len() < 4 {
             v.resize(4, 0);
@@ -135,9 +144,11 @@ impl Uint {
         i128::from_le_bytes(v.try_into().unwrap())
     }
 
-    pub fn truncate(&mut self, len: usize) {
+    pub fn truncate(&mut self, len: usize) -> &mut Self {
         self.value.truncate(len);
         self.value.shrink_to_fit();
+
+        self
     }
 
     pub fn sextend(&mut self, width: usize, bits: usize) -> Self {
@@ -167,6 +178,20 @@ impl Uint {
         }
     }
 
+    pub fn extend(&mut self, width: usize) -> &Self {
+        self.extend_with(width, 0)
+    }
+
+    pub fn extend_with(&mut self, width: usize, v: u8) -> &Self {
+        let value = &mut self.value;
+
+        if width / 8 > value.len() {
+            value.resize(width / 8, v);
+        }
+
+        self
+    }
+
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.value
             .iter()
@@ -194,23 +219,12 @@ impl BitAnd for Uint {
     type Output = Self;
 
     fn bitand(self, rhs: Self) -> Self::Output {
-        Self {
-            value: self
-                .value
-                .iter()
-                .zip(rhs.value.iter())
-                .map(|(x, y)| x & y)
-                .collect(),
+        match self.value.len() {
+            4 => Uint::from(u32::from(self).bitand(u32::from(rhs))),
+            8 => Uint::from(u64::from(self).bitand(u64::from(rhs))),
+            16 => Uint::from(u128::from(self).bitand(u128::from(rhs))),
+            _ => panic!("Unsupported width"),
         }
-    }
-}
-
-impl BitAndAssign for Uint {
-    fn bitand_assign(&mut self, rhs: Self) {
-        self.value
-            .iter_mut()
-            .zip(rhs.value.iter())
-            .for_each(|(x, y)| *x &= *y);
     }
 }
 
@@ -218,23 +232,12 @@ impl BitOr for Uint {
     type Output = Self;
 
     fn bitor(self, rhs: Self) -> Self::Output {
-        Self {
-            value: self
-                .value
-                .iter()
-                .zip(rhs.value.iter())
-                .map(|(x, y)| x | y)
-                .collect(),
+        match self.value.len() {
+            4 => Uint::from(u32::from(self).bitor(u32::from(rhs))),
+            8 => Uint::from(u64::from(self).bitor(u64::from(rhs))),
+            16 => Uint::from(u128::from(self).bitor(u128::from(rhs))),
+            _ => panic!("Unsupported width"),
         }
-    }
-}
-
-impl BitOrAssign for Uint {
-    fn bitor_assign(&mut self, rhs: Self) {
-        self.value
-            .iter_mut()
-            .zip(rhs.value.iter())
-            .for_each(|(x, y)| *x |= *y);
     }
 }
 
@@ -242,8 +245,11 @@ impl Not for Uint {
     type Output = Self;
 
     fn not(self) -> Self::Output {
-        Self {
-            value: self.value.iter().map(|x| !x).collect(),
+        match self.value.len() {
+            4 => Uint::from(!u32::from(self)),
+            8 => Uint::from(!u64::from(self)),
+            16 => Uint::from(!u128::from(self)),
+            _ => panic!("Unsupported width"),
         }
     }
 }
@@ -252,23 +258,12 @@ impl BitXor for Uint {
     type Output = Self;
 
     fn bitxor(self, rhs: Self) -> Self::Output {
-        Self {
-            value: self
-                .value
-                .iter()
-                .zip(rhs.value.iter())
-                .map(|(x, y)| x ^ y)
-                .collect(),
+        match self.value.len() {
+            4 => Uint::from(u32::from(self).bitxor(u32::from(rhs))),
+            8 => Uint::from(u64::from(self).bitxor(u64::from(rhs))),
+            16 => Uint::from(u128::from(self).bitxor(u128::from(rhs))),
+            _ => panic!("Unsupported width"),
         }
-    }
-}
-
-impl BitXorAssign for Uint {
-    fn bitxor_assign(&mut self, rhs: Self) {
-        self.value
-            .iter_mut()
-            .zip(rhs.value.iter())
-            .for_each(|(x, y)| *x ^= *y);
     }
 }
 
@@ -276,25 +271,39 @@ impl Add for Uint {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
-        let mut carry: u16 = 0;
-        let mut s = Vec::<u8>::clone(&self.value);
-        for i in 0..self.value.len() {
-            let sum: u16 = s[i] as u16 + rhs.value[i] as u16 + carry;
-            carry = sum & 0xff00 >> 8;
-            s[i] = sum as u8;
+        match self.value.len() {
+            4 => Uint::from(u32::from(self).wrapping_add(u32::from(rhs))),
+            8 => Uint::from(u64::from(self).wrapping_add(u64::from(rhs))),
+            16 => Uint::from(u128::from(self).wrapping_add(u128::from(rhs))),
+            _ => panic!("Unsupported width"),
         }
-
-        Uint::new(s)
     }
 }
 
-impl AddAssign for Uint {
-    fn add_assign(&mut self, rhs: Self) {
-        let mut carry: u16 = 0;
-        for i in 0..self.value.len() {
-            let sum: u16 = self.value[i] as u16 + rhs.value[i] as u16 + carry;
-            carry = sum & 0xff00 >> 8;
-            self.value[i] = sum as u8;
+impl Shl for Uint {
+    type Output = Self;
+
+    fn shl(self, rhs: Uint) -> Self::Output {
+        let shift: u32 = u32::from(rhs);
+        match self.value.len() {
+            4 => Uint::from(u32::from(self).wrapping_shl(shift)),
+            8 => Uint::from(u64::from(self).wrapping_shl(shift)),
+            16 => Uint::from(u128::from(self).wrapping_shl(shift)),
+            _ => panic!("Unsupported width"),
+        }
+    }
+}
+
+impl Shr for Uint {
+    type Output = Self;
+
+    fn shr(self, rhs: Uint) -> Self::Output {
+        let shift: u32 = u32::from(rhs);
+        match self.value.len() {
+            4 => Uint::from(i32::from(self).wrapping_shr(shift)),
+            8 => Uint::from(i64::from(self).wrapping_shr(shift)),
+            16 => Uint::from(i128::from(self).wrapping_shr(shift)),
+            _ => panic!("Unsupported width"),
         }
     }
 }
@@ -399,6 +408,12 @@ impl From<Uint> for u16 {
 
 impl From<Uint> for u32 {
     fn from(value: Uint) -> Self {
+        value.clone().into_u32()
+    }
+}
+
+impl From<&mut Uint> for u32 {
+    fn from(value: &mut Uint) -> Self {
         value.into_u32()
     }
 }
@@ -409,9 +424,21 @@ impl From<Uint> for u64 {
     }
 }
 
+impl From<&mut Uint> for u64 {
+    fn from(value: &mut Uint) -> Self {
+        value.clone().into_u64()
+    }
+}
+
 impl From<Uint> for u128 {
     fn from(value: Uint) -> Self {
         value.into_u128()
+    }
+}
+
+impl From<&mut Uint> for u128 {
+    fn from(value: &mut Uint) -> Self {
+        value.clone().into_u128()
     }
 }
 
@@ -629,22 +656,6 @@ mod tests {
         assert_eq!(i128::from(value), 84);
 
         let value = Uint::from(255u32) + Uint::from(1u32);
-        assert_eq!(u32::from(value), 256u32);
-    }
-
-    #[test]
-    fn test_add_assign() {
-        let mut value = Uint::from(42u32);
-        let value2 = Uint::from(42u32);
-
-        value += value2;
-        assert_eq!(u32::from(value), 84);
-
-
-        let mut value = Uint::from(255u32);
-        let value2 = Uint::from(1u32);
-
-        value += value2;
         assert_eq!(u32::from(value), 256u32);
     }
 }
